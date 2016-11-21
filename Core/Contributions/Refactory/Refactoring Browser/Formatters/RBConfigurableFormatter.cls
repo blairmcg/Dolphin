@@ -19,7 +19,7 @@ Instance Variables:
 !RBConfigurableFormatter categoriesForClass!System-Compiler-Formatters! !
 !RBConfigurableFormatter methodsFor!
 
-acceptAssignmentNode: anAssignmentNode 
+acceptAssignmentNode: anAssignmentNode
 	self visitNode: anAssignmentNode variable.
 	codeStream nextPutAll: ' := '.
 	self visitNode: anAssignmentNode value!
@@ -27,78 +27,66 @@ acceptAssignmentNode: anAssignmentNode
 acceptBlockNode: aBlockNode
 	self bracketWith: '[]' around: [self formatBlock: aBlockNode]!
 
-acceptCascadeNode: aCascadeNode 
+acceptCascadeNode: aCascadeNode
 	self visitNode: aCascadeNode receiver.
 	self indentAround: 
 			[NewLineBeforeFirstCascade ifTrue: [self newLine] ifFalse: [self space].
 			aCascadeNode messages do: 
-					[:each | 
+					[:each |
 					self indentAround: 
-							[self 
+							[self
 								formatSelectorAndArguments: each
 								firstSeparator: []
-								restSeparator: ((self isMultiLineMessage: each) 
-										ifTrue: [[self newLine]]
-										ifFalse: [[self space]])]]
+								restSeparator: ((self isMultiLineMessage: each) ifTrue: [[self newLine]] ifFalse: [[self space]])]]
 				separatedBy: 
 					[codeStream nextPut: $;.
 					NewLineAfterCascade ifTrue: [self newLine] ifFalse: [self space]]]!
 
-acceptLiteralArrayNode: aRBArrayLiteralNode 
+acceptLiteralArrayNode: aRBArrayLiteralNode
 	| brackets |
 	codeStream nextPut: $#.
-	brackets := aRBArrayLiteralNode isForByteArray 
-				ifTrue: ['[]']
-				ifFalse: ['()'].
+	brackets := aRBArrayLiteralNode isForByteArray ifTrue: ['[]'] ifFalse: ['()'].
 	self bracketWith: brackets
-		around: 
-			[aRBArrayLiteralNode contents do: [:each | self visitNode: each]
-				separatedBy: [self space]]!
+		around: [aRBArrayLiteralNode contents do: [:each | self visitNode: each] separatedBy: [self space]]!
 
-acceptLiteralNode: aLiteralNode 
-	self writeString: (aLiteralNode token formattedFrom: originalSource).!
+acceptLiteralNode: aLiteralNode
+	self writeString: (aLiteralNode token formattedFrom: originalSource)!
 
-acceptMessageNode: aMessageNode 
+acceptMessageNode: aMessageNode
 	self visitNode: aMessageNode receiver.
 	self formatSelectorAndArguments: aMessageNode!
 
 acceptOptimizedNode: anOptimizedNode
 	codeStream nextPutAll: '##'.
-	self 
-		bracketWith: '()' 
-		around: [self indentAround: [self visitNode: anOptimizedNode body]]!
+	self bracketWith: '()' around: [self indentAround: [self visitNode: anOptimizedNode body]]!
 
-acceptPatternBlockNode: aRBPatternBlockNode 
+acceptPatternBlockNode: aRBPatternBlockNode
 	codeStream nextPut: $`.
-	self 
-		bracketWith: '{}' 
-		around: [self formatBlock: aRBPatternBlockNode]!
+	self bracketWith: '{}' around: [self formatBlock: aRBPatternBlockNode]!
 
-acceptReturnNode: aReturnNode 
+acceptReturnNode: aReturnNode
 	codeStream
 		nextPut: $^;
 		nextPutAll: StringFollowingReturn.
 	self visitNode: aReturnNode value!
 
-acceptSequenceNode: aSequenceNode 
+acceptSequenceNode: aSequenceNode
 	self formatTemporariesFor: aSequenceNode.
 	#rbFix.	"Dolphin's primitive tags follow the temp definitions"
-	self tagBeforeTemporaries 
+	self tagBeforeTemporaries
 		ifFalse: 
-			[aSequenceNode parent 
-				ifNotNil: [:parent | parent isMethod ifTrue: [self formatTagFor: parent]]].
+			[aSequenceNode parent ifNotNil: [:parent | parent isMethod ifTrue: [self formatTagFor: parent]]].
 	self formatSequenceCommentsFor: aSequenceNode.
 	self formatSequenceNodeStatementsFor: aSequenceNode!
 
-addNewLinesBeforeStatementStartingAt: anInteger 
+addNewLinesBeforeStatementStartingAt: anInteger
 	| newLines |
-	newLines := MinimumNewLinesBetweenStatements 
-				max: (RetainBlankLinesBetweenStatements 
+	newLines := MinimumNewLinesBetweenStatements max: (RetainBlankLinesBetweenStatements
 						ifTrue: [self newLinesBeforeStartingAt: anInteger]
 						ifFalse: [0]).
 	newLines = 0 ifTrue: [self space] ifFalse: [self newLines: newLines]!
 
-bracketWith: bracketString around: aBlock 
+bracketWith: bracketString around: aBlock
 	bracketString isEmpty ifTrue: [^aBlock value].
 	codeStream nextPut: bracketString first.
 	^aBlock ensure: [codeStream nextPut: bracketString last]!
@@ -106,29 +94,30 @@ bracketWith: bracketString around: aBlock
 currentLineLength
 	^codeStream position - lineStart!
 
-format: aParseTree 
+format: aParseTree
 	originalSource := aParseTree source.
 	^super format: aParseTree!
 
-formatBinaryMessage: aMessageNode 
+formatBinaryMessage: aMessageNode
 	self space.
 	codeStream nextPutAll: aMessageNode selector.
 	self space.
 	self visitNode: aMessageNode arguments first!
 
 formatBlock: aBlockNode
-	(LineUpBlockBrackets and: [self willBeMultiline: aBlockNode body]) ifTrue:
-			[self newLine] ifFalse: [codeStream nextPutAll: StringInsideBlocks].
+	(LineUpBlockBrackets and: [self willBeMultiline: aBlockNode body])
+		ifTrue: [self newLine]
+		ifFalse: [codeStream nextPutAll: StringInsideBlocks].
 	self formatBlockArgumentsFor: aBlockNode.
 	self visitNode: aBlockNode body.
-	^(LineUpBlockBrackets and: [self willBeMultiline: aBlockNode body]) ifTrue:
-			[self newLine] ifFalse: [codeStream nextPutAll: StringInsideBlocks]!
+	^(LineUpBlockBrackets and: [self willBeMultiline: aBlockNode body])
+		ifTrue: [self newLine]
+		ifFalse: [codeStream nextPutAll: StringInsideBlocks]!
 
 formatBlockArgumentsFor: aBlockNode
 	aBlockNode arguments isEmpty ifTrue: [^self].
-	aBlockNode arguments
-		do:
-			[:each | 
+	aBlockNode arguments do: 
+			[:each |
 			codeStream nextPut: $:.
 			self visitNode: each.
 			FormatCommentWithStatements ifTrue: [self formatCommentsFor: each].
@@ -136,15 +125,15 @@ formatBlockArgumentsFor: aBlockNode
 	codeStream nextPutAll: '| '.
 	(self willBeMultiline: aBlockNode body) ifTrue: [self newLine]!
 
-formatCommentsFor: aNode 
+formatCommentsFor: aNode
 	originalSource isNil ifTrue: [^self].
 	aNode comments do: 
-			[:each | 
+			[:each |
 			codeStream
 				space;
 				nextPutAll: (originalSource copyFrom: each first to: each last)]!
 
-formatMethodBodyFor: aMethodNode 
+formatMethodBodyFor: aMethodNode
 	self indentAround: 
 			[self newLines: NewLinesAfterMethodPattern.
 			self formatMethodCommentFor: aMethodNode.
@@ -154,19 +143,13 @@ formatMethodBodyFor: aMethodNode
 
 formatMethodCommentFor: aMethodNode
 	originalSource isNil ifTrue: [^self].
-	(FormatCommentWithStatements
-		ifTrue: [aMethodNode methodComments]
-		ifFalse: [aMethodNode comments])
-		do:
-			[:each | 
-			codeStream
-				nextPutAll:
-					(originalSource
-						copyFrom: each first
-						to: each last).
+	(FormatCommentWithStatements ifTrue: [aMethodNode methodComments] ifFalse: [aMethodNode comments])
+		do: 
+			[:each |
+			codeStream nextPutAll: (originalSource copyFrom: each first to: each last).
 			self newLines: NewLinesAfterMethodComment]!
 
-formatMethodPatternFor: aMethodNode 
+formatMethodPatternFor: aMethodNode
 	aMethodNode arguments isEmpty
 		ifTrue: [codeStream nextPutAll: aMethodNode selector]
 		ifFalse: 
@@ -174,146 +157,120 @@ formatMethodPatternFor: aMethodNode
 				with: aMethodNode selectorParts
 				and: aMethodNode arguments
 				do: 
-					[:key :arg | 
+					[:key :arg |
 					codeStream nextPutAll: key value.
 					self space.
 					self visitNode: arg]
-				separatedBy: 
-					[MethodSignatureOnMultipleLines
-						ifTrue: [self newLine]
-						ifFalse: [self space]]]!
+				separatedBy: [MethodSignatureOnMultipleLines ifTrue: [self newLine] ifFalse: [self space]]]!
 
-formatSelectorAndArguments: aMessageNode 
+formatSelectorAndArguments: aMessageNode
 	| newLineBetweenArguments |
 	newLineBetweenArguments := self isMultiLineMessage: aMessageNode.
 	self indent: IndentsForKeywords
 		around: 
-			[self 
+			[self
 				formatSelectorAndArguments: aMessageNode
-				firstSeparator: (newLineBetweenArguments & NewLineBeforeFirstKeyword 
+				firstSeparator: (newLineBetweenArguments & NewLineBeforeFirstKeyword
 						ifTrue: [[self newLine]]
 						ifFalse: [[self space]])
-				restSeparator: (newLineBetweenArguments 
-						ifTrue: [[self newLine]]
-						ifFalse: [[self space]])]!
+				restSeparator: (newLineBetweenArguments ifTrue: [[self newLine]] ifFalse: [[self space]])]!
 
-formatSelectorAndArguments: aMessageNode firstSeparator: firstBlock restSeparator: restBlock 
+formatSelectorAndArguments: aMessageNode firstSeparator: firstBlock restSeparator: restBlock
 	| separatorBlock |
 	separatorBlock := firstBlock.
-	aMessageNode isUnary 
+	aMessageNode isUnary
 		ifTrue: 
-			[(self isLineTooLong: aMessageNode selector) 
-				ifTrue: [self newLine]
-				ifFalse: [separatorBlock value].
+			[(self isLineTooLong: aMessageNode selector) ifTrue: [self newLine] ifFalse: [separatorBlock value].
 			codeStream nextPutAll: aMessageNode selector]
 		ifFalse: 
 			[aMessageNode selectorParts with: aMessageNode arguments
 				do: 
-					[:selector :argument | 
-					(self isLineTooLong: selector value) 
-						ifTrue: [self newLine]
-						ifFalse: [separatorBlock value].
+					[:selector :argument |
+					(self isLineTooLong: selector value) ifTrue: [self newLine] ifFalse: [separatorBlock value].
 					separatorBlock := restBlock.
 					self indentAround: 
 							[codeStream nextPutAll: selector value.
-							((self willBeMultiline: argument) 
-								or: [self isLineTooLong: (self formattedSourceFor: argument)]) 
-									ifTrue: [self newLine]
-									ifFalse: [self space].
+							((self willBeMultiline: argument) or: [self isLineTooLong: (self formattedSourceFor: argument)])
+								ifTrue: [self newLine]
+								ifFalse: [self space].
 							self visitNode: argument]]]!
 
 formatSequenceCommentsFor: aSequenceNode
 	originalSource isNil ifTrue: [^self].
-	aSequenceNode comments
-		do:
-			[:each | 
-			codeStream
-				nextPutAll:
-					(originalSource
-						copyFrom: each first
-						to: each last).
+	aSequenceNode comments do: 
+			[:each |
+			codeStream nextPutAll: (originalSource copyFrom: each first to: each last).
 			self newLine]!
 
-formatSequenceNodeStatementsFor: aSequenceNode 
+formatSequenceNodeStatementsFor: aSequenceNode
 	| statements |
 	statements := aSequenceNode statements.
 	statements isEmpty ifTrue: [^self].
 	1 to: statements size
 		do: 
-			[:i | 
+			[:i |
 			self visitNode: (statements at: i).
 			(i < statements size or: 
-					[aSequenceNode parent 
+					[aSequenceNode parent
 						ifNil: [self class periodsAsTerminators]
 						ifNotNil: 
-							[:parent | 
-							parent isBlock 
-								ifTrue: [self class periodsAtEndOfBlock]
-								ifFalse: [self class periodsAtEndOfMethod]]]) 
+							[:parent |
+							parent isBlock ifTrue: [self class periodsAtEndOfBlock] ifFalse: [self class periodsAtEndOfMethod]]])
 				ifTrue: [codeStream nextPut: $.].
 			self formatStatementCommentsFor: (statements at: i).
-			i < statements size 
+			i < statements size
 				ifTrue: [self addNewLinesBeforeStatementStartingAt: (statements at: i + 1) start]]!
 
 formatStatementCommentsFor: aStatementNode
 	originalSource isNil ifTrue: [^self].
 	FormatCommentWithStatements ifFalse: [^self].
-	aStatementNode statementComments
-		do:
-			[:each | 
+	aStatementNode statementComments do: 
+			[:each |
 			codeStream
 				tab;
-				nextPutAll:
-						(originalSource
-								copyFrom: each first
-								to: each last)]!
+				nextPutAll: (originalSource copyFrom: each first to: each last)]!
 
-formattedSourceFor: aNode 
-	^lookaheadCode at: aNode
-		ifAbsentPut: [self class format: aNode withIndents: indent]!
+formattedSourceFor: aNode
+	^lookaheadCode at: aNode ifAbsentPut: [self class format: aNode withIndents: indent]!
 
 formatTemporariesFor: aSequenceNode
 	aSequenceNode temporaries isEmpty ifTrue: [^self].
-	self
-		bracketWith: '|'
-		around:
+	self bracketWith: '|'
+		around: 
 			[self space.
-			aSequenceNode temporaries
-				do:
-					[:each | 
+			aSequenceNode temporaries do: 
+					[:each |
 					self visitNode: each.
 					FormatCommentWithStatements ifTrue: [self formatCommentsFor: each].
 					self space]].
 	self newLines: NewLinesAfterTemporaries!
 
-indentAround: aBlock 
+indentAround: aBlock
 	self indent: 1 around: aBlock!
 
 initialize
 	super initialize.
 	lookaheadCode := IdentityDictionary new!
 
-isLineTooLong: aString 
+isLineTooLong: aString
 	^self currentLineLength + aString size >= MaxLineLength!
 
-isMultilineBlock: aBlockNode 
+isMultilineBlock: aBlockNode
 	^aBlockNode isBlock and: [self willBeMultiline: aBlockNode]!
 
-isMultiLineMessage: aMessageNode 
+isMultiLineMessage: aMessageNode
 	| messageStream |
-	aMessageNode arguments size >= NumberOfArgumentsForMultiLine 
-		ifTrue: [^true].
-	(aMessageNode arguments anySatisfy: 
-			[:each | 
-			self indent: IndentsForKeywords + 1 around: [self willBeMultiline: each]]) 
-		ifTrue: [^true].
+	aMessageNode arguments size >= NumberOfArgumentsForMultiLine ifTrue: [^true].
+	(aMessageNode arguments
+		anySatisfy: [:each | self indent: IndentsForKeywords + 1 around: [self willBeMultiline: each]])
+			ifTrue: [^true].
 	aMessageNode isUnary ifTrue: [^self isLineTooLong: aMessageNode selector].
 	messageStream := WriteStream on: (String new: 100).
-	self 
+	self
 		with: aMessageNode selectorParts
 		and: aMessageNode arguments
 		do: 
-			[:sel :arg | 
+			[:sel :arg |
 			messageStream
 				nextPutAll: sel value;
 				space;
@@ -321,42 +278,41 @@ isMultiLineMessage: aMessageNode
 		separatedBy: [messageStream space].
 	^self isLineTooLong: messageStream contents!
 
-needsParenthesisFor: aNode 
+needsParenthesisFor: aNode
 	| parent |
 	parent := aNode parent.
 	(parent isNil or: [parent isMessage not]) ifTrue: [^false].
-	(aNode isMessage and: [parent isMessage and: [parent receiver == aNode]]) 
+	(aNode isMessage and: [parent isMessage and: [parent receiver == aNode]])
 		ifTrue: 
 			[| grandparent |
 			grandparent := parent parent.
 			(grandparent notNil and: [grandparent isCascade]) ifTrue: [^true]].
 	aNode precedence < parent precedence ifTrue: [^false].
 	(parent receiver ~~ aNode and: [aNode precedence >= parent precedence]) ifTrue: [^true].
-	(parent receiver == aNode 
-		and: [aNode precedence > parent precedence or: [aNode isKeyword]]) ifTrue: [^true].
+	(parent receiver == aNode and: [aNode precedence > parent precedence or: [aNode isKeyword]])
+		ifTrue: [^true].
 	aNode isBinary ifFalse: [^false].
-	^UseTraditionalBinaryPrecedenceForParentheses 
+	^UseTraditionalBinaryPrecedenceForParentheses
 		and: [self precedenceOf: parent selector greaterThan: aNode selector]!
 
 newLine
 	self newLines: 1!
 
-newLines: anInteger 
+newLines: anInteger
 	anInteger + IndentString size = 0 ifTrue: [codeStream space].
 	anInteger timesRepeat: [codeStream cr].
 	lineStart := codeStream position.
 	indent timesRepeat: [codeStream nextPutAll: IndentString]!
 
-newLinesBeforeStartingAt: anIndex 
+newLinesBeforeStartingAt: anIndex
 	| count cr lf index char |
 	(anIndex isNil or: [anIndex > originalSource size]) ifTrue: [^0].
 	cr := Character value: 13.
 	lf := Character value: 10.
 	count := 0.
 	index := anIndex - 1.
-	[index > 0 and: [(char := originalSource at: index) isSeparator]] 
-		whileTrue: 
-			[char == lf 
+	[index > 0 and: [(char := originalSource at: index) isSeparator]] whileTrue: 
+			[char == lf
 				ifTrue: 
 					[count := count + 1.
 					(originalSource at: (index - 1 max: 1)) == cr ifTrue: [index := index - 1]].
@@ -364,7 +320,7 @@ newLinesBeforeStartingAt: anIndex
 			index := index - 1].
 	^count!
 
-precedenceOf: parentSelector greaterThan: childSelector 
+precedenceOf: parentSelector greaterThan: childSelector
 	"Put parenthesis around things that are perceived to have 'lower' precedence. For example, 'a + b * c' 
 	-> '(a + b) * c' but 'a * b + c' -> 'a * b + c'"
 
@@ -373,54 +329,40 @@ precedenceOf: parentSelector greaterThan: childSelector
 	parentIndex := 0.
 	1 to: TraditionalBinaryPrecedence size
 		do: 
-			[:i | 
-			((TraditionalBinaryPrecedence at: i) includes: parentSelector first) 
-				ifTrue: [parentIndex := i].
-			((TraditionalBinaryPrecedence at: i) includes: childSelector first) 
-				ifTrue: [childIndex := i]].
+			[:i |
+			((TraditionalBinaryPrecedence at: i) includes: parentSelector first) ifTrue: [parentIndex := i].
+			((TraditionalBinaryPrecedence at: i) includes: childSelector first) ifTrue: [childIndex := i]].
 	^childIndex < parentIndex!
 
 visitNode: aNode
 	| needsParenthesis |
-	(lookaheadCode includesKey: aNode)
-		ifTrue: [^self writeString: (lookaheadCode at: aNode)].
+	(lookaheadCode includesKey: aNode) ifTrue: [^self writeString: (lookaheadCode at: aNode)].
 	needsParenthesis := self needsParenthesisFor: aNode.
-	self
-		bracketWith:
-			(needsParenthesis
-				ifTrue: ['()']
-				ifFalse: [''])
-		around:
+	self bracketWith: (needsParenthesis ifTrue: ['()'] ifFalse: [''])
+		around: 
 			[needsParenthesis ifTrue: [codeStream nextPutAll: StringInsideParentheses].
 			super visitNode: aNode.
 			(FormatCommentWithStatements or: [aNode isMethod or: [aNode isSequence]])
 				ifFalse: [self formatCommentsFor: aNode].
-			needsParenthesis
-				ifTrue: [codeStream nextPutAll: StringInsideParentheses]]!
+			needsParenthesis ifTrue: [codeStream nextPutAll: StringInsideParentheses]]!
 
-willBeMultiline: aNode 
+willBeMultiline: aNode
 	^(self formattedSourceFor: aNode) includes: Character cr!
 
-with: firstCollection and: secondCollection do: aBlock separatedBy: separatorBlock 
+with: firstCollection and: secondCollection do: aBlock separatedBy: separatorBlock
 	firstCollection isEmpty ifTrue: [^self].
-	aBlock
-		value: firstCollection first
-		value: secondCollection first.
-	2
-		to: firstCollection size
+	aBlock value: firstCollection first value: secondCollection first.
+	2 to: firstCollection size
 		do: 
-			[:i | 
+			[:i |
 			separatorBlock value.
-			aBlock
-				value: (firstCollection at: i)
-				value: (secondCollection at: i)]!
+			aBlock value: (firstCollection at: i) value: (secondCollection at: i)]!
 
-writeString: aString 
+writeString: aString
 	| index |
 	index := aString lastIndexOf: Character cr ifAbsent: [0].
 	codeStream nextPutAll: aString.
-	index > 0 
-		ifTrue: [lineStart := codeStream position - (aString size - index)]! !
+	index > 0 ifTrue: [lineStart := codeStream position - (aString size - index)]! !
 !RBConfigurableFormatter categoriesFor: #acceptAssignmentNode:!public!visitor/double dispatching! !
 !RBConfigurableFormatter categoriesFor: #acceptBlockNode:!public!visitor/double dispatching! !
 !RBConfigurableFormatter categoriesFor: #acceptCascadeNode:!public!visitor/double dispatching! !
@@ -466,10 +408,10 @@ writeString: aString
 
 !RBConfigurableFormatter class methodsFor!
 
-format: aParseTree 
+format: aParseTree
 	^self format: aParseTree withIndents: 0!
 
-format: aParseTree withIndents: anInteger 
+format: aParseTree withIndents: anInteger
 	^(self new)
 		indent: anInteger;
 		format: aParseTree!
@@ -477,7 +419,7 @@ format: aParseTree withIndents: anInteger
 formatCommentWithStatements
 	^FormatCommentWithStatements!
 
-formatCommentWithStatements: aBoolean 
+formatCommentWithStatements: aBoolean
 	FormatCommentWithStatements := aBoolean!
 
 indentsForKeywords
@@ -505,7 +447,7 @@ initialize
 	MinimumNewLinesBetweenStatements := 1.
 	NewLineAfterCascade := true.
 	NewLineBeforeFirstCascade := true.
-	NewLineBeforeFirstKeyword := true.	
+	NewLineBeforeFirstKeyword := true.
 
 	"One blank line after method comment"
 	NewLinesAfterMethodComment := 2.
@@ -535,7 +477,7 @@ methodSignatureOnMultipleLines: aBoolean
 minimumNewLinesBetweenStatements
 	^MinimumNewLinesBetweenStatements!
 
-minimumNewLinesBetweenStatements: anInteger 
+minimumNewLinesBetweenStatements: anInteger
 	MinimumNewLinesBetweenStatements := anInteger!
 
 newLineAfterCascade
@@ -557,10 +499,10 @@ newLineBeforeFirstKeyword: aBoolean
 	NewLineBeforeFirstKeyword := aBoolean!
 
 newLinesAfterMethodComment
-	 ^NewLinesAfterMethodComment!
+	^NewLinesAfterMethodComment!
 
 newLinesAfterMethodComment: anInteger
-	 NewLinesAfterMethodComment := anInteger.!
+	NewLinesAfterMethodComment := anInteger!
 
 newLinesAfterMethodPattern
 	^NewLinesAfterMethodPattern!
@@ -583,14 +525,14 @@ numberOfArgumentsForMultiLine: anInteger
 periodsAsTerminators
 	^PeriodsAtEndOfBlock and: [PeriodsAtEndOfMethod]!
 
-periodsAsTerminators: aBoolean 
+periodsAsTerminators: aBoolean
 	PeriodsAtEndOfBlock := aBoolean.
 	PeriodsAtEndOfMethod := aBoolean!
 
 periodsAtEndOfBlock
 	^PeriodsAtEndOfBlock!
 
-periodsAtEndOfBlock: aBoolean 
+periodsAtEndOfBlock: aBoolean
 	PeriodsAtEndOfBlock := aBoolean!
 
 retainBlankLinesBetweenStatements
@@ -608,13 +550,13 @@ stringFollowingReturn: aString
 stringInsideBlocks
 	^StringInsideBlocks!
 
-stringInsideBlocks: aString 
+stringInsideBlocks: aString
 	StringInsideBlocks := aString!
 
 stringInsideParentheses
 	^StringInsideParentheses!
 
-stringInsideParentheses: aString 
+stringInsideParentheses: aString
 	StringInsideParentheses := aString!
 
 traditionalBinaryPrecedence
@@ -626,7 +568,7 @@ traditionalBinaryPrecedence: anArray
 useTraditionalBinaryPrecedenceForParentheses
 	^UseTraditionalBinaryPrecedenceForParentheses!
 
-useTraditionalBinaryPrecedenceForParentheses: aBoolean 
+useTraditionalBinaryPrecedenceForParentheses: aBoolean
 	UseTraditionalBinaryPrecedenceForParentheses := aBoolean! !
 !RBConfigurableFormatter class categoriesFor: #format:!public!public interface! !
 !RBConfigurableFormatter class categoriesFor: #format:withIndents:!public!public interface! !
