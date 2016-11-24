@@ -1954,11 +1954,15 @@ recordMethodVisit
 		ifFalse: [history current: method]!
 
 reformatAll
-	(MessageBox 
-		confirm: 'Are you sure you want to reformat all methods in the currently selected class?<n><n>(The operation is undoable)' 
-				expandMacros) 
-			ifFalse: [^self].
-	self model reformatAllMethodsIn: classesPresenter selectionEnvironment!
+	| preview |
+	preview := Keyboard default isShiftDown.
+	preview
+		ifFalse: 
+			[(MessageBox
+				confirm: 'Are you sure you want to reformat all methods in the currently selected class?<n><n>(The operation is undoable)'
+						expandMacros)
+					ifFalse: [^self]].
+	self model reformatAllMethodsIn: classesPresenter selectionEnvironment preview: preview!
 
 removeMethod: aCompiledMethod fromCategory: aMethodCategory 
 	"Private - Remove the <CompiledMethod>, method, from the <MethodCategory>,

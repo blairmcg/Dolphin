@@ -157,6 +157,7 @@ package methodNames
 	add: #PackageSelector -> #moveAllTempsToInnerScope;
 	add: #PackageSelector -> #queryRefactoringCommand:;
 	add: #PackageSelector -> #removeDuplicateMethods;
+	add: #ProfessionalSmalltalkSystem -> #reformatAllMethodsIn:preview:;
 	add: #PullUpClassVariableRefactoring -> #displayOn:;
 	add: #PullUpInstanceVariableRefactoring -> #displayOn:;
 	add: #PushDownMethodRefactoring -> #displayOn:;
@@ -175,6 +176,7 @@ package methodNames
 	add: #RenameInstanceVariableRefactoring -> #displayOn:;
 	add: #RenameMethodRefactoring -> #displayOn:;
 	add: #RenameTemporaryRefactoring -> #displayOn:;
+	add: #SmalltalkSystem -> #buildChangeToReformatAllMethodsIn:;
 	add: #SmalltalkToolShell -> #chooseMethodForRefactoring:;
 	add: #SmalltalkToolShell -> #queryRefactoringCommand:;
 	add: #TemporaryToInstanceVariableRefactoring -> #displayOn:;
@@ -1487,7 +1489,7 @@ getOptionVariableTypes: choicesCollection selected: suggestionsCollection
 		newBlock: 
 				[:aString | 
 				| global index |
-				index := aString identityIndexOf: $ .
+				index := aString identityIndexOf: $\x20.
 				global := index == 0 
 							ifTrue: [Smalltalk at: aString ifAbsent: []]
 							ifFalse: 
@@ -1748,6 +1750,16 @@ removeDuplicateMethods
 !PackageSelector categoriesFor: #moveAllTempsToInnerScope!commands!private!refactoring! !
 !PackageSelector categoriesFor: #queryRefactoringCommand:!commands!private!refactoring! !
 !PackageSelector categoriesFor: #removeDuplicateMethods!development!private! !
+
+!ProfessionalSmalltalkSystem methodsFor!
+
+reformatAllMethodsIn: aBrowserEnvironment preview: aBoolean
+	| changes |
+	changes := self buildChangeToReformatAllMethodsIn: aBrowserEnvironment.
+	aBoolean
+		ifTrue: [RewriteChangesBrowser showOn: changes]
+		ifFalse: [self changeManager performChange: changes]! !
+!ProfessionalSmalltalkSystem categoriesFor: #reformatAllMethodsIn:preview:!commands!private! !
 
 !ProtectInstanceVariableRefactoring class methodsFor!
 
@@ -2073,6 +2085,23 @@ newWithCachingContext
 		context: SmalllintCachingContext new;
 		yourself! !
 !SmalllintChecker class categoriesFor: #newWithCachingContext!instance creation!public! !
+
+!SmalltalkSystem methodsFor!
+
+buildChangeToReformatAllMethodsIn: aBrowserEnvironment
+	| changes |
+	changes := CompositeRefactoryChange new.
+	changes name: ('Reformat <1d>' expandMacrosWith: aBrowserEnvironment).
+	aBrowserEnvironment methodsDo: 
+			[:each |
+			(SmalltalkParser parseExistingMethodNoError: each)
+				ifNotNil: 
+					[:tree |
+					| reformatted |
+					reformatted := tree formattedCode.
+					reformatted = each getSource ifFalse: [changes compile: reformatted in: each methodClass]]].
+	^changes! !
+!SmalltalkSystem categoriesFor: #buildChangeToReformatAllMethodsIn:!commands!private! !
 
 !SmalltalkToolShell methodsFor!
 

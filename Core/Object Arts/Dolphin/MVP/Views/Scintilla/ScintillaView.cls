@@ -825,7 +825,7 @@ buildItemList: aCollection withIcons: aBoolean
 				ifTrue: 
 					[itemList
 						nextPut: typesep;
-						display: (self imageIndexForIcon: each icon)].
+						print: (self imageIndexForIcon: each icon)].
 			itemList nextPut: sep].
 	^itemList
 		pop;
@@ -1537,7 +1537,7 @@ defaultWhitespaceChars
 	"Answer a <String> containing the <Character>s that Scintilla considers to be whitespace by
 	default."
 
-	^Character byteCharacterSet select: [:each | each codePoint < 16r20 or: [each == $ ]]!
+	^Character byteCharacterSet select: [:each | each codePoint <= $\x20]!
 
 defaultWindowStyle
 	"Private - Answer a default style to use when creating a ScintillaView."
@@ -4836,6 +4836,7 @@ rgbaBitsFromBitmap: aDIBSection
 	ext := aDIBSection extent.
 	count := ext x * ext y * 4.
 	bgra := aDIBSection imageBits.
+	self assert: [aDIBSection depth == 32].
 	rgba := ByteArray newFixed: count.
 	1 to: count
 		by: 4

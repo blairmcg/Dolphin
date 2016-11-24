@@ -3165,14 +3165,9 @@ referencesToVariable: anAssociation in: aBrowserEnvironment
 		addSearchString: anAssociation key.
 	^matched!
 
-reformatAllMethodsIn: aBrowserEnvironment 
+reformatAllMethodsIn: aBrowserEnvironment preview: aBoolean
 	| changes |
-	changes := CompositeRefactoryChange new.
-	changes name: ('Reformat <1d>' expandMacrosWith: aBrowserEnvironment).
-	aBrowserEnvironment methodsDo: 
-			[:each | 
-			(SmalltalkParser parseExistingMethodNoError: each) 
-				ifNotNil: [:tree | changes compile: tree formattedCode in: each methodClass]].
+	changes := self buildChangeToReformatAllMethodsIn: aBrowserEnvironment.
 	self changeManager performChange: changes!
 
 reformatSource: aString in: aClass 
@@ -4207,7 +4202,7 @@ wrapText: aString toWidth: max indent: colInteger tabWidth: tabInteger
 !SmalltalkSystem categoriesFor: #referencesToClassVar:inHierarchyOf:within:!browsing!private! !
 !SmalltalkSystem categoriesFor: #referencesToLiteral:in:!browsing!public! !
 !SmalltalkSystem categoriesFor: #referencesToVariable:in:!enquiries!private! !
-!SmalltalkSystem categoriesFor: #reformatAllMethodsIn:!commands!private! !
+!SmalltalkSystem categoriesFor: #reformatAllMethodsIn:preview:!commands!private! !
 !SmalltalkSystem categoriesFor: #reformatSource:in:!commands!private! !
 !SmalltalkSystem categoriesFor: #registerSystemEvents!initializing!private! !
 !SmalltalkSystem categoriesFor: #registerTool:!accessing!public! !

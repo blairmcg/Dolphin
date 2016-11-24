@@ -11,20 +11,21 @@ RBFormatter comment: 'RBFormatter is an <StParseNodeVisitor> for pretty printing
 !RBFormatter categoriesForClass!System-Compiler-Formatters! !
 !RBFormatter methodsFor!
 
-acceptAssignmentNode: anAssignmentNode
-	self indent: 2
-		around: 
-			[self visitNode: anAssignmentNode variable.
-			codeStream nextPutAll: ' := '.
-			self visitNode: anAssignmentNode value]!
+firstLineLength
+	^firstLineLength isNil ifTrue: [codeStream position] ifFalse: [firstLineLength]!
 
-acceptBlockNode: aBlockNode
-	self
-		acceptBlockNode: aBlockNode
-		startBlockString: '['
-		endBlockString: ']'!
+for: aValue do: doBlock separatedBy: separatorBlock
+	"This is implemented here since IBM Smalltalk doesn't implement a do:separatedBy: method"
 
-acceptBlockNode: aBlockNode startBlockString: startBlockString endBlockString: endBlockString
+	aValue isEmpty ifTrue: [^self].
+	1 to: aValue size - 1
+		do: 
+			[:i |
+			doBlock value: (aValue at: i).
+			separatorBlock value].
+	doBlock value: aValue last!
+
+formatBlockNode: aBlockNode startBlockString: startBlockString endBlockString: endBlockString
 	| seqNode multiline formattedBody formatter |
 	seqNode := aBlockNode body.
 	formatter := (self copy)
@@ -46,79 +47,6 @@ acceptBlockNode: aBlockNode startBlockString: startBlockString endBlockString: e
 	codeStream
 		nextPutAll: formattedBody;
 		nextPutAll: endBlockString!
-
-acceptCascadeNode: aCascadeNode
-	| messages |
-	messages := aCascadeNode messages.
-	self visitNode: messages first receiver.
-	self indentWhile: 
-			[self
-				for: messages
-				do: 
-					[:each |
-					self
-						newLine;
-						indentWhile: [self formatMessage: each cascade: true]]
-				separatedBy: [codeStream nextPut: $;]]!
-
-acceptLiteralArrayNode: aRBArrayLiteralNode
-	codeStream nextPutAll: (aRBArrayLiteralNode isForByteArray ifTrue: ['#['] ifFalse: ['#(']).
-	self
-		for: aRBArrayLiteralNode contents
-		do: [:each | self visitNode: each]
-		separatedBy: [self space].
-	codeStream nextPut: (aRBArrayLiteralNode isForByteArray ifTrue: [$]] ifFalse: [$)])!
-
-acceptLiteralNode: aLiteralNode
-	aLiteralNode token formatOn: codeStream source: aLiteralNode source!
-
-acceptMessageNode: aMessageNode
-	| newFormatter code |
-	newFormatter := self copy.
-	code := newFormatter format: aMessageNode receiver.
-	codeStream nextPutAll: code.
-	newFormatter isMultiLine ifTrue: [lineStart := codeStream position - newFormatter lastLineLength].
-	self indent: (newFormatter isMultiLine ifTrue: [2] ifFalse: [1])
-		around: [self formatMessage: aMessageNode cascade: false]!
-
-acceptOptimizedNode: anOptimizedNode
-	codeStream nextPutAll: '##('.
-	self visitNode: anOptimizedNode body.
-	codeStream nextPut: $)!
-
-acceptPatternBlockNode: aRBPatternBlockNode
-	self
-		acceptBlockNode: aRBPatternBlockNode
-		startBlockString: '`{'
-		endBlockString: '}'!
-
-acceptReturnNode: aReturnNode
-	codeStream nextPut: $^.
-	self visitNode: aReturnNode value!
-
-acceptSequenceNode: aSequenceNode
-	self formatMethodCommentFor: aSequenceNode indentBefore: false.
-	self formatTemporariesFor: aSequenceNode.
-	self tagBeforeTemporaries
-		ifFalse: 
-			[| parent |
-			parent := aSequenceNode parent.
-			(parent notNil and: [parent isMethod]) ifTrue: [self formatTagFor: parent]].
-	self formatStatementsFor: aSequenceNode!
-
-firstLineLength
-	^firstLineLength isNil ifTrue: [codeStream position] ifFalse: [firstLineLength]!
-
-for: aValue do: doBlock separatedBy: separatorBlock
-	"This is implemented here since IBM Smalltalk doesn't implement a do:separatedBy: method"
-
-	aValue isEmpty ifTrue: [^self].
-	1 to: aValue size - 1
-		do: 
-			[:i |
-			doBlock value: (aValue at: i).
-			separatorBlock value].
-	doBlock value: aValue last!
 
 formatMessage: aMessageNode cascade: cascadeBoolean
 	| selectorParts arguments multiLine formattedArgs indentFirst firstArgLength length |
@@ -168,10 +96,10 @@ formatMessageSelector: selectorParts withArguments: formattedArgs multiline: mul
 					(multiLine and: [i < formattedArgs size]) ifTrue: [self newLine]]]!
 
 formatMethodBodyFor: aMethodNode
-	self indentWhile: 
-			[self formatMethodCommentFor: aMethodNode indentBefore: true.
+	self indentWhile: [
+			self formatMethodCommentFor: aMethodNode indentBefore: true.
 			self newLine.
-			self tagBeforeTemporaries ifTrue: [self formatTagFor: aMethodNode].
+			self formatPragmasFor: aMethodNode.
 			self visitNode: aMethodNode body]!
 
 formatMethodCommentFor: aNode indentBefore: aBoolean
@@ -196,15 +124,13 @@ formatMethodPatternFor: aMethodNode
 	argumentCount := arguments size.
 	argumentCount isZero
 		ifTrue: [codeStream nextPutAll: selectorParts first value]
-		ifFalse: 
-			[1 to: argumentCount
-				do: 
-					[:i |
-					i > 1 ifTrue: [codeStream space].
-					codeStream
-						nextPutAll: (selectorParts at: i) value;
-						space.
-					self visitArgument: (arguments at: i)]]!
+		ifFalse: [
+			1 to: argumentCount do: [:i | 
+				i > 1 ifTrue: [codeStream space].
+				codeStream
+					nextPutAll: (selectorParts at: i) value;
+					space.
+				self visitArgumentNode: (arguments at: i)]]!
 
 formatStatementCommentFor: aNode
 	| source |
@@ -239,9 +165,8 @@ formatTemporariesFor: aSequenceNode
 	temps := aSequenceNode temporaries.
 	temps isEmpty ifTrue: [^self].
 	codeStream nextPutAll: '| '.
-	temps do: 
-			[:each |
-			self visitArgument: each.
+	temps do: [:each | 
+			self visitArgumentNode: each.
 			self space].
 	codeStream nextPut: $|.
 	self newLine!
@@ -346,28 +271,88 @@ startMessageSendOnNewLine: aMessageNode
 	#rbFix.	"Use ANSI standard #argumentCount message instead of #numArgs"
 	^aMessageNode selector argumentCount > self maximumArgumentsPerLine!
 
+visitAssignmentNode: anAssignmentNode
+	self
+		indent: 2
+		around: [
+			self visitNode: anAssignmentNode variable.
+			codeStream nextPutAll: ' := '.
+			self visitNode: anAssignmentNode value]!
+
+visitBlockNode: aBlockNode
+	self
+		formatBlockNode: aBlockNode
+		startBlockString: '['
+		endBlockString: ']'!
+
+visitCascadeNode: aCascadeNode
+	| messages |
+	messages := aCascadeNode messages.
+	self visitNode: messages first receiver.
+	self indentWhile: [
+			self
+				for: messages
+				do: [:each | 
+					self
+						newLine;
+						indentWhile: [self formatMessage: each cascade: true]]
+				separatedBy: [codeStream nextPut: $;]]!
+
+visitLiteralArrayNode: aRBArrayLiteralNode
+	codeStream nextPutAll: (aRBArrayLiteralNode isForByteArray ifTrue: ['#['] ifFalse: ['#(']).
+	self for: aRBArrayLiteralNode contents do: [:each | self visitNode: each] separatedBy: [self space].
+	codeStream nextPut: (aRBArrayLiteralNode isForByteArray ifTrue: [$]] ifFalse: [$)])!
+
+visitLiteralNode: aLiteralNode
+	aLiteralNode token formatOn: codeStream source: aLiteralNode source!
+
+visitMessageNode: aMessageNode
+	| newFormatter code |
+	newFormatter := self copy.
+	code := newFormatter format: aMessageNode receiver.
+	codeStream nextPutAll: code.
+	newFormatter isMultiLine ifTrue: [lineStart := codeStream position - newFormatter lastLineLength].
+	self indent: (newFormatter isMultiLine ifTrue: [2] ifFalse: [1])
+		around: [self formatMessage: aMessageNode cascade: false]!
+
 visitNode: aNode
 	| parenthesis |
 	parenthesis := self needsParenthesisFor: aNode.
 	parenthesis ifTrue: [codeStream nextPut: $(].
 	aNode acceptVisitor: self.
-	parenthesis ifTrue: [codeStream nextPut: $)]! !
-!RBFormatter categoriesFor: #acceptAssignmentNode:!public!visitor/double dispatching! !
-!RBFormatter categoriesFor: #acceptBlockNode:!public!visitor/double dispatching! !
-!RBFormatter categoriesFor: #acceptBlockNode:startBlockString:endBlockString:!private!visitor/double dispatching! !
-!RBFormatter categoriesFor: #acceptCascadeNode:!public!visitor/double dispatching! !
-!RBFormatter categoriesFor: #acceptLiteralArrayNode:!public!visitor/double dispatching! !
-!RBFormatter categoriesFor: #acceptLiteralNode:!public!visitor/double dispatching! !
-!RBFormatter categoriesFor: #acceptMessageNode:!public!visitor/double dispatching! !
-!RBFormatter categoriesFor: #acceptOptimizedNode:!public!visitor/double dispatching! !
-!RBFormatter categoriesFor: #acceptPatternBlockNode:!public!visitor/double dispatching! !
-!RBFormatter categoriesFor: #acceptReturnNode:!public!visitor/double dispatching! !
-!RBFormatter categoriesFor: #acceptSequenceNode:!public!visitor/double dispatching! !
+	parenthesis ifTrue: [codeStream nextPut: $)]!
+
+visitOptimizedNode: anOptimizedNode
+	codeStream nextPutAll: '##('.
+	self visitNode: anOptimizedNode body.
+	codeStream nextPut: $)!
+
+visitPatternBlockNode: aRBPatternBlockNode
+	self
+		formatBlockNode: aRBPatternBlockNode
+		startBlockString: '`{'
+		endBlockString: '}'!
+
+visitPragmaNode: aPragmaNode
+	codeStream nextPut: $<.
+	self formatMessage: aPragmaNode cascade: false.
+	codeStream nextPut: $>!
+
+visitReturnNode: aReturnNode
+	codeStream nextPut: $^.
+	self visitNode: aReturnNode value!
+
+visitSequenceNode: aSequenceNode
+	self formatMethodCommentFor: aSequenceNode indentBefore: false.
+	self formatTemporariesFor: aSequenceNode.
+	aSequenceNode parent ifNotNil: [:parent | parent isMethod ifTrue: [self formatTagFor: parent]].
+	self formatStatementsFor: aSequenceNode! !
 !RBFormatter categoriesFor: #firstLineLength!accessing!public! !
 !RBFormatter categoriesFor: #for:do:separatedBy:!enumerating!private! !
+!RBFormatter categoriesFor: #formatBlockNode:startBlockString:endBlockString:!formatting!private! !
 !RBFormatter categoriesFor: #formatMessage:cascade:!formatting!private! !
 !RBFormatter categoriesFor: #formatMessageSelector:withArguments:multiline:!formatting!private! !
-!RBFormatter categoriesFor: #formatMethodBodyFor:!private!visitor/double dispatching! !
+!RBFormatter categoriesFor: #formatMethodBodyFor:!formatting!private! !
 !RBFormatter categoriesFor: #formatMethodCommentFor:indentBefore:!formatting!private! !
 !RBFormatter categoriesFor: #formatMethodPatternFor:!formatting!private! !
 !RBFormatter categoriesFor: #formatStatementCommentFor:!formatting!private! !
@@ -388,7 +373,18 @@ visitNode: aNode
 !RBFormatter categoriesFor: #selectorsToLeaveOnLine!constants!public! !
 !RBFormatter categoriesFor: #selectorsToStartOnNewLine!constants!public! !
 !RBFormatter categoriesFor: #startMessageSendOnNewLine:!private!testing! !
+!RBFormatter categoriesFor: #visitAssignmentNode:!public!visiting! !
+!RBFormatter categoriesFor: #visitBlockNode:!public!visiting! !
+!RBFormatter categoriesFor: #visitCascadeNode:!public!visiting! !
+!RBFormatter categoriesFor: #visitLiteralArrayNode:!public!visiting! !
+!RBFormatter categoriesFor: #visitLiteralNode:!public!visiting! !
+!RBFormatter categoriesFor: #visitMessageNode:!public!visiting! !
 !RBFormatter categoriesFor: #visitNode:!public!visiting! !
+!RBFormatter categoriesFor: #visitOptimizedNode:!public!visiting! !
+!RBFormatter categoriesFor: #visitPatternBlockNode:!public!visiting! !
+!RBFormatter categoriesFor: #visitPragmaNode:!public!visiting! !
+!RBFormatter categoriesFor: #visitReturnNode:!public!visiting! !
+!RBFormatter categoriesFor: #visitSequenceNode:!public!visiting! !
 
 !RBFormatter class methodsFor!
 

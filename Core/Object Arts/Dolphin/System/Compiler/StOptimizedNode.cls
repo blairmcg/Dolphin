@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk X6.1"!
+"Filed out from Dolphin Smalltalk 7"!
 
 StValueNode subclass: #StOptimizedNode
 	instanceVariableNames: 'left right body value methodClass source'
@@ -22,8 +22,8 @@ Instance Variables:
 	self class = anObject class ifFalse: [^false].
 	^self body = anObject body!
 
-acceptVisitor: aProgramNodeVisitor 
-	^aProgramNodeVisitor acceptOptimizedNode: self!
+acceptVisitor: aProgramNodeVisitor
+	^aProgramNodeVisitor visitOptimizedNode: self!
 
 arguments
 	^#()!

@@ -3810,17 +3810,22 @@ publishedAspects
 	"Answer a <LookupTable> of the <Aspect>s published by instances of the receiver."
 
 	^(super publishedAspects)
+		add: (Aspect boolean: #cascadedMessageInsideParentheses);
 		add: (Aspect boolean: #formatCommentWithStatements);
 		add: ((Aspect integer: #indentsForKeywords)
 					isNullable: false;
 					yourself);
 		add: (Aspect string: #indentString);
+		add: (Aspect boolean: #keepBlockInMessage);
 		add: (Aspect boolean: #lineUpBlockBrackets);
 		add: ((Aspect integer: #maxLineLength)
 					isNullable: false;
 					yourself);
 		add: (Aspect boolean: #methodSignatureOnMultipleLines);
 		add: ((Aspect integer: #minimumNewLinesBetweenStatements)
+					isNullable: false;
+					yourself);
+		add: ((Aspect sequenceableCollection: #multiLineMessages)
 					isNullable: false;
 					yourself);
 		add: (Aspect boolean: #newLineAfterCascade);
@@ -3838,7 +3843,13 @@ publishedAspects
 		add: ((Aspect integer: #numberOfArgumentsForMultiLine)
 					isNullable: false;
 					yourself);
+		add: ((Aspect sequenceableCollection: #oneLineMessages)
+					isNullable: false;
+					yourself);
+		add: (Aspect boolean: #periodsAtEndOfBlock);
+		add: (Aspect boolean: #periodsAtEndOfMethod);
 		add: (Aspect boolean: #periodsAsTerminators);
+		add: (Aspect boolean: #retainBlankLinesBeforeComments);
 		add: (Aspect boolean: #retainBlankLinesBetweenStatements);
 		add: (Aspect string: #stringFollowingReturn);
 		add: (Aspect string: #stringInsideBlocks);

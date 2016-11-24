@@ -622,7 +622,7 @@ testPublishedAspectsOfInstancesOnClassSide
 		methodsDo: [:each | self assert: each methodClass isMeta]!
 
 testRefresh
-	| inspectee roots children |
+	| inspectee |
 	inspectee := 1 @ 2 corner: 3 @ 4.
 	self createInspectorOn: inspectee.
 	self assert: treePresenter view itemCount == 5.

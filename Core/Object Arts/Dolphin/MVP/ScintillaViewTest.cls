@@ -27,7 +27,12 @@ margins
 testLanguages
 	| lingos |
 	lingos := ScintillaView lexerLanguages.
-	lingos do: [:each | each notNil ifTrue: [presenter view lexer: each]]!
+	lingos do: 
+			[:each |
+			each notNil
+				ifTrue: 
+					[presenter view lexer: each.
+					self assert: each equals: presenter view lexer]]!
 
 testTokensFromTo
 	| tokens expected styler |

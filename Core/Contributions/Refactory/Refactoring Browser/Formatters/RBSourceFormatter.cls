@@ -16,43 +16,6 @@ Instance Variables:
 !RBSourceFormatter categoriesForClass!Refactory-ParseTree Matching! !
 !RBSourceFormatter methodsFor!
 
-acceptExternalArgTypeNode: anStExternalArgTypeNode
-	| typeOrdinal |
-	typeOrdinal := anStExternalArgTypeNode typeOrdinal.
-	codeStream nextPutAll: (ExternalDescriptor nameOf: typeOrdinal type: anStExternalArgTypeNode structClass).
-	anStExternalArgTypeNode indirections timesRepeat: [codeStream nextPut: $*].!
-
-acceptExternalCallNode: aStExternalCallNode 
-	codeStream nextPut: $<.
-	aStExternalCallNode isOverlapped ifTrue: [codeStream nextPutAll: 'overlap '].
-	aStExternalCallNode isVirtual ifTrue: [codeStream nextPutAll: 'virtual '].
-	codeStream
-		nextPutAll: (ExternalDescriptor nameOfConvention: aStExternalCallNode callingConvention);
-		space.
-	self visitNode: aStExternalCallNode returnType.
-	codeStream space.
-	self formatExternalCallName: aStExternalCallNode.
-	aStExternalCallNode argumentTypes do: 
-			[:each | 
-			codeStream space.
-			self visitNode: each].
-	codeStream nextPut: $>.
-	self newLine!
-
-acceptMethodNode: aMethodNode 
-	self formatMethodPatternFor: aMethodNode.
-	self formatMethodBodyFor: aMethodNode!
-
-acceptPrimitiveNode: anStPrimitiveNode 
-	codeStream
-		nextPutAll: '<primitive: ';
-		print: anStPrimitiveNode primitiveIndex;
-		nextPut: $>.
-	self newLine!
-
-acceptVariableNode: aVariableNode 
-	codeStream nextPutAll: aVariableNode name!
-
 format: aNode
 	self visitNode: aNode.
 	^codeStream contents!
@@ -70,12 +33,14 @@ formatMethodBodyFor: aMethodNode
 formatMethodPatternFor: aMethodNode 
 	^self subclassResponsibility!
 
-formatTagFor: aMethodNode 
-	#rbFix.	"The Dolphin parser is enhanced to actually parse primitives into nodes, so we must visit those nodes"
-	"aMethodNode primitiveSources do:
-			[:each | 
-			codeStream nextPutAll: each.
-			self newLine]"
+formatPragmasFor: aMethodNode
+	aMethodNode pragmas do: 
+			[:each |
+			self
+				visitNode: each;
+				newLine]!
+
+formatTagFor: aMethodNode
 	aMethodNode tag ifNotNil: [:tag | self visitNode: tag]!
 
 indent: anInteger
@@ -94,22 +59,59 @@ newLine
 	^self subclassResponsibility!
 
 space
-	codeStream space! !
-!RBSourceFormatter categoriesFor: #acceptExternalArgTypeNode:!public!visitor/double dispatching! !
-!RBSourceFormatter categoriesFor: #acceptExternalCallNode:!public!visitor/double dispatching! !
-!RBSourceFormatter categoriesFor: #acceptMethodNode:!public!visitor/double dispatching! !
-!RBSourceFormatter categoriesFor: #acceptPrimitiveNode:!public!visitor/double dispatching! !
-!RBSourceFormatter categoriesFor: #acceptVariableNode:!public!visitor/double dispatching! !
+	codeStream space!
+
+visitExternalArgTypeNode: anStExternalArgTypeNode
+	| typeOrdinal |
+	typeOrdinal := anStExternalArgTypeNode typeOrdinal.
+	codeStream nextPutAll: (ExternalDescriptor nameOf: typeOrdinal type: anStExternalArgTypeNode structClass).
+	anStExternalArgTypeNode indirections timesRepeat: [codeStream nextPut: $*]!
+
+visitExternalCallNode: aStExternalCallNode
+	codeStream nextPut: $<.
+	aStExternalCallNode isOverlapped ifTrue: [codeStream nextPutAll: 'overlap '].
+	aStExternalCallNode isVirtual ifTrue: [codeStream nextPutAll: 'virtual '].
+	codeStream
+		nextPutAll: (ExternalDescriptor nameOfConvention: aStExternalCallNode callingConvention);
+		space.
+	self visitNode: aStExternalCallNode returnType.
+	codeStream space.
+	self formatExternalCallName: aStExternalCallNode.
+	aStExternalCallNode argumentTypes do: [:each | 
+			codeStream space.
+			self visitNode: each].
+	codeStream nextPut: $>.
+	self newLine!
+
+visitMethodNode: aMethodNode
+	self formatMethodPatternFor: aMethodNode.
+	self formatMethodBodyFor: aMethodNode!
+
+visitPrimitiveNode: anStPrimitiveNode
+	codeStream
+		nextPutAll: '<primitive: ';
+		print: anStPrimitiveNode primitiveIndex;
+		nextPut: $>.
+	self newLine!
+
+visitVariableNode: aVariableNode
+	codeStream nextPutAll: aVariableNode name! !
 !RBSourceFormatter categoriesFor: #format:!operations!public! !
 !RBSourceFormatter categoriesFor: #formatExternalCallName:!formatting!private! !
 !RBSourceFormatter categoriesFor: #formatMethodBodyFor:!formatting!private! !
 !RBSourceFormatter categoriesFor: #formatMethodPatternFor:!formatting!private! !
+!RBSourceFormatter categoriesFor: #formatPragmasFor:!formatting!private! !
 !RBSourceFormatter categoriesFor: #formatTagFor:!formatting!private! !
 !RBSourceFormatter categoriesFor: #indent:!formatting!private! !
 !RBSourceFormatter categoriesFor: #indent:around:!formatting!private! !
 !RBSourceFormatter categoriesFor: #initialize!initializing!private! !
 !RBSourceFormatter categoriesFor: #newLine!formatting!private! !
 !RBSourceFormatter categoriesFor: #space!formatting!private! !
+!RBSourceFormatter categoriesFor: #visitExternalArgTypeNode:!public!visiting! !
+!RBSourceFormatter categoriesFor: #visitExternalCallNode:!public!visiting! !
+!RBSourceFormatter categoriesFor: #visitMethodNode:!public!visiting! !
+!RBSourceFormatter categoriesFor: #visitPrimitiveNode:!public!visiting! !
+!RBSourceFormatter categoriesFor: #visitVariableNode:!public!visiting! !
 
 !RBSourceFormatter class methodsFor!
 

@@ -28,8 +28,8 @@ Instance Variables:
 		do: [:i | (self arguments at: i) = (anObject arguments at: i) ifFalse: [^false]].
 	^self tag = anObject tag!
 
-acceptVisitor: aProgramNodeVisitor 
-	^aProgramNodeVisitor acceptMethodNode: self!
+acceptVisitor: aProgramNodeVisitor
+	^aProgramNodeVisitor visitMethodNode: self!
 
 actualScope
 	"Answer the actual scope in which this nodes variables will be defined."
@@ -135,6 +135,9 @@ postCopy
 	arguments := arguments collect: [:each | each copy].
 	^self!
 
+pragmas
+	^#()!
+
 printOn: aStream 
 	aStream nextPutAll: self formattedCode!
 
@@ -217,6 +220,7 @@ uses: aNode
 !StMethodNode categoriesFor: #numArgs!accessing!public! !
 !StMethodNode categoriesFor: #outer!public! !
 !StMethodNode categoriesFor: #postCopy!copying!public! !
+!StMethodNode categoriesFor: #pragmas!accessing!public! !
 !StMethodNode categoriesFor: #printOn:!printing!public! !
 !StMethodNode categoriesFor: #selector!accessing!public! !
 !StMethodNode categoriesFor: #selector:!accessing!public! !

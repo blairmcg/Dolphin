@@ -22,8 +22,11 @@ Instance Variables:
 	self class = anObject class ifFalse: [^false].
 	^self variable = anObject variable and: [self value = anObject value]!
 
-acceptVisitor: aProgramNodeVisitor 
-	^aProgramNodeVisitor acceptAssignmentNode: self!
+acceptVisitor: aProgramNodeVisitor
+	^aProgramNodeVisitor visitAssignmentNode: self!
+
+assignmentOperator
+	^':='!
 
 assignmentPosition
 	^assignment!
@@ -104,6 +107,7 @@ variable: aVariableNode value: aValueNode position: anInteger
 	assignment := anInteger! !
 !StAssignmentNode categoriesFor: #=!comparing!public! !
 !StAssignmentNode categoriesFor: #acceptVisitor:!public!visitor! !
+!StAssignmentNode categoriesFor: #assignmentOperator!converting!public! !
 !StAssignmentNode categoriesFor: #assignmentPosition!accessing!public! !
 !StAssignmentNode categoriesFor: #assigns:!public!testing! !
 !StAssignmentNode categoriesFor: #bestNodeFor:!public!querying! !

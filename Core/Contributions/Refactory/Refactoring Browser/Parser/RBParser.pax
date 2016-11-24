@@ -30,8 +30,7 @@ package classNames
 
 package methodNames
 	add: #CompileFailedMethod -> #refersToVariable:;
-	add: #RBConfigurableFormatter -> #acceptPatternWrapperBlockNode:;
-	add: #RBFormatter -> #acceptPatternWrapperBlockNode:;
+	add: #RBFormatter -> #visitPatternWrapperBlockNode:;
 	add: #StAssignmentNode -> #copyInContext:;
 	add: #StAssignmentNode -> #match:inContext:;
 	add: #StAssignmentNode -> #replaceNode:withNode:;
@@ -75,8 +74,8 @@ package methodNames
 	add: #StOptimizedNode -> #copyInContext:;
 	add: #StOptimizedNode -> #match:inContext:;
 	add: #StOptimizedNode -> #replaceNode:withNode:;
-	add: #StParseNodeVisitor -> #acceptPatternBlockNode:;
-	add: #StParseNodeVisitor -> #acceptPatternWrapperBlockNode:;
+	add: #StParseNodeVisitor -> #visitPatternBlockNode:;
+	add: #StParseNodeVisitor -> #visitPatternWrapperBlockNode:;
 	add: #StProgramNode -> #addReplacement:;
 	add: #StProgramNode -> #asReturn;
 	add: #StProgramNode -> #clearReplacements;
@@ -359,25 +358,15 @@ refersToVariable: aString
 	^searcher executeTree: self parseTree initialAnswer: false! !
 !CompileFailedMethod categoriesFor: #refersToVariable:!development!private!testing! !
 
-!RBConfigurableFormatter methodsFor!
-
-acceptPatternWrapperBlockNode: aRBPatternWrapperBlockNode
-	self visitNode: aRBPatternWrapperBlockNode wrappedNode.
-	codeStream nextPut: $`.
-	self 
-		bracketWith: '{}' 
-		around: [self formatBlock: aRBPatternWrapperBlockNode]! !
-!RBConfigurableFormatter categoriesFor: #acceptPatternWrapperBlockNode:!public!visitor/double dispatching! !
-
 !RBFormatter methodsFor!
 
-acceptPatternWrapperBlockNode: aRBPatternWrapperBlockNode 
+visitPatternWrapperBlockNode: aRBPatternWrapperBlockNode
 	self visitNode: aRBPatternWrapperBlockNode wrappedNode.
-	self 
-		acceptBlockNode: aRBPatternWrapperBlockNode
+	self
+		formatBlockNode: aRBPatternWrapperBlockNode
 		startBlockString: '`{'
 		endBlockString: '}'! !
-!RBFormatter categoriesFor: #acceptPatternWrapperBlockNode:!public!visitor/double dispatching! !
+!RBFormatter categoriesFor: #visitPatternWrapperBlockNode:!public!visiting! !
 
 !SmalltalkParser class methodsFor!
 
@@ -777,16 +766,16 @@ replaceNode: aNode withNode: anotherNode
 
 !StParseNodeVisitor methodsFor!
 
-acceptPatternBlockNode: aRBPatternBlockNode 
-	self visitArguments: aRBPatternBlockNode arguments.
+visitPatternBlockNode: aRBPatternBlockNode
+	self visitArgumentNodes: aRBPatternBlockNode arguments.
 	self visitNode: aRBPatternBlockNode body!
 
-acceptPatternWrapperBlockNode: aRBPatternWrapperBlockNode 
+visitPatternWrapperBlockNode: aRBPatternWrapperBlockNode
 	self visitNode: aRBPatternWrapperBlockNode wrappedNode.
-	self visitArguments: aRBPatternWrapperBlockNode arguments.
+	self visitArgumentNodes: aRBPatternWrapperBlockNode arguments.
 	self visitNode: aRBPatternWrapperBlockNode body! !
-!StParseNodeVisitor categoriesFor: #acceptPatternBlockNode:!public!visitor/double dispatching! !
-!StParseNodeVisitor categoriesFor: #acceptPatternWrapperBlockNode:!public!visitor/double dispatching! !
+!StParseNodeVisitor categoriesFor: #visitPatternBlockNode:!public!visiting! !
+!StParseNodeVisitor categoriesFor: #visitPatternWrapperBlockNode:!public!visiting! !
 
 !StProgramNode methodsFor!
 
