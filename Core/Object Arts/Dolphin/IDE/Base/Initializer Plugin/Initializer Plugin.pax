@@ -1,0 +1,83 @@
+| package |
+package := Package name: 'Initializer Plugin'.
+package paxVersion: 1;
+	basicComment: ''.
+
+
+package classNames
+	add: #ClassInitializerPlugin;
+	add: #ExpressionWorkspace;
+	yourself.
+
+package methodNames
+	add: #Class -> #initializer;
+	add: #Class -> #initializer:;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: (IdentitySet new
+	add: 'Development System';
+	add: '..\..\Base\Dolphin';
+	add: '..\..\MVP\Base\Dolphin MVP Base';
+	add: '..\..\System\Compiler\Smalltalk Parser';
+	yourself).
+
+package!
+
+"Class Definitions"!
+
+ClassAspectPlugin subclass: #ClassInitializerPlugin
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+MethodWorkspace subclass: #ExpressionWorkspace
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+!Class methodsFor!
+
+initializer
+	"Answer the text of the class initializer expression for the receiver."
+
+	^(self class compiledMethodAt: #initialize ifAbsent: []) 
+		ifNil: [String empty]
+		ifNotNil: 
+			[:method | 
+			| src |
+			src := method getSource readStream.
+			src
+				skipSeparators;
+				skipToAll: #initialize;
+				skipWhile: [:each | each isSeparator and: [each ~~ Character cr and: [each ~~ Character lf]]];
+				peekFor: Character cr;
+				peekFor: Character lf;
+				upToEnd]!
+
+initializer: aString 
+	"Set the class initializer for the receiver to the specified Smalltalk expression string."
+
+	| methodText |
+	methodText := String writeStream: aString size + 16.
+	methodText
+		display: #initialize;
+		cr;
+		nextPutAll: aString.
+	self class compile: methodText contents classified: 'initializing'! !
+!Class categoriesFor: #initializer!accessing!public! !
+!Class categoriesFor: #initializer:!accessing!development!public! !
+
+"End of package definition"!
+
