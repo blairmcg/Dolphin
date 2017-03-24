@@ -275,6 +275,21 @@ testTempsMapNestedFullInOptimized
 					first ifTrue: [first := false] ifFalse: [Transcript space].
 					Transcript print: each]]!
 
+testTempsMapOuterTempsIssue304
+	| env |
+	env := 0.
+	#(#foo #bar #baz) keysAndValuesDo: 
+			[:i :argOuter |
+			| env2 |
+			env2 := i.
+			false
+				ifFalse: 
+					[#(1 2 3 4 5) do: 
+							[:argInner |
+							self halt.
+							env2 := env2 + 1.
+							env := env + env2]]]!
+
 testWarningCantOptimizeLoop
 
 	1 whileTrue.
@@ -538,6 +553,7 @@ testWarnUnimplementedAbstractMethod
 !DolphinCompilerTestMethods categoriesFor: #testTempsMapInlinedReturn!public!unit tests! !
 !DolphinCompilerTestMethods categoriesFor: #testTempsMapNestedFullBlocks!public!unit tests! !
 !DolphinCompilerTestMethods categoriesFor: #testTempsMapNestedFullInOptimized!public!unit tests! !
+!DolphinCompilerTestMethods categoriesFor: #testTempsMapOuterTempsIssue304!public!unit tests! !
 !DolphinCompilerTestMethods categoriesFor: #testWarningCantOptimizeLoop!public! !
 !DolphinCompilerTestMethods categoriesFor: #testWarningReadBeforeWrittenBlockTemp!public!unit tests! !
 !DolphinCompilerTestMethods categoriesFor: #testWarningReadBeforeWrittenFullBlock!public!unit tests! !

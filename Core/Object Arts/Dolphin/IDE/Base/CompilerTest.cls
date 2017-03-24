@@ -59,13 +59,13 @@ evaluateExpression: aString
 	^Compiler evaluate: aString!
 
 findIP: anInteger inTextMap: aTextMap 
-    	"Private - Answer the index of the source map entry corresponding to the
-    	specified <integer> ip. The key of each text map entry identifies the first IP of the code generated for the range
+	"Private - Answer the index of the source map entry corresponding to the
+	specified <integer> ip. The key of each text map entry identifies the first IP of the code generated for the range
 	of source which is held as the <interval> value."
     
-    	| i size |
-    	i := 1.
-    	size := aTextMap size.
+	| i size |
+	i := 1.
+	size := aTextMap size.
 	[i < size and: [anInteger > (aTextMap at: i) key]] whileTrue: [i := i + 1].
 	^i!
 
@@ -1118,6 +1118,16 @@ testTempMaps
 	(env forClasses: (Array with: DolphinCompilerTestMethods)) | (env forMethods: specials)
 		methodsDo: [:each | self verifyTempsMapOf: each]!
 
+testTempMaps2
+	"Check that the temp maps for all the test methods are consistent with the bytecodes."
+
+	| env specials |
+	env := BrowserEnvironment new.
+	specials := OrderedCollection new.
+	"Full block nested in optimized block"
+	specials add: DolphinCompilerTestMethods >> #testTempsMapOuterTempsIssue304.
+	(env forMethods: specials) methodsDo: [:each | self verifyTempsMapOf: each]!
+
 testTempPairing
 	| prefix method pairs pair |
 	prefix := '
@@ -1404,7 +1414,7 @@ testWriteAccessor
 			self assert: (inst perform: each asSymbol) = each]!
 
 verifyTempsMapOf: aCompiledMethod
-	| dispatcher info ipRange tempsMap emptyBlock method |
+	| dispatcher info ipRange tempsMap emptyBlock method scopes parseTree textMap tempsAtIp refdTemps |
 	info := aCompiledMethod getDebugInfo.
 	"Use the recompiled method as we want to check the current compiler, not what was compiled into the image"
 	method := info method.
@@ -1412,11 +1422,15 @@ verifyTempsMapOf: aCompiledMethod
 	ipRange := 1 to: method byteCodes size.
 	tempsMap := info tempsMap.
 	self assert: tempsMap first key equals: ipRange.
+	tempsAtIp := Array new: ipRange size.
 	"All temps map entries should be for ip's that represent some subset of the method's ip's"
 	tempsMap do: 
 			[:each |
-			self assert: (each key start == 0
-						or: [(ipRange includes: each key start) and: [ipRange includes: each key stop]])].
+			| range temps |
+			range := each key.
+			temps := each value.
+			range start to: range stop do: [:i | tempsAtIp at: i put: temps]].
+	refdTemps := Array new: ipRange size.
 	dispatcher := method byteCodeDispatcher.
 	[dispatcher atEnd] whileFalse: 
 			[| ip |
@@ -1426,11 +1440,47 @@ verifyTempsMapOf: aCompiledMethod
 					TempInstrs at: instr
 						ifPresent: 
 							[:val |
-							| temps actual |
-							temps := info tempsAtIp: ip.
+							| temps actual tempInfo |
+							temps := tempsAtIp at: ip.
+							self assert: (info tempsAtIp: ip) equals: temps.
 							actual := val value: args.
-							self assert: (temps
-										anySatisfy: [:tempInfo | tempInfo second == actual key and: [tempInfo last == actual value]])]]].
+							tempInfo := temps detect: [:ti | ti second == actual key and: [ti last == actual value]]
+										ifNone: [self fail: 'No temps map entry found'].
+							refdTemps at: ip put: tempInfo]]].
+	"Check that each entry in the temps map corresponds to a visible temp"
+	parseTree := aCompiledMethod parseTree.
+	scopes := (StParseNodeAnalyzer
+				checkParseTree: parseTree
+				for: method methodClass
+				context: nil
+				pools: #()) scopes.
+	textMap := info textMap.
+	self halt.
+	tempsMap do: 
+			[:each |
+			| scopeNode scope t temp i |
+			ipRange := each key.
+			scopeNode := (ipRange start == 1 and: [ipRange stop == method byteCodes size])
+						ifTrue: [parseTree]
+						ifFalse: 
+							[| start stop |
+							start := (textMap at: (self findIP: ipRange start inTextMap: textMap)) value start.
+							stop := (textMap at: (self findIP: ipRange stop inTextMap: textMap)) value stop.
+							parseTree bestNodeFor: (start to: stop)].
+			scope := scopes detect: [:s | s node == scopeNode or: [s node body == scopeNode]]
+						ifNone: [self fail: 'No matching scope found in parse tree'].
+			each value do: 
+					[:t |
+					temp := t at: 1.
+					i := t second.
+
+					[[scope isInlined] whileTrue: [scope := scope outer].
+					i > 0] whileTrue: 
+								[scope := scope outer.
+								i := i - 1].
+					self assert: ((scope includesTemp: temp) or: [scope includesArg: temp])
+					"refs := refdTemps copyFrom: each key start to: each key stop.
+			self assert: (each value allSatisfy: [:t | t second > 0 or: [refs includes: t]])"]].
 	"Check that there is a temps map entry for the initalIP of each clean block in the literal frame"
 	emptyBlock := VMLibrary default emptyBlock.
 	method literalsDo: 
@@ -1450,7 +1500,11 @@ verifyTempsMapOf: aCompiledMethod
 								print: each method;
 								nextPutAll: ': ';
 								print: each;
-								cr]]]!
+								cr]]].
+	tempsMap do: 
+			[:each |
+			| ipRange scopeNode scope start stop |
+			self assert: (each value collect: [:a | a first]) asSet equals: scope temps keys asSet]!
 
 verifyTextMapsOf: each
 	| debugTextMap debugMethod textMap |
@@ -1540,6 +1594,7 @@ verifyTextMapsOf: each
 !CompilerTest categoriesFor: #testSpecialLiteralsAsUnarySelectors!public! !
 !CompilerTest categoriesFor: #testSymbolScanning!public!unit tests! !
 !CompilerTest categoriesFor: #testTempMaps!public!unit tests! !
+!CompilerTest categoriesFor: #testTempMaps2!public!unit tests! !
 !CompilerTest categoriesFor: #testTempPairing!public!unit tests! !
 !CompilerTest categoriesFor: #testTextMapOfEmptyBlock!public! !
 !CompilerTest categoriesFor: #testTextMapsOfCleanBlocks!public!unit tests! !
