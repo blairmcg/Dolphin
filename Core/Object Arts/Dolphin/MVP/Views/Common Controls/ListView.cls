@@ -158,7 +158,9 @@ autoResizeColumns
 	"Private - Attempt to share the available width in the receiver between all automagically resizeable
 	columns. This only has a visible effect in #report mode."
 
-	self autoResizeColumns: self clientWidth!
+	"Delay redraw until all the columns have been sized"
+
+	self noRedrawDo: [self autoResizeColumns: self clientWidth]!
 
 autoResizeColumns: anInteger 
 	"Private - Attempt to share the specified <integer> width between all automagically
