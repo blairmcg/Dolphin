@@ -5,7 +5,7 @@ DolphinTest subclass: #AbstractParserErrorTest
 	classVariableNames: ''
 	poolDictionaries: 'SmalltalkParseErrorCodes'
 	classInstanceVariableNames: ''!
-AbstractParserErrorTest guid: (GUID fromString: '{5F42CBDC-9AB6-40B0-826D-B9CB9DD30C78}')!
+AbstractParserErrorTest guid: (GUID fromString: '{5f42cbdc-9ab6-40b0-826d-b9cb9dd30c78}')!
 AbstractParserErrorTest comment: ''!
 !AbstractParserErrorTest categoriesForClass!Unclassified! !
 !AbstractParserErrorTest methodsFor!
@@ -1208,15 +1208,16 @@ testErrorsTooManyTemps
 	source nextPutAll: '| '.
 	1 to: VMConstants.MaxTemps + 1
 		do: 
-			[:i | 
+			[:i |
 			source
-				nextPut: $a;
+				nextPut: $x;
 				print: i;
 				space].
 	source nextPut: $|.
+	source nextPutAll: ' [ | t1 | [t1] repeat]'.
 	source := source contents.
-	mark := source lastIndexOf: $a.
-	self 
+	mark := source lastIndexOf: $x.
+	self
 		parseExprError: source
 		range: (mark to: mark + 3)
 		line: 1
