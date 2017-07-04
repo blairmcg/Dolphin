@@ -1,0 +1,146 @@
+| package |
+package := Package name: 'Smalltalk Compiler'.
+package paxVersion: 1;
+	basicComment: ''.
+
+
+package classNames
+	add: #IrBlockCopy;
+	add: #IrCascade;
+	add: #IrDup;
+	add: #IrInstruction;
+	add: #IrJump;
+	add: #IrJumpIf;
+	add: #IrLoadField;
+	add: #IrLoadFrame;
+	add: #IrLoadSelf;
+	add: #IrLoadStatic;
+	add: #IrLoadTemp;
+	add: #IrNop;
+	add: #IrPop;
+	add: #IrSend;
+	add: #IrStoreField;
+	add: #IrStoreStatic;
+	add: #IrStoreTemp;
+	add: #IrVariableAccess;
+	add: #StEncoder;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: (IdentitySet new
+	add: '..\..\Base\Dolphin';
+	add: 'Smalltalk Parser';
+	yourself).
+
+package!
+
+"Class Definitions"!
+
+Object subclass: #IrInstruction
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrInstruction subclass: #IrCascade
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrInstruction subclass: #IrDup
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrInstruction subclass: #IrJump
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrInstruction subclass: #IrLoadFrame
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrInstruction subclass: #IrLoadSelf
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrInstruction subclass: #IrNop
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrInstruction subclass: #IrPop
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrInstruction subclass: #IrSend
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrInstruction subclass: #IrVariableAccess
+	instanceVariableNames: 'identifier'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrJump subclass: #IrBlockCopy
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrJump subclass: #IrJumpIf
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrVariableAccess subclass: #IrLoadField
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrVariableAccess subclass: #IrLoadStatic
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrVariableAccess subclass: #IrLoadTemp
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrVariableAccess subclass: #IrStoreField
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrVariableAccess subclass: #IrStoreStatic
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IrVariableAccess subclass: #IrStoreTemp
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+StParseNodeAnalyzer subclass: #StEncoder
+	instanceVariableNames: 'instructions sendToSuper literalFrame'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+"End of package definition"!
+
