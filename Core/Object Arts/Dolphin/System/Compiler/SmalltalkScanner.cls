@@ -42,7 +42,10 @@ atEnd
 
 characterExpected: anInteger
 	self lexicalError: LErrExpectChar.
-	^self recoverFromExpectChar: 0!
+	^self
+		literalErrorToken: buffer contents
+		start: anInteger
+		code: LErrExpectChar!
 
 classify: aCharacter 
 	| index |
@@ -55,7 +58,10 @@ classify: aCharacter
 
 constantExpected
 	self lexicalError: LErrExpectConst.
-	^self recoverFromInvalidLiteral!
+	^self
+		literalErrorToken: buffer contents
+		start: self previousStepPosition
+		code: LErrExpectConst!
 
 contents
 	| contentsStream |
@@ -104,9 +110,15 @@ errorHandler: parseErrorHandler
 errorPosition
 	^stream position!
 
+errorTokenClass
+	^StErrorToken!
+
 extendedLiteralExpected
 	self lexicalError: LErrExpectExtendedLiteral.
-	^self recoverFromInvalidLiteral!
+	^self
+		literalErrorToken: buffer contents
+		start: self previousStepPosition
+		code: LErrExpectExtendedLiteral!
 
 getComments
 	| oldComments |
@@ -122,13 +134,20 @@ illegalCharacter
 	"Error ignored, attempt to recover"
 	^self recoverFromIllegalCharacter!
 
-illegalNumber: anInteger 
+illegalNumber: anInteger
 	self lexicalError: LErrBadNumber range: (anInteger to: self errorPosition).
-	^self recoverFromIllegalNumber: anInteger!
+	#todo. "Current parsing the number externally so can't use buffer contents here."
+	^self
+		literalErrorToken: (stream copyFrom: anInteger to: self previousStepPosition)
+		start: anInteger
+		code: LErrBadNumber!
 
 invalidQualifier
 	self lexicalError: LErrInvalidQualifier.
-	^self recoverFromInvalidLiteral!
+	^self
+		literalErrorToken: buffer contents
+		start: self previousStepPosition
+		code: LErrInvalidQualifier!
 
 lexicalError: anInteger
 	^self lexicalError: anInteger range: (tokenStart to: self errorPosition)!
@@ -153,12 +172,13 @@ line
 
 	^line!
 
-literalErrorToken: anObject start: anInteger
-	^self literalTokenClass
-		start: tokenStart
+literalErrorToken: anObject start: anInteger code: codeInteger
+	^self errorTokenClass
+		start: anInteger
 		comments: nil
 		value: anObject
-		stop: anInteger!
+		code: codeInteger
+		position: self errorPosition!
 
 literalTokenClass
 	^StLiteralToken!
@@ -223,25 +243,18 @@ readNumber
 	self step.
 	^number!
 
-recoverFromExpectChar: anInteger
-	^self literalErrorToken: nil start: stream position!
-
 recoverFromIllegalCharacter
 	| start badChar |
 	badChar := currentCharacter.
 	start := tokenStart.
 	"Skip the bad character"
 	self step.
-	^StIllegalCharacterToken
+	^self errorTokenClass
 		start: start
 		comments: nil
-		value: badChar!
-
-recoverFromIllegalNumber: anInteger 
-	^self literalErrorToken: (stream copyFrom: anInteger to: self previousStepPosition) start: anInteger!
-
-recoverFromInvalidLiteral
-	^self literalErrorToken: buffer contents start: self previousStepPosition!
+		value: buffer contents
+		code: LErrBadChar
+		position: start!
 
 recoverFromUnterminatedComment: anInteger 
 	characterType := #eof.
@@ -624,11 +637,17 @@ unterminatedComment: anInteger
 
 unterminatedQualifiedRef
 	self lexicalError: LErrQualifiedRefNotClosed.
-	^self recoverFromInvalidLiteral!
+	^self
+		literalErrorToken: buffer contents
+		start: self previousStepPosition
+		code: LErrQualifiedRefNotClosed!
 
 unterminatedString
 	self lexicalError: LErrStringNotClosed.
-	^self recoverFromInvalidLiteral! !
+	^self
+		literalErrorToken: buffer contents
+		start: self previousStepPosition
+		code: LErrStringNotClosed! !
 !SmalltalkScanner categoriesFor: #addComment:!private!scanning! !
 !SmalltalkScanner categoriesFor: #atEnd!public!testing! !
 !SmalltalkScanner categoriesFor: #characterExpected:!error handling!private! !
@@ -643,6 +662,7 @@ unterminatedString
 !SmalltalkScanner categoriesFor: #errorHandler!accessing!private! !
 !SmalltalkScanner categoriesFor: #errorHandler:!accessing!private! !
 !SmalltalkScanner categoriesFor: #errorPosition!accessing!error handling!public! !
+!SmalltalkScanner categoriesFor: #errorTokenClass!error handling!private! !
 !SmalltalkScanner categoriesFor: #extendedLiteralExpected!error handling!private! !
 !SmalltalkScanner categoriesFor: #getComments!accessing!public! !
 !SmalltalkScanner categoriesFor: #identifierTokenClass!constants!private! !
@@ -653,7 +673,7 @@ unterminatedString
 !SmalltalkScanner categoriesFor: #lexicalError:range:!error handling!private! !
 !SmalltalkScanner categoriesFor: #lexicalError:range:extras:!error handling!private! !
 !SmalltalkScanner categoriesFor: #line!accessing!public! !
-!SmalltalkScanner categoriesFor: #literalErrorToken:start:!error handling!private! !
+!SmalltalkScanner categoriesFor: #literalErrorToken:start:code:!error handling!private! !
 !SmalltalkScanner categoriesFor: #literalTokenClass!constants!private! !
 !SmalltalkScanner categoriesFor: #metaVariableExpected!error handling!private! !
 !SmalltalkScanner categoriesFor: #namespaceCharacter:!accessing!public! !
@@ -664,10 +684,7 @@ unterminatedString
 !SmalltalkScanner categoriesFor: #previousStepPosition!accessing!private! !
 !SmalltalkScanner categoriesFor: #readIntegerOfRadix:!private!scanning! !
 !SmalltalkScanner categoriesFor: #readNumber!private!scanning! !
-!SmalltalkScanner categoriesFor: #recoverFromExpectChar:!error handling!private! !
 !SmalltalkScanner categoriesFor: #recoverFromIllegalCharacter!error handling!private! !
-!SmalltalkScanner categoriesFor: #recoverFromIllegalNumber:!error handling!private! !
-!SmalltalkScanner categoriesFor: #recoverFromInvalidLiteral!error handling!private! !
 !SmalltalkScanner categoriesFor: #recoverFromUnterminatedComment:!error handling!private! !
 !SmalltalkScanner categoriesFor: #reportError:at:line:range:extras:!error handling!private! !
 !SmalltalkScanner categoriesFor: #scanAnySymbol!private!scanning! !

@@ -16,7 +16,7 @@ These modifications are Copyright (c) Object Arts Ltd, 2002.
 
 The parser remains compatible with the RBParser, and so can be used in conjunction with the RB refactoring engine. Note that the majority of RB specific methods and classes have been extracted to the RBParser package, which also contains global aliases mapping the class names used in the RB to the corresponding classes in this package.'.
 
-package basicPackageVersion: '6.1'.
+package basicPackageVersion: '7.0'.
 
 
 package classNames
@@ -31,10 +31,11 @@ package classNames
 	add: #StBraceArrayNode;
 	add: #StCascadeNode;
 	add: #StEofToken;
+	add: #StErrorToken;
 	add: #StExternalArgTypeNode;
 	add: #StExternalCallNode;
 	add: #StIdentifierToken;
-	add: #StIllegalCharacterToken;
+	add: #StIntegerLiteralToken;
 	add: #StKeywordToken;
 	add: #StLiteralArrayNode;
 	add: #StLiteralArrayToken;
@@ -111,7 +112,7 @@ Object subclass: #StProgramNode
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #StToken
-	instanceVariableNames: 'sourcePointer comments'
+	instanceVariableNames: 'start comments'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -270,12 +271,12 @@ StValueToken subclass: #StBinarySelectorToken
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-StValueToken subclass: #StIdentifierToken
-	instanceVariableNames: ''
+StValueToken subclass: #StErrorToken
+	instanceVariableNames: 'code position'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-StValueToken subclass: #StIllegalCharacterToken
+StValueToken subclass: #StIdentifierToken
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -307,6 +308,11 @@ StLiteralToken subclass: #StMultiKeywordLiteralToken
 	classInstanceVariableNames: ''!
 StLiteralToken subclass: #StNumberLiteralToken
 	instanceVariableNames: 'source'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+StNumberLiteralToken subclass: #StIntegerLiteralToken
+	instanceVariableNames: 'significand exponent'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

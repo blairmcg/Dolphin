@@ -10,8 +10,8 @@ StOptimizedToken comment: ''!
 !StOptimizedToken categoriesForClass!System-Compiler! !
 !StOptimizedToken methodsFor!
 
-acceptVisitor: aTokenVisitor 
-	^aTokenVisitor acceptOptimizedToken: self!
+acceptVisitor: aTokenVisitor
+	^aTokenVisitor visitOptimizedToken: self!
 
 isOptimized
 	^true!

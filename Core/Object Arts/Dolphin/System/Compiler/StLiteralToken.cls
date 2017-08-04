@@ -10,8 +10,8 @@ StLiteralToken comment: ''!
 !StLiteralToken categoriesForClass!System-Compiler! !
 !StLiteralToken methodsFor!
 
-acceptVisitor: aTokenVisitor 
-	^aTokenVisitor acceptLiteralToken: self!
+acceptVisitor: aTokenVisitor
+	^aTokenVisitor visitLiteralToken: self!
 
 formatOn: aStream source: aString 
 	(value isKindOf: Symbol) 
