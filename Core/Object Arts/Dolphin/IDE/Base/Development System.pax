@@ -5046,13 +5046,7 @@ postComments
 preComments
 	"Answer the set of comments associated with the receiver that are before the token"
 
-	^self comments 
-		ifNil: [#()]
-		ifNotNil: 
-			[:all | 
-			| start |
-			start := self start.
-			all select: [:each | each stop < start]]! !
+	^self comments ifNil: [#()] ifNotNil: [:all | all select: [:each | each stop < start]]! !
 !StToken categoriesFor: #postComments!accessing!public! !
 !StToken categoriesFor: #preComments!accessing!public! !
 

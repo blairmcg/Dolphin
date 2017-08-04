@@ -171,13 +171,13 @@ parseBinaryMessageWith: aNode
 		arguments: {self parseUnaryMessage}!
 
 parseBinaryPattern
-	| binaryToken node args |
+	| binaryToken node arg |
 	binaryToken := currentToken.
 	self step.
-	args := {self parseMethodParameter}.
-	node := self methodNodeClass selectorParts: {binaryToken} arguments: args.
-	node addComments: args last comments.
-	args last comments: nil.
+	arg := self parseMethodParameter.
+	node := self methodNodeClass selectorParts: {binaryToken} arguments: {arg}.
+	node addComments: arg comments.
+	arg comments: nil.
 	^node!
 
 parseBlock

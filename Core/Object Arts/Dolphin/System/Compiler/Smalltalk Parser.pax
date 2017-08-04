@@ -31,10 +31,10 @@ package classNames
 	add: #StBraceArrayNode;
 	add: #StCascadeNode;
 	add: #StEofToken;
+	add: #StErrorToken;
 	add: #StExternalArgTypeNode;
 	add: #StExternalCallNode;
 	add: #StIdentifierToken;
-	add: #StIllegalCharacterToken;
 	add: #StKeywordToken;
 	add: #StLiteralArrayNode;
 	add: #StLiteralArrayToken;
@@ -111,7 +111,7 @@ Object subclass: #StProgramNode
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #StToken
-	instanceVariableNames: 'sourcePointer comments'
+	instanceVariableNames: 'start comments'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -270,12 +270,12 @@ StValueToken subclass: #StBinarySelectorToken
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-StValueToken subclass: #StIdentifierToken
-	instanceVariableNames: ''
+StValueToken subclass: #StErrorToken
+	instanceVariableNames: 'code position'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-StValueToken subclass: #StIllegalCharacterToken
+StValueToken subclass: #StIdentifierToken
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

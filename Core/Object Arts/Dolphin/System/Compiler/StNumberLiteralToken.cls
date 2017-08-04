@@ -10,13 +10,13 @@ StNumberLiteralToken comment: ''!
 !StNumberLiteralToken categoriesForClass!Unclassified! !
 !StNumberLiteralToken methodsFor!
 
-acceptVisitor: aTokenVisitor 
-	^aTokenVisitor acceptNumberLiteralToken: self!
+acceptVisitor: aTokenVisitor
+	^aTokenVisitor visitNumberLiteralToken: self!
 
 forgetNegative
 	value := value negated.
 	source := source copyFrom: 2.
-	sourcePointer := sourcePointer + 1!
+	start := start + 1!
 
 formatOn: aStream source: aString 
 	"For numbers, retain the original source form as unless it is a plain integer it may have

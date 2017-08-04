@@ -1,7 +1,7 @@
 "Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #StToken
-	instanceVariableNames: 'sourcePointer comments'
+	instanceVariableNames: 'start comments'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -79,7 +79,7 @@ printOn: aStream
 		nextPutAll: self class name!
 
 removePositions
-	sourcePointer := nil!
+	start := nil!
 
 scannerClass
 	^SmalltalkScanner!
@@ -90,10 +90,10 @@ sourceInterval
 	^self start to: self stop!
 
 start
-	^sourcePointer!
+	^start!
 
-start: anInteger 
-	sourcePointer := anInteger!
+start: anInteger
+	start := anInteger!
 
 stop
 	^self start + self length - 1! !
