@@ -46,20 +46,9 @@ value
 
 !StLiteralNode class methodsFor!
 
-literalToken: aLiteralToken 
-	^(aLiteralToken realValue class == Array or: [aLiteralToken realValue class == ByteArray]) 
-		ifTrue: 
-			[StLiteralArrayNode 
-				startPosition: aLiteralToken start
-				contents: (aLiteralToken value asArray collect: [:each | StLiteralNode literalToken: each])
-				stopPosition: aLiteralToken stop
-				isByteArray: aLiteralToken value class ~~ Array]
-		ifFalse: [StLiteralValueNode literalToken: aLiteralToken]!
-
-value: aValue 
-	^((aValue class == Array or: [aValue class == ByteArray]) 
+value: aValue
+	^((aValue class == Array or: [aValue class == ByteArray])
 		ifTrue: [StLiteralArrayNode]
 		ifFalse: [StLiteralValueNode]) value: aValue! !
-!StLiteralNode class categoriesFor: #literalToken:!instance creation!public! !
 !StLiteralNode class categoriesFor: #value:!instance creation!public! !
 

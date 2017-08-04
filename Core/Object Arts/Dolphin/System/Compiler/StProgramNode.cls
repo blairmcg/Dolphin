@@ -215,6 +215,9 @@ isLast: aNode
 isList
 	^false!
 
+isLiteralArray
+	^false!
+
 isLiteralNode
 	^false!
 
@@ -423,6 +426,7 @@ whoDefines: aName
 !StProgramNode categoriesFor: #isImmediateNode!public!testing! !
 !StProgramNode categoriesFor: #isLast:!public!testing! !
 !StProgramNode categoriesFor: #isList!public!testing/matching! !
+!StProgramNode categoriesFor: #isLiteralArray!public!testing! !
 !StProgramNode categoriesFor: #isLiteralNode!public!testing! !
 !StProgramNode categoriesFor: #isMessage!public!testing! !
 !StProgramNode categoriesFor: #isMethod!public!testing! !

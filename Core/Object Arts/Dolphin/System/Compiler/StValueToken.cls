@@ -31,7 +31,12 @@ value: anObject
 
 !StValueToken class methodsFor!
 
-value: aString start: anInteger
-	^(self start: anInteger) value: aString! !
-!StValueToken class categoriesFor: #value:start:!instance creation!public! !
+start: anInteger comments: aCollectionOrNil value: aString
+	<primitive: 157>
+	^self new
+		start: anInteger;
+		comments: aCollectionOrNil;
+		value: aString;
+		yourself! !
+!StValueToken class categoriesFor: #start:comments:value:!instance creation!public! !
 
