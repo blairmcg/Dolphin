@@ -101,7 +101,7 @@ testNextPutAllStartingAt
 				next: size
 				putAll: dataToWrite
 				startingAt: each first.
-			self assert: fs position = each last.
+			self assert: fs position equals: each last.
 			self assertBufferEmptyOrDirty: fs size: size.
 			self assert: ((each last >= initialData size and: [fs atEnd])
 						or: [fs next = (initialData at: each last + 1)])]
@@ -113,7 +113,7 @@ testNextPutAllStartingAt
 			each last <= initialData size
 				ifTrue: [expected := expected , (initialData copyFrom: each last + 1)].
 			contents := File readAllBytes: tempFileName.
-			self assert: contents = expected]!
+			self assert: contents equals: expected]!
 
 testNextPutAllStartingAt2
 	| r initialData dataToWrite |
@@ -134,12 +134,12 @@ testNextPutAllStartingAt2
 				next: each first - 1
 				putAll: initialData
 				startingAt: 1.
-			self assert: fs position = (each first - 1).
+			self assert: fs position equals: each first - 1.
 			fs
 				next: each last - each first + 1
 				putAll: dataToWrite
 				startingAt: each first.
-			self assert: fs position = each last.
+			self assert: fs position equals: each last.
 			self assertBufferEmptyOrDirty: fs.
 			each last <= initialData size
 				ifTrue: 
@@ -155,7 +155,7 @@ testNextPutAllStartingAt2
 			each last <= initialData size
 				ifTrue: [expected := expected , (initialData copyFrom: each last + 1)].
 			contents := File readAllBytes: tempFileName.
-			self assert: contents = expected]!
+			self assert: contents equals: expected]!
 
 testPositionAfterWrite
 	| stream actual |

@@ -32,6 +32,7 @@ package methodNames
 	add: #CompilerNotification -> #extra;
 	add: #CRTLibrary -> #_controlfp:mask:;
 	add: #CRTLibrary -> #_ecvt:count:dec:sign:;
+	add: #CRTLibrary -> #_filelength:;
 	add: #CRTLibrary -> #_gcvt:count:buffer:;
 	add: #CRTLibrary -> #_i64toa:string:radix:;
 	add: #CRTLibrary -> #_ltoa:string:radix:;
@@ -199,6 +200,10 @@ _ecvt: aFloat count: anInteger dec: decInteger sign: signInteger
 	#deprecated.	"This function is considered insecure and should not be used - see MSDN"
 	^self invalidCall!
 
+_filelength: handleInteger
+	<cdecl: sdword _filelength sdword>
+	^self invalidCall!
+
 _gcvt: aFloat count: anInteger buffer: aString
 	<cdecl: char* _gcvt double sdword char*>
 	#deprecated.	"Insecure - use _gcvt_s"
@@ -275,6 +280,7 @@ strncpy: strDest strSource: strSource count: count
 	^self invalidCall! !
 !CRTLibrary categoriesFor: #_controlfp:mask:!CRT functions-floating point support!public! !
 !CRTLibrary categoriesFor: #_ecvt:count:dec:sign:!CRT functions-floating point support!public! !
+!CRTLibrary categoriesFor: #_filelength:!CRT functions-file handling!public! !
 !CRTLibrary categoriesFor: #_gcvt:count:buffer:!CRT functions-floating point support!public! !
 !CRTLibrary categoriesFor: #_i64toa:string:radix:!CRT functions-data conversion!public! !
 !CRTLibrary categoriesFor: #_ltoa:string:radix:!CRT functions-data conversion!public! !

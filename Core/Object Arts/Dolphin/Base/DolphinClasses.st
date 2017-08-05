@@ -1646,8 +1646,8 @@ SequencedStream subclass: #PositionableStream
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SequencedStream subclass: #StdioFileStream
-	instanceVariableNames: 'stream isText name oldFd'
-	classVariableNames: ''
+	instanceVariableNames: 'stream flags name oldFd fd'
+	classVariableNames: 'DeviceMask ReadOnlyMask TextMask'
 	poolDictionaries: 'CRTConstants'
 	classInstanceVariableNames: ''!
 PositionableStream subclass: #ReadStream

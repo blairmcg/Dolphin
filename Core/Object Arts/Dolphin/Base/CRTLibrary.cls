@@ -99,8 +99,8 @@ _fdopen: anInteger mode: aString
 	<cdecl: handle _fdopen sdword lpstr>
 	^self invalidCall!
 
-_filelength: handleInteger
-	<cdecl: sdword _filelength sdword>
+_filelengthi64: handleInteger
+	<cdecl: sqword _filelengthi64 sdword>
 	^self invalidCall!
 
 _fileno: aFILE
@@ -132,6 +132,10 @@ _getcwd: aString maxlen: anInteger
 	buffer, aString."
 
 	<cdecl: lpstr _getcwd lpstr sdword>
+	^self invalidCall!
+
+_isatty: anInteger
+	<cdecl: bool _isatty sdword>
 	^self invalidCall!
 
 _logb: aFloat
@@ -315,7 +319,7 @@ fclose: anAddress
 	^self invalidCall!
 
 feof: stream
-	<cdecl: sdword feof handle>
+	<cdecl: bool feof handle>
 	^self invalidCall!
 
 fflush: anExternalAddress 
@@ -590,13 +594,14 @@ wcscspn: aUnicodeString strCharSet: strCharSet
 !CRTLibrary categoriesFor: #_eof:!CRT functions-file handling!public! !
 !CRTLibrary categoriesFor: #_errno!CRT functions-process and environment control!public! !
 !CRTLibrary categoriesFor: #_fdopen:mode:!CRT functions-stream I/O!public! !
-!CRTLibrary categoriesFor: #_filelength:!CRT functions-file handling!public! !
+!CRTLibrary categoriesFor: #_filelengthi64:!CRT functions-file handling!public! !
 !CRTLibrary categoriesFor: #_fileno:!CRT functions-stream I/O!public! !
 !CRTLibrary categoriesFor: #_finite:!CRT functions-floating point support!public! !
 !CRTLibrary categoriesFor: #_fpclass:!CRT functions-floating point support!public! !
 !CRTLibrary categoriesFor: #_gcvt_s:bufferSize:value:digits:!CRT functions-floating point support!public! !
 !CRTLibrary categoriesFor: #_get_osfhandle:!CRT functions-file handling!public! !
 !CRTLibrary categoriesFor: #_getcwd:maxlen:!CRT functions-directory control!public! !
+!CRTLibrary categoriesFor: #_isatty:!CRT functions-data conversion!public! !
 !CRTLibrary categoriesFor: #_logb:!CRT functions-floating point support!public! !
 !CRTLibrary categoriesFor: #_makepath_s:bufferSize:drive:dir:fname:ext:!CRT functions-file handling!public! !
 !CRTLibrary categoriesFor: #_open_osfhandle:flags:!CRT functions-file handling!public! !

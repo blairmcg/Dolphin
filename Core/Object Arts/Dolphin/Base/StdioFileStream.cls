@@ -1,11 +1,14 @@
 "Filed out from Dolphin Smalltalk 7"!
 
 SequencedStream subclass: #StdioFileStream
-	instanceVariableNames: 'stream isText name oldFd'
-	classVariableNames: ''
+	instanceVariableNames: 'stream flags name oldFd fd'
+	classVariableNames: 'DeviceMask ReadOnlyMask TextMask'
 	poolDictionaries: 'CRTConstants'
 	classInstanceVariableNames: ''!
 StdioFileStream guid: (GUID fromString: '{7b8405b3-0819-421f-8110-ca2763bcb59a}')!
+StdioFileStream addClassConstant: 'DeviceMask' value: 64!
+StdioFileStream addClassConstant: 'ReadOnlyMask' value: 1!
+StdioFileStream addClassConstant: 'TextMask' value: 128!
 StdioFileStream comment: 'StdioFileStream is a <FileStream> implemented over C runtime library stdio streams. Its main purpose is to wrap the stdin, stdout, and stderr streams in console applications, and it is not intended for general use. In order to avoid blocking the main Dolphin thread when attempting to read from stdin, the CRT stream I/O calls are overlapped (i.e. run on a threadpool thread), which makes them rather slow. FileStream itself should be used by preference in most cases.
 
 Instance Variables:
@@ -24,24 +27,21 @@ asParameter
 	^stream!
 
 atEnd
-	"Answer whether the receiver cannot access any more objects"
+	"Answer whether the receiver is at the end of its values."
 
-	| crt |
-	crt := CRTLibrary default.
-	^(crt feof: stream) ~~ 0 or: 
-			["feof returns non-zero only when an attempt has been made to read past the end of stream, so we have to peek."
-			| ch |
-			(ch := crt fgetc: stream) == -1 or: 
-					[crt ungetc: ch stream: stream.
-					false]]!
+	^(CRTLibrary default feof: stream) or: 
+			["feof returns non-zero only when an attempt has been made to read past the
+			 end of stream. If attached to a file (as opposed to a device) we may be
+			 positioned beyond the end of stream"
+			self isDevice not and: [self position >= self size]]!
 
-attach: anExternalHandle toFd: fdInteger mode: aSymbol text: aBoolean 
+attach: anExternalHandle toFd: fdInteger mode: aSymbol text: aBoolean
 	"Private - Attach the stdio descriptor identified by fdInteger (usually one of 0=stdin,
 	1=stdout, or 2-stderr) to the specified OS file, and open a stdio stream onto it in the
 	specified read/write and text/binary modes (usual Smalltalk FileStream conventions for the
 	interpretation of the mode and text parameters applies)."
 
-	| newFd crt |
+	| newFd crt readOnly |
 	crt := CRTLibrary default.
 	"1: Preserve the existing file descriptor (fd) for later restoration by dup'ing it"
 	oldFd := crt _dup: fdInteger.
@@ -54,10 +54,14 @@ attach: anExternalHandle toFd: fdInteger mode: aSymbol text: aBoolean
 	"4: Dispose of the fd created in step 2 and dup'd in step 3 so we don't leak it and the duplicate OS handle it contains"
 	(crt _close: newFd) < 0 ifTrue: [CRTError signal].
 	"5: Finally open a stdio stream onto the target fd"
+	readOnly := aSymbol == #read.
 	stream := crt _fdopen: fdInteger
-				mode: (aSymbol == #read ifTrue: ['r'] ifFalse: ['w']) , (aBoolean ifTrue: ['t'] ifFalse: ['b']).
+				mode: (readOnly ifTrue: ['r'] ifFalse: ['w']) , (aBoolean ifTrue: ['t'] ifFalse: ['b']).
 	stream isNil ifTrue: [CRTError signal].
-	isText := aBoolean.
+	fd := fdInteger.
+	flags := readOnly ifTrue: [ReadOnlyMask] ifFalse: [0].
+	aBoolean ifTrue: [flags := flags bitOr: TextMask].
+	(crt _isatty: fdInteger) ifTrue: [flags := flags bitOr: DeviceMask].
 	self beFinalizable!
 
 basicPrint: anObject 
@@ -87,11 +91,11 @@ contents
 
 	| len |
 	self reset.
-	len := CRTLibrary default _filelength: self fileno.
+	len := CRTLibrary default _filelengthi64: self fileno.
 	^len == -1 ifTrue: [self upToEnd] ifFalse: [self next: len]!
 
 contentsSpecies
-	^isText ifTrue: [String] ifFalse: [ByteArray]!
+	^self isText ifTrue: [String] ifFalse: [ByteArray]!
 
 cr
 	"Store the line delimiter character sequence (as required by
@@ -120,7 +124,7 @@ externalType
 	^self isText ifFalse: [#binary] ifTrue: [#text]!
 
 fileno
-	^CRTLibrary default _fileno: stream!
+	^fd!
 
 finalize
 	self close!
@@ -135,6 +139,11 @@ isBinary
 
 	^self isText not!
 
+isDevice
+	"Answer whether the CRT stream is connected to a device."
+
+	^flags anyMask: DeviceMask!
+
 isReadable
 	"Answer whether the receiver can be read from (i.e. it implements the 
 	<gettableStream> protocol)."
@@ -142,10 +151,10 @@ isReadable
 	^true!
 
 isText
-	"Answer whether if the receiver's data is characters.
+	"Answer whether the receiver's data is characters.
 	X3J20 (draft) includes rational as to why this message is not called #isCharacter."
 
-	^isText!
+	^flags anyMask: TextMask!
 
 isWriteable
 	"Answer whether the receiver can be written to (i.e. it implements the 
@@ -164,7 +173,7 @@ next
 	ch := CRTLibrary default fgetc: stream.
 	^ch == -1
 		ifTrue: [self errorEndOfStream]
-		ifFalse: [isText ifTrue: [Character value: ch] ifFalse: [ch]]!
+		ifFalse: [self isText ifTrue: [Character value: ch] ifFalse: [ch]]!
 
 next: countInteger into: aSequenceableCollection startingAt: startInteger
 	"Destructively replace the elements of the argument, aSequenceableCollection,
@@ -230,29 +239,28 @@ nextLine
 	collection is answered."
 
 	| buf answer len last |
-	isText ifFalse: [self error: 'Invalid operation for binary streams'].
+	self isText ifFalse: [self error: 'Invalid operation for binary streams'].
 	buf := String new: 128.
 	answer := ''.
 	
 	[| part |
-	part := CRTLibrary default 
+	part := CRTLibrary default
 				fgets: buf
 				n: buf byteSize
 				stream: stream.
-	part isNil 
+	part isNil
 		ifTrue: 
 			["Hit eof"
-
 			^answer , buf trimNulls].
 	answer := answer , part.
-	part size = 128] 
+	part size = 128]
 			whileTrue.
 	len := answer size.
 	"Strip off the line terminator, allowing for binary or text mode"
 	last := answer at: len.
 	^last == $\n
 		ifTrue: 
-			[(len > 1 and: [(answer at: len - 1) == $\r]) 
+			[(len > 1 and: [(answer at: len - 1) == $\r])
 				ifTrue: [answer copyFrom: 1 to: len - 2]
 				ifFalse: [answer copyFrom: 1 to: len - 1]]
 		ifFalse: [last == $\r ifTrue: [answer copyFrom: 1 to: len - 1] ifFalse: [answer]]!
@@ -263,8 +271,7 @@ nextOrNil
 
 	| ch |
 	ch := CRTLibrary default fgetc: stream.
-	^ch == -1
-		ifFalse: [isText ifTrue: [Character value: ch] ifFalse: [ch]]!
+	^ch == -1 ifFalse: [self isText ifTrue: [Character value: ch] ifFalse: [ch]]!
 
 nextPut: anObject 
 	"Store the <Character> or <integer> (in the range 0..255) as the next element of the receiver."
@@ -287,7 +294,7 @@ peek
 	^ch == -1
 		ifFalse: 
 			[CRTLibrary default ungetc: ch stream: stream.
-			isText ifTrue: [Character value: ch] ifFalse: [ch]]!
+			self isText ifTrue: [Character value: ch] ifFalse: [ch]]!
 
 peekFor: anObject
 	"Determine the response to the message peek. If it is the same as the
@@ -321,9 +328,13 @@ reset
 
 	CRTLibrary default rewind: stream!
 
-setStream: anExternalAddress isText: aBoolean name: aString 
+setStream: anExternalAddress flags: anInteger name: aString
+	| crt |
 	stream := anExternalAddress asExternalHandle.
-	isText := aBoolean.
+	flags := anInteger.
+	crt := CRTLibrary default.
+	fd := crt _fileno: stream.
+	(crt _isatty: fd) ifTrue: [flags := flags bitOr: DeviceMask].
 	name := aString.
 	self beFinalizable!
 
@@ -340,8 +351,9 @@ size
 	to, for example, stdin is an error."
 
 	| len |
+	"We have to flush in order for any data written to the stream buffer past the previous end of file to be taken into account."
 	self flush.
-	^(len := CRTLibrary default _filelength: self fileno) == -1 
+	^(len := CRTLibrary default _filelengthi64: self fileno) == -1
 		ifTrue: [CRTError signal]
 		ifFalse: [len]!
 
@@ -382,6 +394,7 @@ tab: anInteger
 !StdioFileStream categoriesFor: #finalize!finalizing!private! !
 !StdioFileStream categoriesFor: #flush!buffer!public! !
 !StdioFileStream categoriesFor: #isBinary!public!testing! !
+!StdioFileStream categoriesFor: #isDevice!public!testing! !
 !StdioFileStream categoriesFor: #isReadable!public!testing! !
 !StdioFileStream categoriesFor: #isText!public!testing! !
 !StdioFileStream categoriesFor: #isWriteable!public!testing! !
@@ -400,7 +413,7 @@ tab: anInteger
 !StdioFileStream categoriesFor: #position!accessing!public! !
 !StdioFileStream categoriesFor: #position:!positioning!public! !
 !StdioFileStream categoriesFor: #reset!positioning!public! !
-!StdioFileStream categoriesFor: #setStream:isText:name:!initializing!private! !
+!StdioFileStream categoriesFor: #setStream:flags:name:!initializing!private! !
 !StdioFileStream categoriesFor: #setToEnd!positioning!public! !
 !StdioFileStream categoriesFor: #size!accessing!public! !
 !StdioFileStream categoriesFor: #skip:!positioning!public! !
@@ -444,10 +457,15 @@ fromHandle: anExternalHandle
 	"Answer a new instance of the receiver on the specified stdio FILE pointer,
 	assumed to be in text mode."
 
-	^self basicNew 
+	^self basicNew
 		setStream: anExternalHandle
-		isText: true
+		flags: TextMask
 		name: nil!
+
+initialize
+	self addClassConstant: 'ReadOnlyMask' value: 16r01.
+	self addClassConstant: 'DeviceMask' value: 16r40.
+	self addClassConstant: 'TextMask' value: 16r80!
 
 read: aString 
 	"Answer a new text mode instance of the receiver whose future sequence values consist
@@ -461,16 +479,23 @@ read: aString text: aBoolean
 	based or binary, depending on the <boolean> argument. Raise an exception
 	if the file does not exist."
 
-	| handle errno |
+	| handle errno flags mode |
+	mode := aBoolean
+				ifTrue: 
+					[flags := ##(TextMask | ReadOnlyMask).
+					'rt']
+				ifFalse: 
+					[flags := ReadOnlyMask.
+					'rb'].
 	handle := ExternalHandle new.
 	^(errno := CRTLibrary default
 				fopen_s: handle
 				filename: aString
-				mode: (aBoolean ifTrue: ['rt'] ifFalse: ['rb'])) == 0
+				mode: mode) == 0
 		ifTrue: 
 			[self basicNew
 				setStream: handle
-				isText: aBoolean
+				flags: flags
 				name: aString]
 		ifFalse: [CRTError signalWith: errno]!
 
@@ -514,7 +539,7 @@ write: aString mode: aSymbol check: checkBoolean text: textBoolean
 	The final <boolean> argument specifies the external type (#binary or #text) 
 	for which the new instance is initially configured."
 
-	| answer handle |
+	| answer handle errno flags |
 	checkBoolean
 		ifTrue: 
 			[| exists |
@@ -527,14 +552,16 @@ write: aString mode: aSymbol check: checkBoolean text: textBoolean
 	the existing data by moving the stream pointer backwards. With the fopen() append
 	modes it is not possible to overwrite the existing data."
 	handle := ExternalHandle new.
-	CRTLibrary default
-		fopen_s: handle
-		filename: aString
-		mode: (aSymbol == #append ifTrue: ['r+'] ifFalse: ['w+'])
-				, (textBoolean ifTrue: ['t'] ifFalse: ['b']).
-	answer := (self basicNew)
+	errno := CRTLibrary default
+				fopen_s: handle
+				filename: aString
+				mode: (aSymbol == #append ifTrue: ['r+'] ifFalse: ['w+'])
+						, (textBoolean ifTrue: ['t'] ifFalse: ['b']).
+	flags := textBoolean ifTrue: [TextMask] ifFalse: [0].
+	errno ~~ 0 ifTrue: [^CRTError signalWith: errno].
+	answer := self basicNew
 				setStream: handle
-					isText: textBoolean
+					flags: flags
 					name: aString;
 				yourself.
 	aSymbol == #append ifTrue: [answer setToEnd].
@@ -573,6 +600,7 @@ write: aString text: aBoolean
 !StdioFileStream class categoriesFor: #attach:toFd:mode:!instance creation!public! !
 !StdioFileStream class categoriesFor: #attach:toFd:mode:text:!instance creation!public! !
 !StdioFileStream class categoriesFor: #fromHandle:!instance creation!public! !
+!StdioFileStream class categoriesFor: #initialize!development!initializing!public! !
 !StdioFileStream class categoriesFor: #read:!instance creation!public! !
 !StdioFileStream class categoriesFor: #read:text:!instance creation!public! !
 !StdioFileStream class categoriesFor: #read:type:!instance creation!public! !
