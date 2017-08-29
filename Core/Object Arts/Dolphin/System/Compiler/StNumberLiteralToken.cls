@@ -13,6 +13,9 @@ StNumberLiteralToken comment: ''!
 acceptVisitor: aTokenVisitor
 	^aTokenVisitor visitNumberLiteralToken: self!
 
+calculateValue
+	^[Number readFrom: self source readStream] on: Error do: [0]!
+
 forgetNegative
 	value ifNotNil: [value := value negated].
 	source := source copyFrom: 2.
@@ -30,18 +33,32 @@ isNegative
 isNumberLiteralToken
 	^true!
 
+printOn: aStream
+	aStream
+		space;
+		nextPutAll: self class name;
+		nextPut: $(.
+	self formatOn: aStream source: nil.
+	aStream nextPut: $)!
+
 source
 	^source!
 
 source: aString 
-	source := aString! !
+	source := aString!
+
+value
+	^value ifNil: [value := self calculateValue]! !
 !StNumberLiteralToken categoriesFor: #acceptVisitor:!public!visitor! !
+!StNumberLiteralToken categoriesFor: #calculateValue!private! !
 !StNumberLiteralToken categoriesFor: #forgetNegative!helpers!private! !
 !StNumberLiteralToken categoriesFor: #formatOn:source:!printing!public! !
 !StNumberLiteralToken categoriesFor: #isNegative!public!testing! !
 !StNumberLiteralToken categoriesFor: #isNumberLiteralToken!public!testing! !
+!StNumberLiteralToken categoriesFor: #printOn:!public! !
 !StNumberLiteralToken categoriesFor: #source!accessing!public! !
 !StNumberLiteralToken categoriesFor: #source:!accessing!public! !
+!StNumberLiteralToken categoriesFor: #value!public! !
 
 !StNumberLiteralToken class methodsFor!
 

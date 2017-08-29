@@ -59,11 +59,12 @@ stopWithoutParentheses
 
 value
 	| array |
-	array := (isByteArray ifTrue: [ByteArray] ifFalse: [Array]) 
-				new: contents size.
-	1 to: contents size
-		do: [:each | array at: each put: (contents at: each) value].
-	^array! !
+	array := self valueClass new: contents size.
+	1 to: contents size do: [:each | array at: each put: (contents at: each) value].
+	^array!
+
+valueClass
+	^isByteArray ifTrue: [ByteArray] ifFalse: [Array]! !
 !StLiteralArrayNode categoriesFor: #=!comparing!public! !
 !StLiteralArrayNode categoriesFor: #acceptVisitor:!public!visitor! !
 !StLiteralArrayNode categoriesFor: #children!accessing!public! !
@@ -77,6 +78,7 @@ value
 !StLiteralArrayNode categoriesFor: #startWithoutParentheses!accessing!public! !
 !StLiteralArrayNode categoriesFor: #stopWithoutParentheses!accessing!public! !
 !StLiteralArrayNode categoriesFor: #value!accessing!public! !
+!StLiteralArrayNode categoriesFor: #valueClass!accessing!public! !
 
 !StLiteralArrayNode class methodsFor!
 

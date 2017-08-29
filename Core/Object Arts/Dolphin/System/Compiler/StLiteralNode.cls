@@ -35,6 +35,9 @@ precedence
 	^0!
 
 value
+	^self subclassResponsibility!
+
+valueClass
 	^self subclassResponsibility! !
 !StLiteralNode categoriesFor: #=!comparing!public! !
 !StLiteralNode categoriesFor: #hash!comparing!public! !
@@ -43,6 +46,7 @@ value
 !StLiteralNode categoriesFor: #needsParenthesis!public!testing! !
 !StLiteralNode categoriesFor: #precedence!accessing!public! !
 !StLiteralNode categoriesFor: #value!accessing!public! !
+!StLiteralNode categoriesFor: #valueClass!accessing!public! !
 
 !StLiteralNode class methodsFor!
 

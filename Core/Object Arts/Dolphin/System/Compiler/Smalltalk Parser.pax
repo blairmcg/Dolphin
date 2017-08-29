@@ -32,10 +32,11 @@ package classNames
 	add: #StCascadeNode;
 	add: #StEofToken;
 	add: #StErrorToken;
+	add: #StExponentIntegerToken;
 	add: #StExternalArgTypeNode;
 	add: #StExternalCallNode;
+	add: #StFloatToken;
 	add: #StIdentifierToken;
-	add: #StIntegerLiteralToken;
 	add: #StKeywordToken;
 	add: #StLiteralArrayNode;
 	add: #StLiteralArrayToken;
@@ -52,7 +53,9 @@ package classNames
 	add: #StParseNodeVisitor;
 	add: #StPrimitiveNode;
 	add: #StProgramNode;
+	add: #StRealNumberToken;
 	add: #StReturnNode;
+	add: #StScaledDecimalToken;
 	add: #StSelfVariableNode;
 	add: #StSequenceNode;
 	add: #StSpecialCharacterToken;
@@ -311,8 +314,23 @@ StLiteralToken subclass: #StNumberLiteralToken
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-StNumberLiteralToken subclass: #StIntegerLiteralToken
+StNumberLiteralToken subclass: #StExponentIntegerToken
 	instanceVariableNames: 'significand exponent'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+StNumberLiteralToken subclass: #StRealNumberToken
+	instanceVariableNames: 'significand precision exponent'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+StRealNumberToken subclass: #StFloatToken
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+StRealNumberToken subclass: #StScaledDecimalToken
+	instanceVariableNames: 'scale'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

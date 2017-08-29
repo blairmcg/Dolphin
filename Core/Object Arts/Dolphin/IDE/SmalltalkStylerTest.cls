@@ -44,7 +44,7 @@ scanNumeric: aString class: aClass
 						reset;
 						yourself).
 	token := scanner next.
-	self assert: (token numberClass includesBehavior: aClass).
+	self assert: (token valueClass includesBehavior: aClass).
 	result1 := token value.
 	self assert: result1 = expected.
 	aClass == ScaledDecimal 

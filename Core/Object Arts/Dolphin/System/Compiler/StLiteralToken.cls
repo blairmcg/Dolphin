@@ -47,7 +47,10 @@ sourceInterval
 	^self start to: stopPosition!
 
 stop: anInteger
-	stopPosition := anInteger! !
+	stopPosition := anInteger!
+
+valueClass
+	^self value basicClass! !
 !StLiteralToken categoriesFor: #acceptVisitor:!public!visitor! !
 !StLiteralToken categoriesFor: #formatOn:source:!printing!public! !
 !StLiteralToken categoriesFor: #formattedFrom:!printing!public! !
@@ -57,6 +60,7 @@ stop: anInteger
 !StLiteralToken categoriesFor: #realValue!accessing!public! !
 !StLiteralToken categoriesFor: #sourceInterval!accessing!public! !
 !StLiteralToken categoriesFor: #stop:!accessing!public! !
+!StLiteralToken categoriesFor: #valueClass!accessing!public! !
 
 !StLiteralToken class methodsFor!
 

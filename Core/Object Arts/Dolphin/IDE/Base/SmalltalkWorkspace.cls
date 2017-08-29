@@ -193,7 +193,7 @@ classForToken: anAssociation
 						shrink;
 						yourself).
 			^lookup lookup: text].
-	style == #literalNumber ifTrue: [^(SmalltalkStylingScanner on: text readStream) next numberClass].
+	style == #literalNumber ifTrue: [^(SmalltalkStylingScanner on: text readStream) next valueClass].
 	style == #literalString ifTrue: [^String].
 	style == #literalSymbol ifTrue: [^Symbol].
 	style == #literalCharacter ifTrue: [^Character].
