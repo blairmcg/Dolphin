@@ -93,8 +93,8 @@ line
 literalArrayNodeClass
 	^StLiteralArrayNode!
 
-literalNodeClass
-	^StLiteralNode!
+literalValueNodeClass
+	^StLiteralValueNode!
 
 lookupExternalStructType: anStIdentifierToken 
 	| structClass |
@@ -169,13 +169,13 @@ parseBinaryMessageWith: aNode
 		arguments: {self parseUnaryMessage}!
 
 parseBinaryPattern
-	| binaryToken node args |
+	| binaryToken node arg |
 	binaryToken := currentToken.
 	self step.
-	args := {self parseMethodParameter}.
-	node := self methodNodeClass selectorParts: {binaryToken} arguments: args.
-	node addComments: args last comments.
-	args last comments: nil.
+	arg := self parseMethodParameter.
+	node := self methodNodeClass selectorParts: {binaryToken} arguments: {arg}.
+	node addComments: arg comments.
+	arg comments: nil.
 	^node!
 
 parseBlock
@@ -295,7 +295,10 @@ parseCascadeMessage
 parseExpression: aString
 	| body method |
 	method := self methodNodeClass
-				selectorParts: {scanner identifierTokenClass value: 'doIt' start: nil}
+				selectorParts: {scanner identifierTokenClass
+							start: nil
+							comments: nil
+							value: 'doIt'}
 				arguments: #().
 	method source: aString.
 	body := self parseStatementsOf: method allowTag: false.
@@ -388,22 +391,22 @@ parseExternalArgTypeQualifier
 	self step.
 	^0!
 
-parseExternalCall: startInteger isVirtual: aBoolean 
+parseExternalCall: startInteger isVirtual: aBoolean
 	| vfnIndex node |
 	node := StExternalCallNode new.
 	node
 		start: startInteger;
 		callingConvention: self parseExternalCallingConvention;
 		returnType: self parseExternalArgType.
-	aBoolean 
+	aBoolean
 		ifTrue: 
 			[node isVirtual: true.
-			(currentToken isLiteralToken not or: [(vfnIndex := currentToken value) isInteger not]) 
+			(currentToken isLiteralToken not or: [(vfnIndex := currentToken value) isInteger not])
 				ifTrue: 
 					[self parserError: CErrExpectVfn.
 					"Error ignored, attempt to recover."
 					vfnIndex := 1].
-			(vfnIndex between: 1 and: VMConstants.MaxVirtualFunction) 
+			(vfnIndex between: 1 and: VMConstants.MaxVirtualFunction)
 				ifFalse: 
 					[self parserError: CErrBadVfn
 					"Error ignored, continue"].
@@ -577,18 +580,19 @@ parseLiteralByteArray
 		isByteArray: true!
 
 parseLiteralByteArrayObject
-	(currentToken isLiteralToken 
-		and: [currentToken value isInteger and: [currentToken value between: 0 and: 255]]) 
+	(currentToken isLiteralToken
+		and: [currentToken value isInteger and: [currentToken value between: 0 and: 255]])
 			ifFalse: 
 				[| token |
 				self parserError: CErrBadValueInByteArray.
 				"Error ignored, attempt to recover"
-				token := scanner literalTokenClass 
-							value: 0
+				token := scanner literalTokenClass
 							start: currentToken start
+							comments: nil
+							value: 0
 							stop: currentToken stop.
 				self step.
-				^self literalNodeClass literalToken: token].
+				^self literalValueNodeClass literalToken: token].
 	^self parsePrimitiveLiteral!
 
 parseMessagePattern
@@ -605,7 +609,12 @@ parseMessagePattern
 							[self parserError: CErrBadSelector.
 							"Error ignored, attempt to recover by
 							constructing a dummy pattern and method node..."
-							self methodNodeClass selectorParts: {scanner identifierTokenClass value: '' start: 1} arguments: #()]]]!
+							self methodNodeClass
+								selectorParts: {scanner identifierTokenClass
+											start: 1
+											comments: nil
+											value: ''}
+								arguments: #()]]]!
 
 parseMethod
 	methodNode := self parseMessagePattern.
@@ -635,6 +644,12 @@ parseMethod: aString in: aClass errorBlock: monadicBlock
 
 parseMethodParameter
 	^self parseVariableNode: self parameterNodeClass!
+
+parseNumberLiteral
+	| token |
+	token := currentToken.
+	self step.
+	^self literalValueNodeClass literalToken: token!
 
 parseOptimizedExpression
 	| position node body isClosed |
@@ -683,10 +698,9 @@ parsePrimitiveIdentifier: anStVariableNodeClass
 	^node!
 
 parsePrimitiveLiteral
-	| token |
-	token := currentToken.
-	self step.
-	^self literalNodeClass literalToken: token!
+	^currentToken isNumberLiteralToken
+		ifTrue: [self parseNumberLiteral]
+		ifFalse: [self parsePrimitiveValueLiteral]!
 
 parsePrimitiveObject
 	| token node |
@@ -705,15 +719,22 @@ parsePrimitiveObject
 			char == ${ ifTrue: [^self parseBraceArray]].
 	currentToken isOptimized ifTrue: [^self parseOptimizedExpression].
 	self parserError: CErrInvalExprStart.
-	"Attempt to recover by treating it as an identifier, the AST will be invalid of course"
+	"Attempt to recover by treating it as a literal value, the AST will be invalid of course"
 	token := scanner literalTokenClass
-				value: (self source copyFrom: currentToken start to: currentToken stop)
 				start: currentToken start
+				comments: nil
+				value: (self source copyFrom: currentToken start to: currentToken stop)
 				stop: currentToken stop.
 	self step.
-	node := self literalNodeClass literalToken: token.
+	node := self literalValueNodeClass literalToken: token.
 	self addCommentsTo: node.
 	^node!
+
+parsePrimitiveValueLiteral
+	| token |
+	token := currentToken.
+	self step.
+	^self literalValueNodeClass literalToken: token!
 
 parserError: anInteger
 	"Raise a <SmalltalkParseError> with the specified <integer> error code and associated arguments
@@ -847,14 +868,14 @@ parseTag
 	tag stop: currentToken start.
 	self step!
 
-parseTag: startInteger 
-	^currentToken isKeyword 
+parseTag: startInteger
+	^currentToken isKeyword
 		ifTrue: 
-			[currentToken value = 'primitive:' 
+			[currentToken value = 'primitive:'
 				ifTrue: 
 					[| primitiveIndex |
 					self step.
-					(currentToken isLiteralToken not or: [currentToken value isInteger not]) 
+					(currentToken isLiteralToken not or: [currentToken value isInteger not])
 						ifTrue: 
 							[self parserError: CErrExpectPrimIdx.
 							"Error ignored, attempt to recover, skip the
@@ -865,7 +886,8 @@ parseTag: startInteger
 								start: startInteger;
 								yourself].
 					primitiveIndex := currentToken value.
-					(primitiveIndex between: 1 and: VMConstants.MaxPrimitive) ifFalse: [self parserError: CErrBadPrimIdx].
+					(primitiveIndex between: 1 and: VMConstants.MaxPrimitive)
+						ifFalse: [self parserError: CErrBadPrimIdx].
 					self step.
 					(StPrimitiveNode primitiveIndex: primitiveIndex)
 						start: startInteger;
@@ -920,8 +942,9 @@ parseVariableNode: anStVariableNodeClass
 	self parserError: CErrExpectVariable.
 	"Error ignored, attempt to recover..."
 	token := scanner identifierTokenClass
-				value: (self source copyFrom: currentToken start to: currentToken stop)
-				start: currentToken start.
+				start: currentToken start
+				comments: nil
+				value: (self source copyFrom: currentToken start to: currentToken stop).
 	self step.
 	node := anStVariableNodeClass identifierToken: token.
 	self addCommentsTo: node.
@@ -935,49 +958,65 @@ patchExternalDescriptorClose
 	qualifier := currentToken value.
 	qualifier := (qualifier copyFrom: 1 to: qualifier size - 1) asSymbol.
 	nextToken := currentToken.
-	currentToken := StBinarySelectorToken value: qualifier start: nextToken start.
+	currentToken := StBinarySelectorToken
+				start: nextToken start
+				comments: nil
+				value: qualifier.
 	nextToken value: #>.
 	nextToken start: nextToken start + qualifier size.
 	^qualifier!
 
 patchLiteralArrayToken
 	| value |
-	value := (currentToken isIdentifier or: [currentToken isBinary or: [currentToken isKeyword]]) 
+	value := (currentToken isIdentifier or: [currentToken isBinary or: [currentToken isKeyword]])
 				ifTrue: [currentToken value]
 				ifFalse: 
 					[self parserError: CErrBadTokenInArray.
 					"Error ignored, attempt to recover..."
 					self source copyFrom: currentToken start to: currentToken stop].
-	currentToken := scanner literalTokenClass 
-				value: value asSymbol
+	currentToken := scanner literalTokenClass
 				start: currentToken start
+				comments: nil
+				value: value asSymbol
 				stop: currentToken stop!
 
 patchLiteralMessage
 	| value |
 	value := currentToken value.
-	value == true 
+	value == true
 		ifTrue: 
-			[^currentToken := StIdentifierToken value: 'true' start: currentToken start].
-	value == false 
+			[^currentToken := StIdentifierToken
+						start: currentToken start
+						comments: nil
+						value: 'true'].
+	value == false
 		ifTrue: 
-			[^currentToken := StIdentifierToken value: 'false' start: currentToken start].
-	value == nil 
+			[^currentToken := StIdentifierToken
+						start: currentToken start
+						comments: nil
+						value: 'false'].
+	value == nil
 		ifTrue: 
-			[^currentToken := StIdentifierToken value: 'nil' start: currentToken start]!
+			[^currentToken := StIdentifierToken
+						start: currentToken start
+						comments: nil
+						value: 'nil']!
 
 patchNegativeLiteral
 	"Private - Handle the special negative number case for binary message sends."
 
 	(currentToken value isKindOf: Number) ifFalse: [^self].
 	currentToken value <= 0 ifFalse: [^self].
-	currentToken value = 0 
+	currentToken value = 0
 		ifTrue: 
-			[(self source notNil 
-				and: [self source notEmpty and: [(self source at: (currentToken start min: self source size)) == $-]]) 
+			[(self source notNil
+				and: [self source notEmpty and: [(self source at: (currentToken start min: self source size)) == $-]])
 					ifFalse: [^self]].
 	nextToken := currentToken.
-	currentToken := StBinarySelectorToken value: #- start: nextToken start.
+	currentToken := StBinarySelectorToken
+				start: nextToken start
+				comments: nil
+				value: #-.
 	nextToken forgetNegative!
 
 reportError: anInteger at: posInteger line: lineInteger range: anInterval extras: anArray 
@@ -1078,7 +1117,7 @@ variableNodeClass
 !SmalltalkParser categoriesFor: #initializeParserWith:!initializing!private! !
 !SmalltalkParser categoriesFor: #line!accessing!public! !
 !SmalltalkParser categoriesFor: #literalArrayNodeClass!constants!private! !
-!SmalltalkParser categoriesFor: #literalNodeClass!constants!private! !
+!SmalltalkParser categoriesFor: #literalValueNodeClass!constants!private! !
 !SmalltalkParser categoriesFor: #lookupExternalStructType:!parsing!private! !
 !SmalltalkParser categoriesFor: #messageNodeClass!constants!private! !
 !SmalltalkParser categoriesFor: #methodClass:!accessing!public! !
@@ -1117,12 +1156,14 @@ variableNodeClass
 !SmalltalkParser categoriesFor: #parseMethod:!accessing!private! !
 !SmalltalkParser categoriesFor: #parseMethod:in:errorBlock:!parsing!public! !
 !SmalltalkParser categoriesFor: #parseMethodParameter!parsing!private! !
+!SmalltalkParser categoriesFor: #parseNumberLiteral!parsing!private! !
 !SmalltalkParser categoriesFor: #parseOptimizedExpression!parsing!private! !
 !SmalltalkParser categoriesFor: #parseOverlappedCall:!parsing!private! !
 !SmalltalkParser categoriesFor: #parseParenthesizedExpression!parsing!private! !
 !SmalltalkParser categoriesFor: #parsePrimitiveIdentifier:!parsing!private! !
 !SmalltalkParser categoriesFor: #parsePrimitiveLiteral!parsing!private! !
 !SmalltalkParser categoriesFor: #parsePrimitiveObject!parsing!private! !
+!SmalltalkParser categoriesFor: #parsePrimitiveValueLiteral!parsing!private! !
 !SmalltalkParser categoriesFor: #parserError:!error handling!private! !
 !SmalltalkParser categoriesFor: #parserError:range:!error handling!private! !
 !SmalltalkParser categoriesFor: #parserError:range:extra:!error handling!private! !
@@ -1170,6 +1211,7 @@ initialize
 	"
 
 	"By default Dolphin treats empty statements as a syntax error"
+
 	AllowEmptyStatements := false!
 
 new

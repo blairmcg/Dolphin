@@ -40,9 +40,9 @@ addComment: anInterval
 atEnd
 	^characterType == #eof!
 
-characterExpected
+characterExpected: anInteger
 	self lexicalError: LErrExpectChar.
-	^self recoverFromExpectChar!
+	^self recoverFromExpectChar: 0!
 
 classify: aCharacter 
 	| index |
@@ -153,10 +153,11 @@ line
 
 	^line!
 
-literalErrorToken: anObject start: anInteger 
-	^self literalTokenClass 
-		value: anObject
+literalErrorToken: anObject start: anInteger
+	^self literalTokenClass
 		start: tokenStart
+		comments: nil
+		value: anObject
 		stop: anInteger!
 
 literalTokenClass
@@ -222,7 +223,7 @@ readNumber
 	self step.
 	^number!
 
-recoverFromExpectChar
+recoverFromExpectChar: anInteger
 	^self literalErrorToken: nil start: stream position!
 
 recoverFromIllegalCharacter
@@ -231,7 +232,10 @@ recoverFromIllegalCharacter
 	start := tokenStart.
 	"Skip the bad character"
 	self step.
-	^StIllegalCharacterToken value: badChar start: start!
+	^StIllegalCharacterToken
+		start: start
+		comments: nil
+		value: badChar!
 
 recoverFromIllegalNumber: anInteger 
 	^self literalErrorToken: (stream copyFrom: anInteger to: self previousStepPosition) start: anInteger!
@@ -279,7 +283,10 @@ scanBinary: aClass
 			self step].
 	val := buffer contents.
 	val := val asSymbol.
-	^aClass value: val start: tokenStart!
+	^aClass
+		start: tokenStart
+		comments: nil
+		value: val!
 
 scanExtendedLiterals
 	| token |
@@ -301,32 +308,38 @@ scanExtendedLiterals
 scanIdentifierOrKeyword
 	| name |
 	self scanName.
-	currentCharacter == nameSpaceCharacter 
+	currentCharacter == nameSpaceCharacter
 		ifTrue: 
 			[| token |
 			token := self scanNameSpaceName.
 			token notNil ifTrue: [^token]].
 	(currentCharacter == $: and: [stream peek ~~ $=]) ifTrue: [^self scanKeyword].
 	name := buffer contents.
-	name = 'true' 
+	name = 'true'
 		ifTrue: 
-			[^self literalTokenClass 
+			[^self literalTokenClass
+				start: tokenStart
+				comments: nil
 				value: true
-				start: tokenStart
 				stop: self previousStepPosition].
-	name = 'false' 
+	name = 'false'
 		ifTrue: 
-			[^self literalTokenClass 
+			[^self literalTokenClass
+				start: tokenStart
+				comments: nil
 				value: false
-				start: tokenStart
 				stop: self previousStepPosition].
-	name = 'nil' 
+	name = 'nil'
 		ifTrue: 
-			[^self literalTokenClass 
-				value: nil
+			[^self literalTokenClass
 				start: tokenStart
+				comments: nil
+				value: nil
 				stop: self previousStepPosition].
-	^self identifierTokenClass value: name start: tokenStart!
+	^self identifierTokenClass
+		start: tokenStart
+		comments: nil
+		value: name!
 
 scanKeyword
 	| outputPosition inputPosition words |
@@ -339,20 +352,25 @@ scanKeyword
 	self step.	":"
 	characterType == #alphabetic and: 
 			[self scanName.
-			currentCharacter == $:]] 
+			currentCharacter == $:]]
 			whileTrue.
 	"Restore to position immediately after last colon"
 	buffer position: outputPosition.
 	stream position: inputPosition.
 	self step.
-	^words == 1 
-		ifTrue: [StKeywordToken value: buffer contents start: tokenStart]
+	^words == 1
+		ifTrue: 
+			[StKeywordToken
+				start: tokenStart
+				comments: nil
+				value: buffer contents]
 		ifFalse: 
 			[| name |
 			name := buffer contents.
-			StMultiKeywordLiteralToken 
-				value: name asSymbol
+			StMultiKeywordLiteralToken
 				start: tokenStart
+				comments: nil
+				value: name asSymbol
 				stop: tokenStart + name size - 1]!
 
 scanLiteral
@@ -371,15 +389,19 @@ scanLiteral
 
 scanLiteralArrayToken
 	| token |
-	token := StLiteralArrayToken value: (String with: $# with: currentCharacter)
-				start: tokenStart.
+	token := StLiteralArrayToken
+				start: tokenStart
+				comments: nil
+				value: (String with: $# with: currentCharacter).
 	self step.
 	^token!
 
 scanLiteralCharacter
-	| token value |
+	| token stop value start |
+	start := stream position.
 	self step.	"$"
-	self atEnd ifTrue: [^self characterExpected].
+	self atEnd ifTrue: [^self characterExpected: start].
+	stop := stream position.
 	value := currentCharacter.
 	self step.	"char"
 	"Extended syntax for special characters?"
@@ -392,16 +414,17 @@ scanLiteralCharacter
 							[| codePoint |
 							self step.
 							codePoint := self readIntegerOfRadix: 16.
-							(codePoint isNil or: [codePoint > 255]) ifTrue: [^self characterExpected].
+							(codePoint isNil or: [codePoint > 255]) ifTrue: [^self characterExpected: start].
 							value := Character value: codePoint]]
 				ifNotNil: 
 					[:char |
 					value := char.
 					self step]].
 	token := self literalTokenClass
-				value: value
 				start: tokenStart
-				stop: self previousStepPosition.
+				comments: nil
+				value: value
+				stop: stop.
 	^token!
 
 scanLiteralString
@@ -413,8 +436,9 @@ scanLiteralString
 				[buffer nextPut: currentCharacter.
 				self step].
 	^self literalTokenClass
-		value: buffer contents
 		start: tokenStart
+		comments: nil
+		value: buffer contents
 		stop: self previousStepPosition!
 
 scanName
@@ -423,7 +447,7 @@ scanName
 			self step]!
 
 scanNameSpaceName
-	nameSpaceCharacter == $: 
+	nameSpaceCharacter == $:
 		ifTrue: 
 			[stream peek == $: ifFalse: [^nil].
 			buffer next: 2 put: $:.
@@ -434,34 +458,44 @@ scanNameSpaceName
 	self step.
 	self scanName.
 	currentCharacter == nameSpaceCharacter ifTrue: [^self scanNameSpaceName].
-	^StIdentifierToken value: buffer contents start: tokenStart!
+	^StIdentifierToken
+		start: tokenStart
+		comments: nil
+		value: buffer contents!
 
 scanNumber
 	| start number stop |
 	start := stream position.
 	number := [self readNumber] on: Error
 				do: 
-					[:ex | 
+					[:ex |
 					self illegalNumber: start.
 					0].
 	stop := self previousStepPosition.
-	^self numberTokenClass 
-		value: number
+	^self numberTokenClass
 		start: start
+		comments: nil
+		value: number
 		stop: stop
 		source: (stream copyFrom: start to: stop)!
 
 scanOptimized
 	self step.
-	^StOptimizedToken start: tokenStart stop: self previousStepPosition!
+	^StOptimizedToken
+		start: tokenStart
+		comments: nil
+		stop: self previousStepPosition!
 
 scanPatternVariable
 	buffer nextPut: currentCharacter.
 	self step.
-	currentCharacter == ${ 
+	currentCharacter == ${
 		ifTrue: 
 			[self step.
-			^PatternBlockToken value: '`{' start: tokenStart].
+			^PatternBlockToken
+				start: tokenStart
+				comments: nil
+				value: '`{'].
 	[characterType == #alphabetic] whileFalse: 
 			[characterType == #eof ifTrue: [^self metaVariableExpected].
 			buffer nextPut: currentCharacter.
@@ -480,23 +514,31 @@ scanQualifiedReference
 	currentCharacter == $} ifFalse: [^self unterminatedQualifiedRef].
 	self step.	"}"
 	^self literalTokenClass
-		value: (bindingClass pathString: nameToken value)
 		start: tokenStart
+		comments: nil
+		value: (bindingClass pathString: nameToken value)
 		stop: self previousStepPosition!
 
 scanSpecialCharacter
 	| character |
-	currentCharacter == $: 
+	currentCharacter == $:
 		ifTrue: 
 			[self step.
-			^currentCharacter == $= 
+			^currentCharacter == $=
 				ifTrue: 
 					[self step.
 					StAssignmentToken start: tokenStart]
-				ifFalse: [StSpecialCharacterToken value: $: start: tokenStart]].
+				ifFalse: 
+					[StSpecialCharacterToken
+						start: tokenStart
+						comments: nil
+						value: $:]].
 	character := currentCharacter.
 	self step.
-	^StSpecialCharacterToken value: character start: tokenStart!
+	^StSpecialCharacterToken
+		start: tokenStart
+		comments: nil
+		value: character!
 
 scanStringSymbol
 	| literalToken |
@@ -523,8 +565,9 @@ scanSymbol
 			self step.
 			value := value first: lastPosition - startPosition + 1].
 	^self literalTokenClass
-		value: value asSymbol
 		start: tokenStart
+		comments: nil
+		value: value asSymbol
 		stop: self previousStepPosition!
 
 scanToken
@@ -588,7 +631,7 @@ unterminatedString
 	^self recoverFromInvalidLiteral! !
 !SmalltalkScanner categoriesFor: #addComment:!private!scanning! !
 !SmalltalkScanner categoriesFor: #atEnd!public!testing! !
-!SmalltalkScanner categoriesFor: #characterExpected!error handling!private! !
+!SmalltalkScanner categoriesFor: #characterExpected:!error handling!private! !
 !SmalltalkScanner categoriesFor: #classify:!private!scanning! !
 !SmalltalkScanner categoriesFor: #constantExpected!error handling!private! !
 !SmalltalkScanner categoriesFor: #contents!accessing!public! !
@@ -621,7 +664,7 @@ unterminatedString
 !SmalltalkScanner categoriesFor: #previousStepPosition!accessing!private! !
 !SmalltalkScanner categoriesFor: #readIntegerOfRadix:!private!scanning! !
 !SmalltalkScanner categoriesFor: #readNumber!private!scanning! !
-!SmalltalkScanner categoriesFor: #recoverFromExpectChar!error handling!private! !
+!SmalltalkScanner categoriesFor: #recoverFromExpectChar:!error handling!private! !
 !SmalltalkScanner categoriesFor: #recoverFromIllegalCharacter!error handling!private! !
 !SmalltalkScanner categoriesFor: #recoverFromIllegalNumber:!error handling!private! !
 !SmalltalkScanner categoriesFor: #recoverFromInvalidLiteral!error handling!private! !

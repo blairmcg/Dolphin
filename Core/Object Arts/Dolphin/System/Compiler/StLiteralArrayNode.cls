@@ -37,6 +37,9 @@ contents: aRBLiteralNodeCollection
 isForByteArray
 	^isByteArray!
 
+isLiteralArray
+	^true!
+
 postCopy
 	super postCopy.
 	self contents: (contents collect: [:each | each copy]).
@@ -68,6 +71,7 @@ value
 !StLiteralArrayNode categoriesFor: #contents!accessing!public! !
 !StLiteralArrayNode categoriesFor: #contents:!accessing!public! !
 !StLiteralArrayNode categoriesFor: #isForByteArray!public!testing! !
+!StLiteralArrayNode categoriesFor: #isLiteralArray!public!testing! !
 !StLiteralArrayNode categoriesFor: #postCopy!copying!public! !
 !StLiteralArrayNode categoriesFor: #startPosition:contents:stopPosition:isByteArray:!initializing!public! !
 !StLiteralArrayNode categoriesFor: #startWithoutParentheses!accessing!public! !
@@ -84,13 +88,12 @@ startPosition: startInteger contents: anArray stopPosition: stopInteger isByteAr
 			isByteArray: aBoolean;
 		yourself!
 
-value: aValue 
-	^(self new)
+value: aValue
+	^self
 		startPosition: nil
-			contents: (aValue asArray collect: [:each | StLiteralNode value: each])
-			stopPosition: nil
-			isByteArray: aValue class ~~ Array;
-		yourself! !
+		contents: (aValue asArray collect: [:each | StLiteralNode value: each])
+		stopPosition: nil
+		isByteArray: aValue class ~~ Array! !
 !StLiteralArrayNode class categoriesFor: #startPosition:contents:stopPosition:isByteArray:!instance creation!public! !
 !StLiteralArrayNode class categoriesFor: #value:!instance creation!public! !
 

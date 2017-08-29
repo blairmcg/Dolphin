@@ -52,6 +52,9 @@ isLiteralArrayToken
 isLiteralToken
 	^false!
 
+isNumberLiteralToken
+	^false!
+
 isOptimized
 	^false!
 
@@ -105,6 +108,7 @@ stop
 !StToken categoriesFor: #isKeyword!public!testing! !
 !StToken categoriesFor: #isLiteralArrayToken!public!testing! !
 !StToken categoriesFor: #isLiteralToken!public!testing! !
+!StToken categoriesFor: #isNumberLiteralToken!public!testing! !
 !StToken categoriesFor: #isOptimized!public!testing! !
 !StToken categoriesFor: #isPatternBlock!public!testing! !
 !StToken categoriesFor: #isPatternVariable!public!testing! !
@@ -124,6 +128,14 @@ stop
 start: anInteger 
 	<primitive: 157>
 	^self new start: anInteger
-! !
+!
+
+start: anInteger comments: aCollectionOrNil
+	<primitive: 157>
+	^self new
+		start: anInteger;
+		comments: aCollectionOrNil;
+		yourself! !
 !StToken class categoriesFor: #start:!instance creation!public! !
+!StToken class categoriesFor: #start:comments:!instance creation!public! !
 

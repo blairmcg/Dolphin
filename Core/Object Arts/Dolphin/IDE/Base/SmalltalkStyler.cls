@@ -118,7 +118,7 @@ acceptIdentifierToken: aStIdentifierToken
 		shrink;
 		yourself) at: lastStyle ifAbsent: [#identifier]!
 
-acceptIllegalCharacterToken: aStIllegalCharacterToken 
+acceptIllegalCharacterToken: aStIllegalCharacterToken
 	^#illegal!
 
 acceptKeywordToken: aStKeywordToken 
@@ -161,27 +161,30 @@ acceptOptimizedToken: aStOptimizedToken
 	stack addLast: aStOptimizedToken.
 	^#specialCharacter!
 
-acceptSpecialCharacterToken: aStSpecialCharacterToken 
+acceptSpecialCharacterToken: aStSpecialCharacterToken
 	"Special case for Smalltalk-80 literal syntax, which allows nested arrays in literal arrays to be unquoted."
 
 	| char |
 	char := aStSpecialCharacterToken value.
-	char == $( 
+	char == $(
 		ifTrue: 
-			[^self isInArray 
+			[^self isInArray
 				ifTrue: 
-					[stack addLast: (StLiteralArrayToken value: '(' start: aStSpecialCharacterToken start).
+					[stack addLast: (StLiteralArrayToken
+								start: aStSpecialCharacterToken start
+								comments: nil
+								value: '(').
 					arrayDepth := arrayDepth + 1.
 					#literalArray]
 				ifFalse: 
 					[stack addLast: aStSpecialCharacterToken.
 					#specialCharacter]].
-	char == $) 
+	char == $)
 		ifTrue: 
-			[(stack removeLastIfAbsent: []) 
+			[(stack removeLastIfAbsent: [])
 				ifNotNil: 
-					[:token | 
-					token isLiteralArrayToken 
+					[:token |
+					token isLiteralArrayToken
 						ifTrue: 
 							[arrayDepth := arrayDepth - 1.
 							^#literalArray]].
@@ -424,7 +427,7 @@ tokenBefore: anInteger
 !SmalltalkStyler categoriesFor: #stylingStartBefore:in:!helpers!private! !
 !SmalltalkStyler categoriesFor: #tokenBefore:!helpers!private! !
 
-SmalltalkStyler methodProtocol: #stTokenVisitor attributes: #(#readOnly) selectors: #(#acceptAssignmentToken: #acceptBinarySelectorToken: #acceptIdentifierToken: #acceptKeywordToken: #acceptLiteralArrayToken: #acceptLiteralToken: #acceptNumberLiteralToken: #acceptOptimizedToken: #acceptSpecialCharacterToken:)!
+SmalltalkStyler methodProtocol: #stTokenVisitor attributes: #(#readOnly) selectors: #(#acceptAssignmentToken: #acceptBinarySelectorToken: #acceptIdentifierToken: #acceptIllegalCharacterToken: #acceptKeywordToken: #acceptLiteralArrayToken: #acceptLiteralToken: #acceptNumberLiteralToken: #acceptOptimizedToken: #acceptSpecialCharacterToken:)!
 
 !SmalltalkStyler class methodsFor!
 

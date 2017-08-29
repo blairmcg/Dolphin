@@ -27,6 +27,9 @@ formatOn: aStream source: aString
 isNegative
 	^self source first == $-!
 
+isNumberLiteralToken
+	^true!
+
 source
 	^source!
 
@@ -36,17 +39,20 @@ source: aString
 !StNumberLiteralToken categoriesFor: #forgetNegative!helpers!private! !
 !StNumberLiteralToken categoriesFor: #formatOn:source:!printing!public! !
 !StNumberLiteralToken categoriesFor: #isNegative!public!testing! !
+!StNumberLiteralToken categoriesFor: #isNumberLiteralToken!public!testing! !
 !StNumberLiteralToken categoriesFor: #source!accessing!public! !
 !StNumberLiteralToken categoriesFor: #source:!accessing!public! !
 
 !StNumberLiteralToken class methodsFor!
 
-value: aNumber start: anInteger stop: stopInteger source: sourceString 
-	^(self 
-		value: aNumber
-		start: anInteger
-		stop: stopInteger)
+start: startInteger comments: aCollectionOrNil value: aString stop: stopInteger source: sourceString
+	<primitive: 157>
+	^self new
+		start: startInteger;
+		comments: aCollectionOrNil;
+		value: aString;
+		stop: stopInteger;
 		source: sourceString;
 		yourself! !
-!StNumberLiteralToken class categoriesFor: #value:start:stop:source:!instance creation!public! !
+!StNumberLiteralToken class categoriesFor: #start:comments:value:stop:source:!instance creation!public! !
 
