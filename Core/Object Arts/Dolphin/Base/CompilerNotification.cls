@@ -150,7 +150,7 @@ source
 	"Answer the <readableString> of code which caused this notification to be raised while it
 	was being compiled."
 
-	^source ifNil: ['']! !
+	^source ?? ''! !
 !CompilerNotification categoriesFor: #_descriptionArguments!displaying!public! !
 !CompilerNotification categoriesFor: #_descriptionFormat!displaying!public! !
 !CompilerNotification categoriesFor: #code:in:for:selector:position:line:ranges:extras:!initializing!private! !
@@ -235,7 +235,9 @@ initialize
 		at: LErrExpectChar put: 'character expected';
 		at: LErrInvalidQualifier put: 'invalid identifier in qualified reference';
 		at: LErrQualifiedRefNotClosed put: 'qualified reference not closed';
-		at: LErrBadNumber put: 'illegal number'.
+		at: LErrBadNumber put: 'illegal number';
+		at: LErrExpectCodePoint put: 'expecting hex code point';
+		at: LErrBadCodePoint put: 'illegal code point'.
 
 	"'Unmatched ' in string literal.'"
 	ErrorFormats

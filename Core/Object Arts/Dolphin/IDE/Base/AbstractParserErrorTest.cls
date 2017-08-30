@@ -125,12 +125,25 @@ parseExprError: aString in: aClass range: anInterval line: lineInteger code: anI
 				source: aString]!
 
 parseExprError: aString range: anInterval line: lineInteger code: anInteger
+	| errors |
+	errors := OrderedCollection new.
+	[self parseExpression: aString in: self class]
+		on: self compilationWarningClass
+		do: [:ex | ex resume]
+		on: self compilationErrorClass
+		do: 
+			[:ex |
+			errors addLast: ex.
+			ex exit: nil].
 	self
-		parseExprError: aString
-		in: self class
-		range: anInterval
-		line: lineInteger
-		code: anInteger!
+		assert: (errors anySatisfy: 
+					[:each |
+					self
+						checkCompileError: each
+						range: anInterval
+						code: anInteger
+						line: lineInteger
+						source: aString])!
 
 parseExpression: aString 
 	^self parseExpression: aString in: self class!
@@ -842,6 +855,24 @@ testErrorsLexicalBadChar
 				line: 1
 				code: LErrBadChar]!
 
+testErrorsLexicalBadCodePoint
+	#('$\x100' '$\xFFFFFFFF') do: 
+			[:each |
+			| delimited end |
+			end := each size.
+			self
+				parseExprError: each
+				range: (1 to: end)
+				line: 1
+				code: LErrBadCodePoint.
+			delimited := String lineDelimiter , each , String lineDelimiter.
+			end := end + String lineDelimiter size.
+			self
+				parseExprError: delimited
+				range: ((delimited indexOf: $$) to: end)
+				line: 2
+				code: LErrBadCodePoint]!
+
 testErrorsLexicalCommentNotClosed
 	self
 		lexicalError: '"blah blah ...'
@@ -850,13 +881,38 @@ testErrorsLexicalCommentNotClosed
 		code: LErrCommentNotClosed!
 
 testErrorsLexicalExpectChar
-	#('$' '$\x' '$\xG' '$\x100' '$\xFFFFFFFF') do: 
+	"Incomplete literal character at end of file."
+
+	self
+		parseExprError: '$'
+		range: (1 to: 1)
+		line: 1
+		code: LErrExpectChar.
+	self
+		parseExprError: String lineDelimiter , '$'
+		range: (3 to: 3)
+		line: 2
+		code: LErrExpectChar!
+
+testErrorsLexicalExpectCodePoint
+	#('$\x' '$\x ' '$\xG') do: 
 			[:each |
+			| delimited end |
+			end := each size.
 			self
 				parseExprError: each
-				range: (1 to: each size)
+				range: (1 to: end)
 				line: 1
-				code: LErrExpectChar]!
+				code: LErrExpectCodePoint.
+			delimited := String lineDelimiter , each.
+			end := delimited size.
+			"eof in the middle of the token is a special test case"
+			each last = $x ifFalse: [delimited := delimited , String lineDelimiter].
+			self
+				parseExprError: delimited
+				range: ((delimited indexOf: $$) to: end)
+				line: 2
+				code: LErrExpectCodePoint]!
 
 testErrorsLexicalExpectConst
 	"Invalid symbol"
@@ -1837,8 +1893,10 @@ writtenNotReadRange: aString
 !AbstractParserErrorTest categoriesFor: #testErrorsIncorrectNumberOfNotNilBlockArgs!public!unit tests! !
 !AbstractParserErrorTest categoriesFor: #testErrorsInvalidExpressionStart!public!unit tests! !
 !AbstractParserErrorTest categoriesFor: #testErrorsLexicalBadChar!public!unit tests! !
+!AbstractParserErrorTest categoriesFor: #testErrorsLexicalBadCodePoint!public!unit tests! !
 !AbstractParserErrorTest categoriesFor: #testErrorsLexicalCommentNotClosed!public!unit tests! !
 !AbstractParserErrorTest categoriesFor: #testErrorsLexicalExpectChar!public!unit tests! !
+!AbstractParserErrorTest categoriesFor: #testErrorsLexicalExpectCodePoint!public!unit tests! !
 !AbstractParserErrorTest categoriesFor: #testErrorsLexicalExpectConst!public!unit tests! !
 !AbstractParserErrorTest categoriesFor: #testErrorsLexicalStringNotClosed!public!unit tests! !
 !AbstractParserErrorTest categoriesFor: #testErrorsLiteralArray!public!unit tests! !
