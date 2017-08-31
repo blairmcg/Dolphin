@@ -31,12 +31,10 @@ package classNames
 	add: #StBraceArrayNode;
 	add: #StCascadeNode;
 	add: #StEofToken;
-	add: #StErrorToken;
-	add: #StExponentIntegerToken;
 	add: #StExternalArgTypeNode;
 	add: #StExternalCallNode;
-	add: #StFloatToken;
 	add: #StIdentifierToken;
+	add: #StIllegalCharacterToken;
 	add: #StKeywordToken;
 	add: #StLiteralArrayNode;
 	add: #StLiteralArrayToken;
@@ -53,9 +51,7 @@ package classNames
 	add: #StParseNodeVisitor;
 	add: #StPrimitiveNode;
 	add: #StProgramNode;
-	add: #StRealNumberToken;
 	add: #StReturnNode;
-	add: #StScaledDecimalToken;
 	add: #StSelfVariableNode;
 	add: #StSequenceNode;
 	add: #StSpecialCharacterToken;
@@ -274,12 +270,12 @@ StValueToken subclass: #StBinarySelectorToken
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-StValueToken subclass: #StErrorToken
-	instanceVariableNames: 'code position'
+StValueToken subclass: #StIdentifierToken
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-StValueToken subclass: #StIdentifierToken
+StValueToken subclass: #StIllegalCharacterToken
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -311,26 +307,6 @@ StLiteralToken subclass: #StMultiKeywordLiteralToken
 	classInstanceVariableNames: ''!
 StLiteralToken subclass: #StNumberLiteralToken
 	instanceVariableNames: 'source'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-StNumberLiteralToken subclass: #StExponentIntegerToken
-	instanceVariableNames: 'significand exponent'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-StNumberLiteralToken subclass: #StRealNumberToken
-	instanceVariableNames: 'significand precision exponent'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-StRealNumberToken subclass: #StFloatToken
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-StRealNumberToken subclass: #StScaledDecimalToken
-	instanceVariableNames: 'scale'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

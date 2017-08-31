@@ -318,6 +318,9 @@ visitIdentifierToken: aStIdentifierToken
 		shrink;
 		yourself) at: lastStyle ifAbsent: [#identifier]!
 
+visitIllegalCharacterToken: anStIllegalCharacterToken
+	^#illegal!
+
 visitKeywordToken: aStKeywordToken
 	self atStart ifTrue: [^self initialKeywordStyle].
 	self isInArray ifTrue: [^#literalSymbol].
@@ -420,6 +423,7 @@ visitSpecialCharacterToken: aStSpecialCharacterToken
 !SmalltalkStyler categoriesFor: #visitBinarySelectorToken:!public!visiting! !
 !SmalltalkStyler categoriesFor: #visitErrorToken:!public!visiting! !
 !SmalltalkStyler categoriesFor: #visitIdentifierToken:!public!visiting! !
+!SmalltalkStyler categoriesFor: #visitIllegalCharacterToken:!public!visiting! !
 !SmalltalkStyler categoriesFor: #visitKeywordToken:!public!visiting! !
 !SmalltalkStyler categoriesFor: #visitLiteralArrayToken:!public!visiting! !
 !SmalltalkStyler categoriesFor: #visitLiteralToken:!public!visiting! !
@@ -427,7 +431,7 @@ visitSpecialCharacterToken: aStSpecialCharacterToken
 !SmalltalkStyler categoriesFor: #visitOptimizedToken:!public!visiting! !
 !SmalltalkStyler categoriesFor: #visitSpecialCharacterToken:!public!visiting! !
 
-SmalltalkStyler methodProtocol: #stTokenVisitor attributes: #(#readOnly) selectors: #(#visitAssignmentToken: #visitBinarySelectorToken: #visitErrorToken: #visitIdentifierToken: #visitKeywordToken: #visitLiteralArrayToken: #visitLiteralToken: #visitNumberLiteralToken: #visitOptimizedToken: #visitSpecialCharacterToken:)!
+SmalltalkStyler methodProtocol: #stTokenVisitor attributes: #(#readOnly) selectors: #(#visitAssignmentToken: #visitBinarySelectorToken: #visitErrorToken: #visitIdentifierToken: #visitIllegalCharacterToken: #visitKeywordToken: #visitLiteralArrayToken: #visitLiteralToken: #visitNumberLiteralToken: #visitOptimizedToken: #visitSpecialCharacterToken:)!
 
 !SmalltalkStyler class methodsFor!
 

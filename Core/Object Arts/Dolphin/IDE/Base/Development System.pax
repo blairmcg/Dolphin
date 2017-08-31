@@ -116,7 +116,6 @@ package classNames
 	add: #SmalltalkWorkspaceDocument;
 	add: #SpecialReferencesCategory;
 	add: #STBDebugger;
-	add: #StNumberStylingToken;
 	add: #StructureInspector;
 	add: #TwinLevelInspector;
 	add: #UnclassifiedMethodsCategory;
@@ -1155,11 +1154,6 @@ StParseNodeVisitor subclass: #MessageNodeCollector
 	classInstanceVariableNames: ''!
 StSemanticAnalyser subclass: #BrowserSemanticAnalyser
 	instanceVariableNames: 'isStub'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-StNumberLiteralToken subclass: #StNumberStylingToken
-	instanceVariableNames: 'numberClass'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

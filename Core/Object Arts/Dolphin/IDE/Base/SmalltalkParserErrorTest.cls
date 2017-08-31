@@ -91,6 +91,13 @@ testErrorsLexicalBadNumber
 		lexicalError: '  1s999999 '
 		range: (3 to: 10)
 		line: 1
+		code: LErrBadNumber.
+	"Scale too large in literal ScaledDecimal with fraction"
+	self
+		lexicalError: '
+1.2s999999 '
+		range: (3 to: 12)
+		line: 2
 		code: LErrBadNumber!
 
 testErrorsLexicalInvalidQualifier

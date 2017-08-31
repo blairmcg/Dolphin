@@ -40,13 +40,6 @@ addComment: anInterval
 atEnd
 	^characterType == #eof!
 
-characterExpected: anInteger
-	self lexicalError: LErrExpectChar.
-	^self
-		literalErrorToken: buffer contents
-		start: anInteger
-		code: LErrExpectChar!
-
 classify: aCharacter 
 	| index |
 	"May be asked to classify nil if peek at end of stream"
@@ -58,10 +51,7 @@ classify: aCharacter
 
 constantExpected
 	self lexicalError: LErrExpectConst.
-	^self
-		literalErrorToken: buffer contents
-		start: self previousStepPosition
-		code: LErrExpectConst!
+	^self literalErrorToken: buffer contents stop: self previousStepPosition!
 
 contents
 	| contentsStream |
@@ -110,15 +100,9 @@ errorHandler: parseErrorHandler
 errorPosition
 	^stream position!
 
-errorTokenClass
-	^StErrorToken!
-
 extendedLiteralExpected
 	self lexicalError: LErrExpectExtendedLiteral.
-	^self
-		literalErrorToken: buffer contents
-		start: self previousStepPosition
-		code: LErrExpectExtendedLiteral!
+	^self literalErrorToken: buffer contents stop: self previousStepPosition!
 
 getComments
 	| oldComments |
@@ -130,19 +114,23 @@ identifierTokenClass
 	^StIdentifierToken!
 
 illegalCharacter
-	self lexicalError: LErrBadChar range: (self errorPosition to: self errorPosition).
-	"Error ignored, attempt to recover"
-	^self recoverFromIllegalCharacter!
+	| start badChar |
+	start := tokenStart.
+	self lexicalError: LErrBadChar range: (start to: start).
+	badChar := currentCharacter.
+	"Skip over the bad character"
+	self step.
+	^StIllegalCharacterToken
+		start: start
+		comments: nil
+		value: badChar!
 
-illegalNumber: anInteger
-	self lexicalError: LErrBadNumber range: (anInteger to: self errorPosition)!
+illegalNumber
+	self lexicalError: LErrBadNumber range: (tokenStart to: self previousStepPosition)!
 
 invalidQualifier
 	self lexicalError: LErrInvalidQualifier.
-	^self
-		literalErrorToken: buffer contents
-		start: self previousStepPosition
-		code: LErrInvalidQualifier!
+	^self literalErrorToken: buffer contents stop: self previousStepPosition!
 
 lexicalError: anInteger
 	^self lexicalError: anInteger range: (tokenStart to: self errorPosition)!
@@ -167,13 +155,15 @@ line
 
 	^line!
 
-literalErrorToken: anObject start: anInteger code: codeInteger
-	^self errorTokenClass
-		start: anInteger
+literalCharacterTokenClass
+	^self literalTokenClass!
+
+literalErrorToken: anObject stop: anInteger
+	^self literalTokenClass
+		start: tokenStart
 		comments: nil
 		value: anObject
-		code: codeInteger
-		position: self errorPosition!
+		stop: anInteger!
 
 literalTokenClass
 	^StLiteralToken!
@@ -184,13 +174,61 @@ metaVariableExpected
 namespaceCharacter: aCharacter
 	nameSpaceCharacter := aCharacter!
 
-newIntegerToken: anInteger
-	| stop |
+newFloatToken: significandInteger precision: precisionInteger exponent: exponentInteger
+	| floatValue stop |
+	#todo.	"Do a better job of detecting and report illegal floating point numbers that are out of range."
+	floatValue := exponentInteger - precisionInteger <= 308
+				ifTrue: 
+					[exponentInteger >= precisionInteger
+						ifTrue: 
+							["integral value"
+							(significandInteger * (exponentInteger - precisionInteger) exp10) asFloat]
+						ifFalse: 
+							["Note that the fraction does not need to be normalized before #asFloat conversion,
+							 which will be faster than Integer>>gcd: "
+							(Fraction numerator: significandInteger
+								denominator: (exponentInteger negated + precisionInteger) exp10) asFloat]]
+				ifFalse: 
+					[self illegalNumber.
+					Float infinity * significandInteger sign].
+	stop := self previousStepPosition.
+	^self numberTokenClass
+		start: tokenStart
+		comments: nil
+		value: floatValue
+		stop: stop
+		source: (stream copyFrom: tokenStart to: stop)!
+
+newIntegerToken: significandInteger exponent: exponentInteger
+	"Private - Return a new literal integer token. To avoid lengthy exponentiation calculation
+	for accidentally large exponents, impose an arbitrary limit."
+
+	| stop intValue |
+	intValue := exponentInteger <= Number maxLiteralIntegerExponent
+				ifTrue: [significandInteger * exponentInteger exp10]
+				ifFalse: 
+					[self illegalNumber.
+					0].
 	stop := self previousStepPosition.
 	^StNumberLiteralToken
 		start: tokenStart
 		comments: nil
-		value: anInteger
+		value: intValue
+		stop: stop
+		source: (stream copyFrom: tokenStart to: stop)!
+
+newScaledDecimalToken: significandInteger precision: precisionInteger scale: scaleInteger
+	| stop decimalValue |
+	decimalValue := scaleInteger <= ScaledDecimal maxPrecision
+				ifTrue: [ScaledDecimal newFromNumber: significandInteger / precisionInteger exp10 scale: scaleInteger]
+				ifFalse: 
+					[self illegalNumber.
+					0s].
+	stop := self previousStepPosition.
+	^self numberTokenClass
+		start: tokenStart
+		comments: nil
+		value: decimalValue
 		stop: stop
 		source: (stream copyFrom: tokenStart to: stop)!
 
@@ -241,19 +279,6 @@ readIntegerOfRadix: anInteger
 				ifFalse: [^value]].
 	^value!
 
-recoverFromIllegalCharacter
-	| start badChar |
-	badChar := currentCharacter.
-	start := tokenStart.
-	"Skip the bad character"
-	self step.
-	^self errorTokenClass
-		start: start
-		comments: nil
-		value: buffer contents
-		code: LErrBadChar
-		position: start!
-
 recoverFromUnterminatedComment: anInteger 
 	characterType := #eof.
 	currentCharacter := nil.
@@ -300,31 +325,25 @@ scanBinary: aClass
 		value: val!
 
 scanExponentInteger: significandInteger startingAt: posInteger
-	"Private - Allow plus prefix on exponent, e.g. 2e+16, although not strictly Smalltalk syntax."
+	"Private - Dolphin supports a literal format for integers with exponents. These are not translated to Floats."
 
-	| pos isNegative |
+	| pos sign |
 	pos := stream position.
 	self step.
-	((isNegative := currentCharacter == $-) or: [currentCharacter == $+]) ifTrue: [self step].
-	^(self readIntegerOfRadix: 10)
-		ifNotNil: 
-			[:exp |
-			| stop token exponentInteger |
-			exp > Number maxLiteralIntegerExponent ifTrue: [self illegalNumber: posInteger].
-			exponentInteger := isNegative ifTrue: [exp * -1] ifFalse: [exp].
-			stop := self previousStepPosition.
-			token := StExponentIntegerToken
-						start: tokenStart
-						comments: nil
-						value: nil
-						stop: stop
-						source: (stream copyFrom: tokenStart to: stop)
-						significand: significandInteger
-						exponent: exponentInteger.
-			token]
-		ifNil: 
-			[self stepBackTo: pos.
-			self newIntegerToken: significandInteger]!
+	sign := currentCharacter == $-
+				ifTrue: 
+					[self step.
+					-1]
+				ifFalse: 
+					["Allow plus prefix on exponent, e.g. 2e+16, although not strictly Smalltalk syntax."
+					currentCharacter == $+ ifTrue: [self step].
+					1].
+	^self newIntegerToken: significandInteger
+		exponent: ((self readIntegerOfRadix: 10)
+				ifNotNil: [:exp | exp * sign]
+				ifNil: 
+					[self stepBackTo: pos.
+					0])!
 
 scanExtendedLiterals
 	| token |
@@ -435,35 +454,52 @@ scanLiteralArrayToken
 	^token!
 
 scanLiteralCharacter
-	| token stop value start |
-	start := stream position.
+	| value stop |
 	self step.	"$"
-	self atEnd ifTrue: [^self characterExpected: start].
 	stop := stream position.
-	value := currentCharacter.
-	self step.	"char"
-	"Extended syntax for special characters?"
-	(value == $\ and: [extendedLiterals])
+	self atEnd
 		ifTrue: 
-			[(EscapeChars lookup: currentCharacter)
-				ifNil: 
-					[currentCharacter == $x
-						ifTrue: 
-							[| codePoint |
-							self step.
-							codePoint := self readIntegerOfRadix: 16.
-							(codePoint isNil or: [codePoint > 255]) ifTrue: [^self characterExpected: start].
-							value := Character value: codePoint]]
-				ifNotNil: 
-					[:char |
-					value := char.
-					self step]].
-	token := self literalTokenClass
-				start: tokenStart
-				comments: nil
-				value: value
-				stop: stop.
-	^token!
+			[value := $0.
+			self lexicalError: LErrExpectChar]
+		ifFalse: 
+			[value := currentCharacter.
+			self step.	"char"
+			"Extended syntax for special characters?"
+			(value == $\ and: [extendedLiterals])
+				ifTrue: 
+					[(EscapeChars lookup: currentCharacter)
+						ifNil: 
+							[currentCharacter == $x
+								ifTrue: 
+									["Explicit hex code point, e.g. $\x20"
+									self step.
+									value := (self readIntegerOfRadix: 16)
+												ifNil: 
+													["eof or non-hex digit"
+													stop := stream position.
+													self lexicalError: LErrExpectCodePoint.
+													$0]
+												ifNotNil: 
+													[:codePoint |
+													stop := self previousStepPosition.
+													"At present we are still limited to 8-bit characters"
+													codePoint > 255
+														ifTrue: 
+															["Code point out of range"
+															self lexicalError: LErrBadCodePoint range: (tokenStart to: stop).
+															$0]
+														ifFalse: [Character value: codePoint]]]]
+						ifNotNil: 
+							[:char |
+							"One of the special chars such as $\t for tab"
+							value := char.
+							stop := stream position.
+							self step]]].
+	^self literalCharacterTokenClass
+		start: tokenStart
+		comments: nil
+		value: value
+		stop: stop!
 
 scanLiteralString
 	self step.
@@ -538,26 +574,15 @@ scanNumber
 						ifFalse: 
 							[currentCharacter == $s
 								ifTrue: 
-									[| precision stop |
-									self step.	"s will always be part of token, regardless if there is a scale value"
-									precision := self readIntegerOfRadix: 10.
-									precision
-										ifNil: [precision := 0]
-										ifNotNil: [integerPart := integerPart * (10 raisedToInteger: precision)].
-									stop := self previousStepPosition.
-									^StScaledDecimalToken
-										start: tokenStart
-										comments: nil
-										value: nil
-										stop: stop
-										source: (stream copyFrom: tokenStart to: stop)
-										significand: integerPart * sign
-										precision: precision
-										exponent: 0]
+									[self step.	"s will always be part of token, regardless if there is a scale value"
+									^self
+										newScaledDecimalToken: integerPart * sign
+										precision: 0
+										scale: (self readIntegerOfRadix: 10) ?? 0]
 								ifFalse: 
 									["Also support St-80 format integer of the form 1e5, not valid ANSI syntax though"
 									currentCharacter == $e ifTrue: [^self scanExponentInteger: integerPart * sign startingAt: start]]]]].
-	^self newIntegerToken: integerPart * sign!
+	^self newIntegerToken: integerPart * sign exponent: 0!
 
 scanOptimized
 	self step.
@@ -600,16 +625,23 @@ scanQualifiedReference
 		stop: self previousStepPosition!
 
 scanSmalltalkReal: anInteger sign: signInteger
-	| fractionStart fractionalPart impliedPrecision significand precision exponent stop |
+	| fractionStart fractionalPart scale significand precision exponent |
 	(self classify: stream peek) == #digit
 		ifFalse: 
 			["Trailing full stop after an integer"
-			^self newIntegerToken: anInteger].
+			^self newIntegerToken: anInteger * signInteger exponent: 0].
 	"Step over the decimal point"
 	self step.
 	fractionStart := stream position.
 	fractionalPart := self readIntegerOfRadix: 10.
-	impliedPrecision := self previousStepPosition - fractionStart + 1.
+	scale := self previousStepPosition - fractionStart + 1.
+	significand := fractionalPart == 0
+				ifTrue: 
+					[precision := 0.
+					anInteger]
+				ifFalse: 
+					[precision := scale.
+					anInteger * precision exp10 + fractionalPart].
 
 	"Process any exponent..."
 	(currentCharacter == $e or: [currentCharacter == $d or: [currentCharacter == $q]])
@@ -638,43 +670,13 @@ scanSmalltalkReal: anInteger sign: signInteger
 			[currentCharacter == $s
 				ifTrue: 
 					[self step.	"Skip the $s"
-					precision := self readIntegerOfRadix: 10.
-					precision
-						ifNil: 
-							[precision := impliedPrecision.
-							significand := anInteger * (10 raisedToInteger: precision) + fractionalPart]
-						ifNotNil: 
-							[significand := anInteger * (10 raisedToInteger: precision)
-										+ (fractionalPart * (10 raisedToInteger: precision - impliedPrecision))].
-					stop := self previousStepPosition.
-					^StScaledDecimalToken
-						start: tokenStart
-						comments: nil
-						value: nil
-						stop: stop
-						source: (stream copyFrom: tokenStart to: stop)
-						significand: significand * signInteger
+					^self
+						newScaledDecimalToken: significand * signInteger
 						precision: precision
-						exponent: 0].
+						scale: (self readIntegerOfRadix: 10) ?? scale].
 			exponent := 0].
-	significand := fractionalPart == 0
-				ifTrue: 
-					[precision := 0.
-					anInteger]
-				ifFalse: 
-					[precision := impliedPrecision.
-					anInteger * (10 raisedToInteger: precision) + fractionalPart].
-
-	#todo.	"Do a better job of detecting and report illegal floating point numbers that are out of range."
-	exponent - precision > 308 ifTrue: [self illegalNumber: tokenStart].
-	stop := self previousStepPosition.
-	^StFloatToken
-		start: tokenStart
-		comments: nil
-		value: nil
-		stop: stop
-		source: (stream copyFrom: tokenStart to: stop)
-		significand: significand * signInteger
+	^self
+		newFloatToken: significand
 		precision: precision
 		exponent: exponent!
 
@@ -787,20 +789,13 @@ unterminatedComment: anInteger
 
 unterminatedQualifiedRef
 	self lexicalError: LErrQualifiedRefNotClosed.
-	^self
-		literalErrorToken: buffer contents
-		start: self previousStepPosition
-		code: LErrQualifiedRefNotClosed!
+	^self literalErrorToken: buffer contents stop: self previousStepPosition!
 
 unterminatedString
 	self lexicalError: LErrStringNotClosed.
-	^self
-		literalErrorToken: buffer contents
-		start: self previousStepPosition
-		code: LErrStringNotClosed! !
+	^self literalErrorToken: buffer contents stop: self previousStepPosition! !
 !SmalltalkScanner categoriesFor: #addComment:!private!scanning! !
 !SmalltalkScanner categoriesFor: #atEnd!public!testing! !
-!SmalltalkScanner categoriesFor: #characterExpected:!error handling!private! !
 !SmalltalkScanner categoriesFor: #classify:!private!scanning! !
 !SmalltalkScanner categoriesFor: #constantExpected!error handling!private! !
 !SmalltalkScanner categoriesFor: #contents!accessing!public! !
@@ -812,29 +807,30 @@ unterminatedString
 !SmalltalkScanner categoriesFor: #errorHandler!accessing!private! !
 !SmalltalkScanner categoriesFor: #errorHandler:!accessing!private! !
 !SmalltalkScanner categoriesFor: #errorPosition!accessing!error handling!public! !
-!SmalltalkScanner categoriesFor: #errorTokenClass!error handling!private! !
 !SmalltalkScanner categoriesFor: #extendedLiteralExpected!error handling!private! !
 !SmalltalkScanner categoriesFor: #getComments!accessing!public! !
 !SmalltalkScanner categoriesFor: #identifierTokenClass!constants!private! !
 !SmalltalkScanner categoriesFor: #illegalCharacter!error handling!private! !
-!SmalltalkScanner categoriesFor: #illegalNumber:!error handling!private! !
+!SmalltalkScanner categoriesFor: #illegalNumber!error handling!private! !
 !SmalltalkScanner categoriesFor: #invalidQualifier!private!scanning! !
 !SmalltalkScanner categoriesFor: #lexicalError:!error handling!private! !
 !SmalltalkScanner categoriesFor: #lexicalError:range:!error handling!private! !
 !SmalltalkScanner categoriesFor: #lexicalError:range:extras:!error handling!private! !
 !SmalltalkScanner categoriesFor: #line!accessing!public! !
-!SmalltalkScanner categoriesFor: #literalErrorToken:start:code:!error handling!private! !
+!SmalltalkScanner categoriesFor: #literalCharacterTokenClass!public!scanning! !
+!SmalltalkScanner categoriesFor: #literalErrorToken:stop:!error handling!private! !
 !SmalltalkScanner categoriesFor: #literalTokenClass!constants!private! !
 !SmalltalkScanner categoriesFor: #metaVariableExpected!error handling!private! !
 !SmalltalkScanner categoriesFor: #namespaceCharacter:!accessing!public! !
-!SmalltalkScanner categoriesFor: #newIntegerToken:!private!scanning! !
+!SmalltalkScanner categoriesFor: #newFloatToken:precision:exponent:!helpers!private! !
+!SmalltalkScanner categoriesFor: #newIntegerToken:exponent:!helpers!private! !
+!SmalltalkScanner categoriesFor: #newScaledDecimalToken:precision:scale:!helpers!private! !
 !SmalltalkScanner categoriesFor: #next!accessing!public! !
 !SmalltalkScanner categoriesFor: #notificationClass!constants!error handling!private! !
 !SmalltalkScanner categoriesFor: #numberTokenClass!public! !
 !SmalltalkScanner categoriesFor: #on:!initializing!private! !
 !SmalltalkScanner categoriesFor: #previousStepPosition!accessing!private! !
 !SmalltalkScanner categoriesFor: #readIntegerOfRadix:!private!scanning! !
-!SmalltalkScanner categoriesFor: #recoverFromIllegalCharacter!error handling!private! !
 !SmalltalkScanner categoriesFor: #recoverFromUnterminatedComment:!error handling!private! !
 !SmalltalkScanner categoriesFor: #reportError:at:line:range:extras:!error handling!private! !
 !SmalltalkScanner categoriesFor: #scanAnySymbol!private!scanning! !

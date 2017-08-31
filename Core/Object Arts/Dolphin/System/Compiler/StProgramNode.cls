@@ -117,7 +117,7 @@ collect: aBlock
 	^aBlock value: self!
 
 comments
-	^comments ifNil: [#()]!
+	^comments ?? #()!
 
 comments: aCollection
 	comments := aCollection!

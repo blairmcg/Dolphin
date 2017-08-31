@@ -869,7 +869,7 @@ testErrorsLexicalBadCodePoint
 			end := end + String lineDelimiter size.
 			self
 				parseExprError: delimited
-				range: ((delimited indexOf: $$) to: end)
+				range: (String lineDelimiter size + 1 to: end)
 				line: 2
 				code: LErrBadCodePoint]!
 
@@ -910,7 +910,7 @@ testErrorsLexicalExpectCodePoint
 			each last = $x ifFalse: [delimited := delimited , String lineDelimiter].
 			self
 				parseExprError: delimited
-				range: ((delimited indexOf: $$) to: end)
+				range: (String lineDelimiter size + 1 to: end)
 				line: 2
 				code: LErrExpectCodePoint]!
 

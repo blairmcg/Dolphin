@@ -251,7 +251,7 @@ parseBraceArray
 	node := self braceArrayNodeClass new.
 	node left: start.
 	self parseStatementList: false into: node.
-	(currentToken isSpecial and: [currentToken value = $}])
+	(currentToken isSpecial: $})
 		ifFalse: 
 			[self parserError: CErrBraceNotClosed range: (start to: self errorPosition - 1)
 			"Error ignored, no recovery needed as reached EOF looking for a closing brace"].
@@ -531,9 +531,9 @@ parseLiteralArray
 	start := currentToken start.
 	stream := WriteStream on: (Array new: 30).
 	self step.
-	[self atEnd or: [currentToken isSpecial and: [currentToken value = $)]]]
+	[self atEnd or: [currentToken isSpecial: $)]]
 		whileFalse: [stream nextPut: self parseLiteralArrayObject].
-	(currentToken isSpecial and: [currentToken value == $)])
+	(currentToken isSpecial: $))
 		ifFalse: 
 			[self parserError: CErrArrayNotClosed range: (start to: self errorPosition - 1)
 			"Error ignored, no recovery needed as at EOF"].
@@ -564,35 +564,37 @@ parseLiteralByteArray
 	start := currentToken start.
 	stream := WriteStream on: (Array new: 30).
 	self step.
-	[self atEnd or: [currentToken isSpecial and: [currentToken value == $]]]] 
+	[self atEnd or: [currentToken isSpecial: $]]]
 		whileFalse: [stream nextPut: self parseLiteralByteArrayObject].
-	(currentToken isSpecial and: [currentToken value == $]]) 
+	(currentToken isSpecial: $])
 		ifTrue: [stop := currentToken stop]
 		ifFalse: 
 			[stop := stream isEmpty ifTrue: [start + 1] ifFalse: [stream contents last stop].
 			self parserError: CErrByteArrayNotClosed range: (start to: stop)
 			"Error ignored, but at EOF so no recovery needed..."].
 	self step.
-	^self literalArrayNodeClass 
+	^self literalArrayNodeClass
 		startPosition: start
 		contents: stream contents
 		stopPosition: stop
 		isByteArray: true!
 
 parseLiteralByteArrayObject
-	(currentToken isLiteralToken
-		and: [currentToken value isInteger and: [currentToken value between: 0 and: 255]])
-			ifFalse: 
-				[| token |
-				self parserError: CErrBadValueInByteArray.
-				"Error ignored, attempt to recover"
-				token := scanner literalTokenClass
-							start: currentToken start
-							comments: nil
-							value: 0
-							stop: currentToken stop.
-				self step.
-				^self literalValueNodeClass literalToken: token].
+	(currentToken isLiteralToken and: 
+			[| value |
+			value := currentToken value.
+			value isInteger and: [value between: 0 and: 255]])
+		ifFalse: 
+			[| token |
+			self parserError: CErrBadValueInByteArray.
+			"Error ignored, attempt to recover"
+			token := scanner literalTokenClass
+						start: currentToken start
+						comments: nil
+						value: 0
+						stop: currentToken stop.
+			self step.
+			^self literalValueNodeClass literalToken: token].
 	^self parsePrimitiveLiteral!
 
 parseMessagePattern
@@ -1005,9 +1007,11 @@ patchLiteralMessage
 patchNegativeLiteral
 	"Private - Handle the special negative number case for binary message sends."
 
+	| intValue |
 	(currentToken value isKindOf: Number) ifFalse: [^self].
-	currentToken value <= 0 ifFalse: [^self].
-	currentToken value = 0
+	intValue := currentToken value.
+	intValue <= 0 ifFalse: [^self].
+	intValue == 0
 		ifTrue: 
 			[(self source notNil
 				and: [self source notEmpty and: [(self source at: (currentToken start min: self source size)) == $-]])

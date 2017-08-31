@@ -18,7 +18,7 @@ parserClass
 	^SmalltalkParser!
 
 scannerClass
-	^SmalltalkStylingScanner!
+	^SmalltalkScanner!
 
 scanNonNumericEnd: aString class: tokenClass
 	| expected stream extra scanner actual next |
@@ -208,7 +208,7 @@ testFloatScanning
 
 	"Test termination on non-numeric character - these expressions are in error"
 	#('5.1234a' '0.5e' '1.5e2e3' '1.5e2e-3' '1.5e-Integer zero' '1.5e-' '1.5e+' '1.7976931348623158+e308')
-		do: [:each | self scanNonNumericEnd: each class: StFloatToken].
+		do: [:each | self scanNonNumericEnd: each class: StNumberLiteralToken].
 	self scanNonNumericEnd: '5.F' class: StNumberLiteralToken! !
 !SmalltalkParserTest categoriesFor: #assertToken:isChar:!helpers!private! !
 !SmalltalkParserTest categoriesFor: #parserClass!constants!private! !

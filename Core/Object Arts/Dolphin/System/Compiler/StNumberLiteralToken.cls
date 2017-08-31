@@ -28,7 +28,7 @@ formatOn: aStream source: aString
 	source ifNil: [self value printOn: aStream] ifNotNil: [aStream nextPutAll: source]!
 
 isNegative
-	^self source first == $-!
+	^self value negative!
 
 isNumberLiteralToken
 	^true!
