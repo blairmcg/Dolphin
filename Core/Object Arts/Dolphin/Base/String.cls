@@ -2,17 +2,19 @@
 
 ArrayedCollection variableByteSubclass: #String
 	instanceVariableNames: ''
-	classVariableNames: 'EncodingAnsi EncodingUtf16 EncodingUtf8 LineDelimiter NullPrintCharacter'
+	classVariableNames: 'EncodingAnsi EncodingUtf16 EncodingUtf32 EncodingUtf8 LineDelimiter NullPrintCharacter'
 	poolDictionaries: ''
-	classInstanceVariableNames: 'encoding empty'!
+	classInstanceVariableNames: 'empty'!
 String guid: (GUID fromString: '{87b4c514-026e-11d3-9fd7-00a0cc3e4a32}')!
 String isNullTerminated: true!
+String isAbstract: true!
 String addClassConstant: 'EncodingAnsi' value: 0!
 String addClassConstant: 'EncodingUtf16' value: 2!
+String addClassConstant: 'EncodingUtf32' value: 3!
 String addClassConstant: 'EncodingUtf8' value: 1!
 String addClassConstant: 'LineDelimiter' value: '
 '!
-String comment: 'String is the class of <ArrayedCollection>s whose elements are <Character>s.
+String comment: 'String is the abstract class of <ArrayedCollection>s representing strings of <Character>s. It has subclasses the represent common encodings, e.g. Latin1, UTF-8, and UTF-16.
 
 N.B. Dolphin Strings are, unlike Smalltalk-80 strings, null terminated. Space for the null terminator is implicity included when a String is allocated, but is not reported when the size of the String is requested.
 
@@ -35,13 +37,6 @@ String complies with the following ANSI protocols:
 
 	<primitive: 218>
 	^super , aSequencedReadableCollection!
-
-_beginsString: aString
-	#todo. "Doesn't work for mixed encodings, only both ANSI or both UTF-8"
-	^(CRTLibrary default 
-		strncmp: aString
-		string2: self
-		count: self size) == 0!
 
 _collate: comparand
 	"Private - Answer the receiver's <integer> collation order with respect to 
@@ -168,8 +163,7 @@ asAnsiString
 	"Answer an ANSI encoded string representation of the receiver."
 
 	<primitive: 217>
-	#todo.	"Make String abstract, with AnsiString subclass"
-	^self asUtf16String asByteString: String!
+	^self asUtf16String asByteString: ByteString!
 
 asByteArray
 	"Answer a <ByteArray> containing the encoded representations of the characters of the
@@ -187,12 +181,7 @@ asLowercase
 	"Answer a <readableString> which is a copy of the receiver but with the contents converted
 	to lowercase."
 
-	"Implementation Note: The Win32 function converts in place, so we must first create a copy."
-
-	| copy |
-	copy := self basicCopy.
-	UserLibrary default stringLowerA: copy.
-	^copy!
+	^self subclassResponsibility!
 
 asNumber
 	"Answer a Number constructed by interpreting the receiver's characters as the
@@ -205,8 +194,8 @@ asPhrase
 	The word boundaries are identified by colons (i.e. keywords) and capital letters."
 
 	| stream last |
-	stream := String writeStream: self size + 10.
-	self do: 
+	stream := self species writeStream: self size + 10.
+	self readStream do: 
 			[:each | 
 			last isNil 
 				ifTrue: [each == $: ifFalse: [last := stream nextPut: each asUppercase]]
@@ -251,13 +240,7 @@ asUppercase
 	"Answer a <readableString> which is a copy of the receiver but with the contents converted
 	to uppercase."
 
-	"Implementation Note: The Win32 function converts in place, so we need to create a copy
-	first."
-
-	| copy |
-	copy := self basicCopy.
-	UserLibrary default stringUpperA: copy.
-	^copy!
+	^self subclassResponsibility!
 
 asUtf16String
 	"Answer a UTF16-encoded equivalent of the receiver."
@@ -280,6 +263,14 @@ at: index
 
 	<primitive: 63>
 	^self errorAt: index!
+
+at: index ifAbsent: exceptionBlock
+	"Answer an <Object> which is the element of the receiver 
+	at the specified index. If the index is out of bounds answer
+	the result of evaluating the <niladicValuable> exceptionBlock."
+
+	<primitive: 63>
+	^(index > 0 and: [index <= self size]) ifTrue: [self at: index] ifFalse: [exceptionBlock value]!
 
 at: anInteger put: aCharacter
 	"Replace the character at index, anInteger, in the receiver with aCharacter.
@@ -311,18 +302,16 @@ beginsWith: aString ignoreCase: aBoolean
 	comparison may be case sensitive or insensitive, depending on the <Boolean> argument. Note
 	that unlike #beginsWith:, the comperand must be a <String>."
 
-	^(aBoolean 
-		ifTrue: 
-			[CRTLibrary default 
-				_strnicmp: self
-				string2: aString
-				count: aString size]
-		ifFalse: 
-			[CRTLibrary default 
-				strncmp: self
-				string2: aString
-				count: aString size]) 
-			== 0!
+	| string1 string2 |
+	string1 := self asUtf16String.
+	string2 := aString asUtf16String.
+	^(KernelLibrary default
+		compareString: Win32Constants.LOCALE_USER_DEFAULT
+		dwCmpFlags: (aBoolean ifTrue: [Win32Constants.NORM_IGNORECASE] ifFalse: [0])
+		lpString1: string1
+		cchCount1: string1 size
+		lpString2: string2
+		cchCount2: string2 size) == Win32Constants.CSTR_EQUAL!
 
 between: min and: max
 	"Answer whether the receiver is inclusively between the <magnitude> arguments, 
@@ -339,9 +328,14 @@ capitalized
 	"Answer a <readableString> which is a copy of the receiver but with 
 	the first character converted to its uppercase equivalent."
 
-	| answer |
-	(answer := self basicCopy) notEmpty ifTrue: [answer at: 1 put: self first asUppercase].
-	^answer!
+	| size write read |
+	size := self size.
+	size == 0 ifTrue: [^self].
+	write := self species writeStream: size.
+	read := self readStream.
+	write nextPut: read next.
+	write nextPutAll: read upToEnd.
+	^write contents!
 
 codePage
 	^self class codePage!
@@ -352,11 +346,7 @@ contains: aString
 	^(self findString: aString startingAt: 1) ~~ 0!
 
 copyToBuffer: anAddress ofSize: anInteger
-	CRTLibrary default
-		strncpy_s: anAddress
-		bufferSize: anInteger
-		strSource: self
-		count: CRTConstants._TRUNCATE!
+	^self subclassResponsibility!
 
 displayOn: aStream
 	"Append the receiver in end-user form to aStream. Since this message is intended
@@ -437,7 +427,7 @@ expandMacrosWithArguments: anArray
 	"
 
 	| newStream readStream index |
-	newStream := WriteStream on: (String new: self size).
+	newStream := Utf8String writeStream: self size.
 	readStream := ReadStream on: self.
 	index := 1.
 	[readStream atEnd] whileFalse: 
@@ -513,16 +503,9 @@ findString: aString startingAt: anInteger ignoreCase: aBoolean
 	^meLower findString: subLower startingAt: anInteger!
 
 first: anInteger
-	"Answer a new string comprising up to the leftmost anInteger characters of the receiver. 
-	Implementation Note: Rather than implement in terms of the generic #copyFrom:to: method, 
-	we can take advantage of the fact that this selector is specific to Strings, and implement more 
-	efficiently."
+	"Answer a new string comprising the leftmost anInteger characters of the receiver."
 
-	^self 
-		replaceBytesOf: (self species new: anInteger)
-		from: 1 
-		to: anInteger
-		startingAt: 1!
+	^self subclassResponsibility!
 
 formatWith: anObject
 	"Answer a <readableString> which is a message formatted from the receiver (assumed to be a
@@ -981,6 +964,18 @@ subStringsAnsi: separators
 	start <= size ifTrue: [answer nextPut: (self copyFrom: start to: size)].
 	^answer contents!
 
+titleCased
+	"Answer a <readableString> which is a copy of the receiver but with the first letter of each major word capitalized."
+
+	| kernel src dest len|
+	kernel := KernelLibrary default.
+	src := self asUtf16String.
+	len := kernel lcMapString: Win32Constants.LOCALE_USER_DEFAULT dwMapFlags: Win32Constants.LCMAP_TITLECASE lpScrStr: src cchSrc: src size lpDestStr: nil cchDest: 0.
+	len == 0 ifTrue: [kernel systemError].
+	dest := Utf16String new: len.
+	kernel lcMapString: Win32Constants.LOCALE_USER_DEFAULT dwMapFlags: Win32Constants.LCMAP_TITLECASE lpScrStr: src cchSrc: src size lpDestStr: dest cchDest: len.
+	^dest!
+
 trimBlanks
 	"Answer a copy of the receiver with leading and trailing white space removed."
 
@@ -1083,7 +1078,6 @@ withNormalizedLineDelimiters
 						ifFalse: [target nextPut: each]]].
 	^target contents! !
 !String categoriesFor: #,!copying!public! !
-!String categoriesFor: #_beginsString:!comparing!double dispatch!private! !
 !String categoriesFor: #_collate:!comparing!private! !
 !String categoriesFor: #_indexOfAnyInString:startingAt:!double dispatch!private!searching! !
 !String categoriesFor: #_sameAsString:!comparing!private! !
@@ -1105,6 +1099,7 @@ withNormalizedLineDelimiters
 !String categoriesFor: #asUtf16String!converting!public! !
 !String categoriesFor: #asUtf8String!converting!public! !
 !String categoriesFor: #at:!accessing!public! !
+!String categoriesFor: #at:ifAbsent:!accessing!public! !
 !String categoriesFor: #at:put:!accessing!public! !
 !String categoriesFor: #basicCopy!copying!private! !
 !String categoriesFor: #beginsWith:!comparing!public! !
@@ -1114,7 +1109,7 @@ withNormalizedLineDelimiters
 !String categoriesFor: #capitalized!converting!public! !
 !String categoriesFor: #codePage!constants!public! !
 !String categoriesFor: #contains:!public! !
-!String categoriesFor: #copyToBuffer:ofSize:!constants!copying!public! !
+!String categoriesFor: #copyToBuffer:ofSize:!constants!copying!private! !
 !String categoriesFor: #displayOn:!printing!public! !
 !String categoriesFor: #displayString!printing!public! !
 !String categoriesFor: #equals:!comparing!public! !
@@ -1167,15 +1162,13 @@ withNormalizedLineDelimiters
 !String categoriesFor: #subStrings!copying!public! !
 !String categoriesFor: #subStrings:!copying!public! !
 !String categoriesFor: #subStringsAnsi:!copying!public! !
+!String categoriesFor: #titleCased!converting!public! !
 !String categoriesFor: #trimBlanks!copying!public! !
 !String categoriesFor: #trimNulls!copying!public! !
 !String categoriesFor: #trueCompare:!comparing!private! !
 !String categoriesFor: #truncateTo:!converting!public! !
 !String categoriesFor: #unescapePercents!operations!public! !
 !String categoriesFor: #withNormalizedLineDelimiters!converting!public! !
-
-String methodProtocol: #readableString attributes: #(#ansi #readOnly) selectors: #(#, #< #<= #> #>= #after: #asLowercase #asString #asSymbol #asUppercase #at: #at:ifAbsent: #before: #between:and: #copyFrom:to: #copyReplaceAll:with: #copyReplaceFrom:to:with: #copyReplaceFrom:to:withObject: #copyReplacing:withObject: #copyWith: #copyWithout: #do: #findFirst: #findLast: #first #from:to:do: #from:to:keysAndValuesDo: #indexOf: #indexOf:ifAbsent: #indexOfSubCollection:startingAt: #indexOfSubCollection:startingAt:ifAbsent: #keysAndValuesDo: #last #max: #min: #reverse #reverseDo: #sameAs: #subStrings: #with:do:)!
-String methodProtocol: #String attributes: #(#ansi #readOnly) selectors: #(#, #< #<= #> #>= #after: #allSatisfy: #anySatisfy: #asArray #asBag #asByteArray #asLowercase #asOrderedCollection #asSet #asSortedCollection #asSortedCollection: #asString #asSymbol #asUppercase #at: #at:ifAbsent: #at:put: #atAll:put: #atAllPut: #before: #between:and: #collect: #copyFrom:to: #copyReplaceAll:with: #copyReplaceFrom:to:with: #copyReplaceFrom:to:withObject: #copyReplacing:withObject: #copyWith: #copyWithout: #detect: #detect:ifNone: #do: #do:separatedBy: #findFirst: #findLast: #first #from:to:do: #from:to:keysAndValuesDo: #includes: #indexOf: #indexOf:ifAbsent: #indexOfSubCollection:startingAt: #indexOfSubCollection:startingAt:ifAbsent: #inject:into: #isEmpty #keysAndValuesDo: #last #max: #min: #notEmpty #occurrencesOf: #rehash #reject: #replaceFrom:to:with: #replaceFrom:to:with:startingAt: #replaceFrom:to:withObject: #reverse #reverseDo: #sameAs: #select: #size #subStrings: #with:do:)!
 
 !String class methodsFor!
 
@@ -1184,8 +1177,11 @@ ansiClass
 
 	^String!
 
+basicEncoding
+	^self extraInstanceSpec!
+
 codePage
-	#todo.	"This should really be 1252, but historically we have used the current ANSI code page (which may vary by machine)"
+	#todo.	"This should really be 1252 as the current code page may vary by machine and so is not suitable for persisted strings, but historically we have used the current ANSI code page because the Win32 'A' apis do."
 	^Win32Constants.CP_ACP!
 
 elementSize
@@ -1199,6 +1195,20 @@ empty
 	so there should never be more than one empty literal string."
 
 	^empty!
+
+encode: aCharacter on: aPuttableStream
+	^self subclassResponsibility!
+
+encoding
+	"Answer a <Symbol> naming the encoding of instances of the receiver, which will be one of #ansi, #utf8, #utf16 or #utf32."
+
+	^self encodings at: self basicEncoding + 1!
+
+encodings
+	^#(#ansi #utf8 #utf16 #utf32)!
+
+errorInvalidCodePoint: codePoint
+	^self error: 'Invalid code point ' , codePoint hex!
 
 formatMessage: anIntegerId in: hModule withArguments: arguments
 	"Answer a String which is a message formatted from the format String with the
@@ -1317,14 +1327,19 @@ icon
 	^##(self) defaultIcon!
 
 initialize
-	NullPrintCharacter := $?.
+	NullPrintCharacter := Character value: 63.
 	empty := ''.
-	encoding := 0.
 	self
-		addClassConstant: 'EncodingAnsi' value: encoding;
+		addClassConstant: 'EncodingAnsi' value: 0;
 		addClassConstant: 'EncodingUtf8' value: 1;
-		addClassConstant: 'EncodingUtf16' value: 2.
-	VMLibrary default registryAt: #String put: self!
+		addClassConstant: 'EncodingUtf16' value: 2;
+		addClassConstant: 'EncodingUtf32' value: 3.
+!
+
+installedCodePages
+	"Answer the names of all code pages installed on the host system."
+
+	^self systemCodePages: Win32Constants.CP_INSTALLED!
 
 lineDelimiter
 	"Answer an immutable instance of the receiver containing the host system 
@@ -1333,6 +1348,20 @@ lineDelimiter
 	always be a String."
 
 	^LineDelimiter!
+
+new: aSmallInteger
+	"Answer an instance of the default string class of sufficient size to hold the specified number of code units."
+
+	^ByteString new: aSmallInteger!
+
+newFixed: aSmallInteger
+	"Answer a sub-instance of the receiver of size aSmallInteger bytes (this method is 
+	only valid for byte objects). The object is allocated from the fixed memory heap
+	and will not move in memory (objects allocated with primitive 71 are free to 
+	move to assist garbage collection, whereas those allocated with primitive 76 
+	are in a traditional fixed heap)."
+
+	^ByteString newFixed: aSmallInteger!
 
 nullPrintCharacter
 	^NullPrintCharacter!
@@ -1364,6 +1393,39 @@ readFrom: aStream
 			answer nextPut: ch].
 	^answer contents!
 
+supportedCodePages
+	"Answer the names of all code pages installed on the host system.
+		self supportedCodePages
+	"
+
+	^self systemCodePages: Win32Constants.CP_SUPPORTED!
+
+systemCodePages: anInteger
+	"Private - Answer a collection of system locales, depending on the flags argument,
+	anInteger. Note that this will take a while to run first time through as it causes the OS to
+	load all the code page information."
+
+	| enum ids kernel |
+	ids := OrderedCollection new: 30.
+	enum := ExternalCallback block: 
+					[:codePage |
+					ids addLast: codePage.
+					true]
+				descriptor: (ExternalDescriptor returnType: 'bool' argumentTypes: 'lpwstr').
+	kernel := KernelLibrary default.
+	kernel enumSystemCodePages: enum asParameter dwFlags: anInteger.
+	enum free.
+	^ids collect: 
+			[:each |
+			| cp cpinfo |
+			cp := Integer fromString: each.
+			cpinfo := CPINFOEXW new.
+			kernel
+				getCPInfoExW: cp
+				dwFlags: 0
+				lpCPInfoEx: cpinfo.
+			cpinfo]!
+
 tab
 	"Answer an instance of the receiver containing a tab character."
 
@@ -1379,9 +1441,14 @@ utf8Class
 
 	^Utf16String! !
 !String class categoriesFor: #ansiClass!constants!public! !
+!String class categoriesFor: #basicEncoding!accessing!public! !
 !String class categoriesFor: #codePage!constants!public! !
 !String class categoriesFor: #elementSize!constants!public! !
 !String class categoriesFor: #empty!instance creation!public! !
+!String class categoriesFor: #encode:on:!helpers!private! !
+!String class categoriesFor: #encoding!accessing!public! !
+!String class categoriesFor: #encodings!constants!public! !
+!String class categoriesFor: #errorInvalidCodePoint:!exceptions!private! !
 !String class categoriesFor: #formatMessage:in:withArguments:!instance creation!public! !
 !String class categoriesFor: #formatMessage:withArguments:!instance creation!public! !
 !String class categoriesFor: #formatSystemMessage:withArguments:!instance creation!public! !
@@ -1394,11 +1461,16 @@ utf8Class
 !String class categoriesFor: #fromString:!instance creation!public! !
 !String class categoriesFor: #fromUtf16String:!instance creation!public! !
 !String class categoriesFor: #icon!constants!public! !
-!String class categoriesFor: #initialize!development!initializing!public! !
+!String class categoriesFor: #initialize!class initialization!development!public! !
+!String class categoriesFor: #installedCodePages!enquiries!public! !
 !String class categoriesFor: #lineDelimiter!instance creation!public! !
+!String class categoriesFor: #new:!instance creation!public! !
+!String class categoriesFor: #newFixed:!instance creation!public! !
 !String class categoriesFor: #nullPrintCharacter!accessing!public! !
 !String class categoriesFor: #nullPrintCharacter:!accessing!development!public! !
 !String class categoriesFor: #readFrom:!instance creation!public! !
+!String class categoriesFor: #supportedCodePages!enquiries!public! !
+!String class categoriesFor: #systemCodePages:!enquiries!private! !
 !String class categoriesFor: #tab!instance creation!public! !
 !String class categoriesFor: #utf16Class!constants!public! !
 !String class categoriesFor: #utf8Class!constants!public! !

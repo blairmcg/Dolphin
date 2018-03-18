@@ -53,10 +53,36 @@ asUppercase
 	UserLibrary default stringUpperW: copy.
 	^copy!
 
+asUtf16String
+	"Answer a UTF16-encoded equivalent of the receiver."
+
+	^self!
+
 at: anInteger
 	"Answer the character at index, anInteger, in the receiver."
 
 	^Character value: (self wordAtOffset: anInteger + anInteger - 2)!
+
+at: anInteger encode: aCharacter
+	"Encode the specified <Character> beginning at the specified position in the receiver.
+	Answer the number of slots consumed by the encoded representation."
+
+	| codePoint |
+	codePoint := aCharacter codePoint.
+	^codePoint <= 16rFFFF
+		ifTrue: 
+			[self wordAtOffset: anInteger + anInteger - 2 put: codePoint.
+			1]
+		ifFalse: 
+			[codePoint <= Win32Constants.MAX_UCSCHAR
+				ifTrue: 
+					[| offset |
+					codePoint := codePoint - 16r10000.
+					self
+						wordAtOffset: (offset := anInteger + anInteger) - 2 put: (codePoint bitShift: -10) + 16rD800;
+						wordAtOffset: offset put: (codePoint bitAnd: 16r3FF) + 16rDC00.
+					2]
+				ifFalse: [self class errorInvalidCodePoint: codePoint]]!
 
 at: anInteger put: aCharacter
 	"Replace the character at index, anInteger, in the receiver with aCharacter."
@@ -114,11 +140,6 @@ findString: aString startingAt: anInteger
 							j := j + 1]]].
 	^0!
 
-first: anInteger
-	"Answer a copy of the receiver comprising the leftmost anInteger elements."
-
-	^self copyFrom: 1 to: anInteger!
-
 indexOfSubCollection: targetSequence startingAt: start 
 	"Answer the <integer> index of the next occurrence within the 
 	receiver of the <sequencedReadableCollection> targetSequence,
@@ -126,6 +147,9 @@ indexOfSubCollection: targetSequence startingAt: start
 	(or the search sequence is empty), answer 0."
 
 	^self findString: targetSequence startingAt: start!
+
+maxEncoding
+	^2!
 
 nextIdentityIndexOf: anElement from: start to: stop
 	"Answer the index of the next occurrence of anElement in the receiver's indexable
@@ -212,15 +236,17 @@ wordAtOffset: anInteger put: anObject
 !Utf16String categoriesFor: #asLowercase!converting!public! !
 !Utf16String categoriesFor: #asSymbol!converting!public! !
 !Utf16String categoriesFor: #asUppercase!converting!public! !
+!Utf16String categoriesFor: #asUtf16String!converting!public! !
 !Utf16String categoriesFor: #at:!accessing!public! !
+!Utf16String categoriesFor: #at:encode:!accessing!public! !
 !Utf16String categoriesFor: #at:put:!accessing!public! !
 !Utf16String categoriesFor: #beginsWith:!comparing!public! !
 !Utf16String categoriesFor: #byteSize!accessing!private! !
-!Utf16String categoriesFor: #copyToBuffer:ofSize:!constants!copying!public! !
+!Utf16String categoriesFor: #copyToBuffer:ofSize:!copying!private! !
 !Utf16String categoriesFor: #displayOn:!printing!public! !
 !Utf16String categoriesFor: #findString:startingAt:!public!searching! !
-!Utf16String categoriesFor: #first:!copying!public! !
 !Utf16String categoriesFor: #indexOfSubCollection:startingAt:!public!searching! !
+!Utf16String categoriesFor: #maxEncoding!constants!private! !
 !Utf16String categoriesFor: #nextIdentityIndexOf:from:to:!public!searching! !
 !Utf16String categoriesFor: #nextIndexOf:from:to:!public!searching! !
 !Utf16String categoriesFor: #printOn:!printing!public! !
@@ -235,7 +261,7 @@ wordAtOffset: anInteger put: anObject
 !Utf16String class methodsFor!
 
 codePage
-	^self shouldNotImplement!
+	^Win32Constants.CP_UNICODE!
 
 elementSize
 	"Answer the size of the elements of the receiver in bytes."
@@ -243,15 +269,21 @@ elementSize
 	^2!
 
 encode: aCharacter on: aPuttableStream
+	"UTF-16 encode the <Character>, aCharacter, onto the <puttableStream> over a <ByteArray>,
+	aPuttableStream."
+
 	| codePoint |
 	codePoint := aCharacter codePoint.
 	^codePoint <= 16rFFFF
 		ifTrue: [aPuttableStream nextWORDPut: codePoint]
 		ifFalse: 
-			[codePoint := codePoint - 16r10000.
-			aPuttableStream
-				nextWORDPut: (codePoint bitShift: -10) + 16rD800;
-				nextWORDPut: (codePoint bitAnd: 16r3FF) + 16rDC00]!
+			[codePoint <= Win32Constants.MAX_UCSCHAR
+				ifTrue: 
+					[codePoint := codePoint - 16r10000.
+					aPuttableStream
+						nextWORDPut: (codePoint bitShift: -10) + 16rD800;
+						nextWORDPut: (codePoint bitAnd: 16r3FF) + 16rDC00]
+				ifFalse: [self errorInvalidCodePoint: codePoint]]!
 
 fromAddress: anAddress
 	"Answer a new String instantiated from the null terminated string at anAddress."
@@ -282,45 +314,53 @@ fromAtomId: anInteger
 	^(atomName := self new: 255)
 		leftString: (KernelLibrary default getAtomName: anInteger lpBuffer: atomName nSize: atomName size)!
 
+fromBytes: aByteArray codePage: anInteger
+	"Answer an instance of the receiver constructed from the specified byte-string assumed to be encoded per the specified code page."
+
+	| kernel cch cb answer |
+	kernel := KernelLibrary default.
+	cb := aByteArray size.
+	cb = 0 ifTrue: [^self empty].
+	cch := kernel
+				multiByteToWideChar: anInteger
+				dwFlags: 0
+				lpMultiByteStr: aByteArray
+				cchMultiByte: cb
+				lpWideCharStr: nil
+				cchWideChar: 0.
+	cch <= 0 ifTrue: [^kernel systemError].
+	answer := self new: cch.
+	kernel
+		multiByteToWideChar: anInteger
+		dwFlags: 0
+		lpMultiByteStr: aByteArray
+		cchMultiByte: cb
+		lpWideCharStr: answer
+		cchWideChar: cch.
+	^answer!
+
 fromString: aString
 	"Answer an instance of the receiver containing the same characters as the <String>
 	argument."
 
 	^aString asUtf16String!
 
+fromUtf16String: anAddressOrUtf16String
+	"Answer a new instance of the receiver which is a copy of the the UTF-16 string pointed at by the argument."
+
+	^self fromAddress: anAddressOrUtf16String yourAddress!
+
 initialize
-	encoding := EncodingUtf16.
 	empty := self new
 				isImmutable: true;
 				yourself.
 	VMLibrary default registryAt: #Utf16String put: self!
 
 new: anInteger
-	"Answer an instance of the receiver to accomodate exactly
-	anInteger characters (plus a null-term)."
+	"Answer an instance of the receiver to accomodate exactly anInteger characters (plus a
+	null-terminator, space for which is in addition to the size requested)."
 
-	^super new: anInteger*2!
-
-new: elementCount withAll: elementValue
-	"Answer a new instance of the receiver with <integer>, elementCount, 
-	elements, each of which is initialized to the <Object>, elementValue.
-	Note that the result will be of size elementCount * codeUnitsFor(elementValue)."
-
-	| stream codePoint |
-	stream := ByteArray writeStream: elementCount * 2.
-	codePoint := elementValue codePoint.
-	codePoint <= 16rFFFF
-		ifTrue: [elementCount timesRepeat: [stream nextWORDPut: codePoint]]
-		ifFalse: 
-			[| l h |
-			codePoint := codePoint - 16r10000.
-			l := (codePoint bitShift: -10) + 16rD800.
-			h := (codePoint bitAnd: 16r3FF) + 16rDC00.
-			elementCount timesRepeat: 
-					[stream
-						nextWORDPut: l;
-						nextWORDPut: h]].
-	^self fromByteArray: stream contents!
+	^self basicNew: anInteger * 2!
 
 newFixed: aSmallInteger 
 	"Answer an instance of the receiver of size aSmallInteger bytes (this method is 
@@ -329,16 +369,17 @@ newFixed: aSmallInteger
 	move to assist garbage collection, whereas those allocated with primitive 76 
 	are in a traditional fixed heap)."
 
-	^super newFixed: aSmallInteger * 2! !
+	^self basicNewFixed: aSmallInteger * 2! !
 !Utf16String class categoriesFor: #codePage!constants!public! !
 !Utf16String class categoriesFor: #elementSize!constants!public! !
 !Utf16String class categoriesFor: #encode:on:!helpers!private! !
 !Utf16String class categoriesFor: #fromAddress:!instance creation!public! !
 !Utf16String class categoriesFor: #fromAddress:length:!instance creation!public! !
 !Utf16String class categoriesFor: #fromAtomId:!instance creation!public! !
+!Utf16String class categoriesFor: #fromBytes:codePage:!instance creation!public! !
 !Utf16String class categoriesFor: #fromString:!instance creation!public! !
+!Utf16String class categoriesFor: #fromUtf16String:!instance creation!public! !
 !Utf16String class categoriesFor: #initialize!development!initializing!public! !
 !Utf16String class categoriesFor: #new:!instance creation!public! !
-!Utf16String class categoriesFor: #new:withAll:!instance creation!public! !
 !Utf16String class categoriesFor: #newFixed:!instance creation!public! !
 
