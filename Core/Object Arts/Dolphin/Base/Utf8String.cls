@@ -100,31 +100,31 @@ encode: aCharacter on: aPuttableStream
 	| codePoint |
 	codePoint := aCharacter codePoint.
 	^codePoint < 16r80
-		ifTrue: [aPuttableStream nextPut: codePoint]
+		ifTrue: [aPuttableStream nextBytePut: codePoint]
 		ifFalse: 
 			[codePoint < 16r800
 				ifTrue: 
 					["2-byte encoding"
 					aPuttableStream
-						nextPut: (16rC0 bitOr: (codePoint bitShift: -6));
-						nextPut: (16r80 bitOr: (codePoint bitAnd: 16r3F))]
+						nextBytePut: (16rC0 bitOr: (codePoint bitShift: -6));
+						nextBytePut: (16r80 bitOr: (codePoint bitAnd: 16r3F))]
 				ifFalse: 
 					[codePoint < 16rFFFF
 						ifTrue: 
 							["3-byte encoding"
 							aPuttableStream
-								nextPut: (16rE0 bitOr: (codePoint bitShift: -12));
-								nextPut: (16r80 bitOr: ((codePoint bitShift: -6) bitAnd: 16r3F));
-								nextPut: (16r80 bitOr: (codePoint bitAnd: 16r3F))]
+								nextBytePut: (16rE0 bitOr: (codePoint bitShift: -12));
+								nextBytePut: (16r80 bitOr: ((codePoint bitShift: -6) bitAnd: 16r3F));
+								nextBytePut: (16r80 bitOr: (codePoint bitAnd: 16r3F))]
 						ifFalse: 
 							["4-byte encoding"
 							codePoint <= Win32Constants.MAX_UCSCHAR
 								ifTrue: 
 									[aPuttableStream
-										nextPut: (16rF0 bitOr: (codePoint bitShift: -18));
-										nextPut: (16r80 bitOr: ((codePoint bitShift: -12) bitAnd: 16r3F));
-										nextPut: (16r80 bitOr: ((codePoint bitShift: -6) bitAnd: 16r3F));
-										nextPut: (16r80 bitOr: (codePoint bitAnd: 16r3F))]
+										nextBytePut: (16rF0 bitOr: (codePoint bitShift: -18));
+										nextBytePut: (16r80 bitOr: ((codePoint bitShift: -12) bitAnd: 16r3F));
+										nextBytePut: (16r80 bitOr: ((codePoint bitShift: -6) bitAnd: 16r3F));
+										nextBytePut: (16r80 bitOr: (codePoint bitAnd: 16r3F))]
 								ifFalse: [self errorInvalidCodePoint: codePoint]]]]!
 
 fromString: aString

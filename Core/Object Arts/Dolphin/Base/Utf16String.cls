@@ -61,7 +61,8 @@ asUtf16String
 at: anInteger
 	"Answer the character at index, anInteger, in the receiver."
 
-	^Character value: (self wordAtOffset: anInteger + anInteger - 2)!
+	<primitive: 63>
+	^Character utf16Value: (self wordAtOffset: anInteger + anInteger - 2)!
 
 at: anInteger encode: aCharacter
 	"Encode the specified <Character> beginning at the specified position in the receiver.
@@ -275,14 +276,14 @@ encode: aCharacter on: aPuttableStream
 	| codePoint |
 	codePoint := aCharacter codePoint.
 	^codePoint <= 16rFFFF
-		ifTrue: [aPuttableStream nextWORDPut: codePoint]
+		ifTrue: [aPuttableStream nextWordPut: codePoint]
 		ifFalse: 
 			[codePoint <= Win32Constants.MAX_UCSCHAR
 				ifTrue: 
 					[codePoint := codePoint - 16r10000.
 					aPuttableStream
-						nextWORDPut: (codePoint bitShift: -10) + 16rD800;
-						nextWORDPut: (codePoint bitAnd: 16r3FF) + 16rDC00]
+						nextWordPut: (codePoint bitShift: -10) + 16rD800;
+						nextWordPut: (codePoint bitAnd: 16r3FF) + 16rDC00]
 				ifFalse: [self errorInvalidCodePoint: codePoint]]!
 
 fromAddress: anAddress

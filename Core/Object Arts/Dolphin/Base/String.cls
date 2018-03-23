@@ -319,6 +319,23 @@ between: min and: max
 
 	^self >= min and: [self <= max]!
 
+byteAt: anInteger
+	"Answer the byte at offset anInteger in the receiver"
+
+	<primitive: 60>
+	^self basicAt: anInteger!
+
+byteAt: aSmallInteger put: value
+	"Replace the byte at the specified index in the receiver with the specified integer byte value.
+
+	Primitive Failure Reasons:
+		0	- aSmallInteger is not a SmallInteger
+		1	- aSmallInteger out of bounds (not in the range 1..receiver's mutable size) 
+		2	- the argument, value, is not a SmallInteger in the range 0..255."
+
+	<primitive: 61>
+	^self errorAt: aSmallInteger put: value!
+
 byteSize
 	"Private - Answer the size in bytes of this object, including the null terminator."
 
@@ -1105,6 +1122,8 @@ withNormalizedLineDelimiters
 !String categoriesFor: #beginsWith:!comparing!public! !
 !String categoriesFor: #beginsWith:ignoreCase:!comparing!public! !
 !String categoriesFor: #between:and:!comparing!public! !
+!String categoriesFor: #byteAt:!accessing!public! !
+!String categoriesFor: #byteAt:put:!accessing!public! !
 !String categoriesFor: #byteSize!accessing!private! !
 !String categoriesFor: #capitalized!converting!public! !
 !String categoriesFor: #codePage!constants!public! !
