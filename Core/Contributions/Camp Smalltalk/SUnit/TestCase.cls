@@ -35,7 +35,7 @@ assert: actualObject equals: expectedObject
 		ifFalse: [self fail: (self comparingStringBetween: expectedObject and: actualObject)]!
 
 comparingStringBetween: expectedObject and: actualObject
-	^(String writeStream: 100)
+	^(Utf8String writeStream: 100)
 		nextPutAll: 'Expected: ';
 		print: expectedObject;
 		nextPutAll: ' Actual: ';
