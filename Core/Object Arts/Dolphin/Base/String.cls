@@ -38,6 +38,15 @@ String complies with the following ANSI protocols:
 	<primitive: 218>
 	^super , aSequencedReadableCollection!
 
+_cmp: comparand
+	"Private - Answer the receiver's <integer> ordinal collation order with respect to 
+	the <readableString> argument, comparand. The answer is < 0 if
+	the receiver is ordinally before the argument, 0 if ordinally equivalent, or
+	> 0 if ordinally after the argument. This comparison is fast and locale insensitive."
+
+	<primitive: 220>
+	^self primitiveFailed!
+
 _collate: comparand
 	"Private - Answer the receiver's <integer> collation order with respect to 
 	the <readableString> argument, comparand. The answer is < 0 if
@@ -48,6 +57,7 @@ _collate: comparand
 
 	| string1 string2 |
 	<primitive: 56>
+	comparand isString ifFalse: [^self error: 'Invalid comparand'].
 	"The primitive works with any supported string encoding (ANSI, UTF-8 and UTF-16) and invokes
 	the OS StringCompare function, in essence as follows:"
 	string1 := self asUtf16String.
@@ -170,7 +180,7 @@ asByteArray
 	receiver."
 
 	| size |
-	size := self basicSize.
+	size := self byteSize - self class elementSize.
 	^self
 		replaceBytesOf: (ByteArray new: size)
 		from: 1
@@ -350,7 +360,7 @@ capitalized
 	size == 0 ifTrue: [^self].
 	write := self species writeStream: size.
 	read := self readStream.
-	write nextPut: read next.
+	write nextPut: read next asUppercase.
 	write nextPutAll: read upToEnd.
 	^write contents!
 
@@ -808,7 +818,7 @@ replaceBytesOf: aByteObject from: start to: stop startingAt: fromStart
 	| fromOffset |
 	<primitive: 142>
 	fromOffset := fromStart - start.
-	stop to: start by: -1 do: [:i | aByteObject basicAt: i put: (self basicAt: i + fromOffset)].
+	stop to: start by: -1 do: [:i | aByteObject basicAt: i put: (self byteAt: i + fromOffset)].
 	^aByteObject!
 
 replaceFrom: startInteger to: stopInteger with: aReadableString startingAt: startAtInteger 
@@ -1095,6 +1105,7 @@ withNormalizedLineDelimiters
 						ifFalse: [target nextPut: each]]].
 	^target contents! !
 !String categoriesFor: #,!copying!public! !
+!String categoriesFor: #_cmp:!comparing!private! !
 !String categoriesFor: #_collate:!comparing!private! !
 !String categoriesFor: #_indexOfAnyInString:startingAt:!double dispatch!private!searching! !
 !String categoriesFor: #_sameAsString:!comparing!private! !
@@ -1194,7 +1205,7 @@ withNormalizedLineDelimiters
 ansiClass
 	"Answer the class of String to use for ANSI-encoded strings."
 
-	^String!
+	^ByteString!
 
 basicEncoding
 	^self extraInstanceSpec!

@@ -271,7 +271,7 @@ writeHeaderTo: aWriteStream type: wType key: keyString value: valueBytes length:
 		nextPutAll: (word value: wLength) bytes;
 		nextPutAll: (word value: wValueLength) bytes;
 		nextPutAll: (word value: wType) bytes;
-		next: szKey byteSize
+		next: keySize
 			putAll: szKey yourAddress asExternalAddress
 			startingAt: 1;
 		padTo: 4 put: 0;
@@ -337,7 +337,7 @@ writeTextHeaderTo: aWriteStream key: keyString value: valueString
 				type: 1
 				key: keyString
 				value: valueBytes
-				length: valueString size + 1]!
+				length: valueBytes size]!
 
 writeTranslationsTo: aWriteStream
 	"Private - Append String blocks containing the receiver's version info strings to

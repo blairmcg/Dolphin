@@ -2,7 +2,7 @@
 
 Magnitude subclass: #Character
 	instanceVariableNames: 'code'
-	classVariableNames: 'AnsiCharacters AnsiCodePoints CharacterSet EncodingMask EscapeChars Utf16Mask Utf32Mask Utf8Mask'
+	classVariableNames: 'AnsiCharacters AnsiCodePoints CharacterSet EncodingMask EscapeChars Utf16Mask Utf32Mask Utf8Mask Utf8TrailMask'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Character guid: (GUID fromString: '{87b4c651-026e-11d3-9fd7-00a0cc3e4a32}')!
@@ -11,6 +11,7 @@ Character addClassConstant: 'EscapeChars' value: #($0 nil nil nil nil nil nil $a
 Character addClassConstant: 'Utf16Mask' value: 33554432!
 Character addClassConstant: 'Utf32Mask' value: 33554432!
 Character addClassConstant: 'Utf8Mask' value: 16777216!
+Character addClassConstant: 'Utf8TrailMask' value: 192!
 Character comment: 'Character is the class of objects which serve as the elemental values of Smalltalk Strings. Each Character instance represents a specific Unicode code point. The instances for the first 256 code points are unique. Smalltalk characters have a literal syntax which is the $ symbol followed by the normal printed representation of the character. Dolphin also supports the following escaped literal formats to provide a literal representation of any character:
 	$\0	- Null
 	$\a	- Bell
@@ -118,7 +119,10 @@ asLowercase
 	uppercase letters are mapped to lowercase letters), this implementation will map other
 	characters, depending on the configured locale of the host OS."
 
-	^self class codePoint: (UserLibrary default charLower: self)!
+	| ucp |
+	^(ucp := self codePoint) <= 16rFFFF
+		ifTrue: [self class codePoint: (UserLibrary default charLower: ucp)]
+		ifFalse: [self]!
 
 asString
 	"Answer a new <String> whose sole element is the receiver."
@@ -137,7 +141,10 @@ asUppercase
 	lowercase letters are mapped to uppercase letters), this implementation will map other
 	characters, depending on the configured locale of the host OS."
 
-	^self class codePoint: (UserLibrary default charUpper: self)!
+	| ucp |
+	^(ucp := self codePoint) <= 16rFFFF
+		ifTrue: [self class codePoint: (UserLibrary default charUpper: ucp)]
+		ifFalse: [self]!
 
 asUtf16String
 	"Answer a new UTF-16 encoded <String> whose sole element is the receiver."
@@ -226,6 +233,11 @@ isAlphaNumeric
 	"Answer whether the receiver is a letter or a digit."
 
 	^UserLibrary default isCharAlphaNumeric: self!
+
+isAscii
+	"Answer whether the receiver is an ascii character"
+
+	^self codeUnit < 16r80!
 
 isAtomic
 	"Answer whether or not the receiver is the single unique instance of its class that
@@ -325,6 +337,21 @@ isUpperCase
 	^self isUppercase
 !
 
+isUtf8
+	"Answer whether the receiver is a UTF-8 code unit."
+
+	^code < 16r80 or: [(code bitAnd: EncodingMask) == Utf8Mask]!
+
+isUtf8Lead
+	"Answer whether the receiver is a UTF-8 leading byte."
+
+	^(code bitAnd: EncodingMask) == Utf8Mask and: [code allMask: 2r11000000]!
+
+isUtf8Trail
+	"Answer whether the receiver is a UTF-8 trailing byte."
+
+	^(code bitAnd: ##(EncodingMask | Utf8TrailMask)) == ##(Utf8Mask | 16r80)!
+
 isVowel
 	"Answer whether the receiver is an English vowel (a, e, i, o, or u).
 	This test is case insensitive."
@@ -394,6 +421,7 @@ species
 !Character categoriesFor: #encoding!accessing!public! !
 !Character categoriesFor: #hash!comparing!public! !
 !Character categoriesFor: #isAlphaNumeric!public!testing! !
+!Character categoriesFor: #isAscii!public!testing! !
 !Character categoriesFor: #isAtomic!public!testing! !
 !Character categoriesFor: #isControl!public!testing! !
 !Character categoriesFor: #isDigit!public!testing! !
@@ -411,6 +439,9 @@ species
 !Character categoriesFor: #isSurrogate!public!testing! !
 !Character categoriesFor: #isUppercase!public!testing! !
 !Character categoriesFor: #isUpperCase!public!testing! !
+!Character categoriesFor: #isUtf8!public!testing! !
+!Character categoriesFor: #isUtf8Lead!public!testing! !
+!Character categoriesFor: #isUtf8Trail!public!testing! !
 !Character categoriesFor: #isVowel!public!testing! !
 !Character categoriesFor: #isWhitespace!public!testing! !
 !Character categoriesFor: #printOn:!printing!public! !
@@ -500,7 +531,8 @@ initialize
 	self addClassConstant: 'Utf8Mask' value: String.EncodingUtf8 << 24.
 	self addClassConstant: 'Utf16Mask' value: String.EncodingUtf16 << 24.
 	self addClassConstant: 'Utf32Mask' value: String.EncodingUtf16 << 24.
-	self addClassConstant: 'EncodingMask' value: 2r111111 << 24!
+	self addClassConstant: 'EncodingMask' value: 2r111111 << 24.
+	self addClassConstant: 'Utf8TrailMask' value: 16rC0.!
 
 lf
 	"Answer the linefeed control <Character>."

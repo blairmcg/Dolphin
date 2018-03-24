@@ -18,7 +18,16 @@ assimilateString: aString
 	^self subclassResponsibility!
 
 caseConversionCases
-	^#(#('abc £12' 'ABC £12') #('oña' 'OÑA') #('árvízturo tükörfúrógép' 'ÁRVÍZTURO TÜKÖRFÚRÓGÉP'))!
+	"#(#('abc £12' 'ABC £12') #('oña' 'OÑA') #('árvízturo tükörfúrógép' 'ÁRVÍZTURO TÜKÖRFÚRÓGÉP') #('a\0b' 'A\0B'))"
+
+	^{{ByteString fromByteArray: #[97 98 99 32 163 49 50].
+			ByteString fromByteArray: #[65 66 67 32 163 49 50]}.
+		{ByteString fromByteArray: #[111 241 97]. ByteString fromByteArray: #[79 209 65]}.
+		{ByteString
+				fromByteArray: #[225 114 118 237 122 116 117 114 111 32 116 252 107 246 114 102 250 114 243 103 233 112].
+			ByteString
+				fromByteArray: #[193 82 86 205 90 84 85 82 79 32 84 220 75 214 82 70 218 82 211 71 201 80]}.
+		{ByteString fromByteArray: #[97 0 98]. ByteString fromByteArray: #[65 0 66]}}!
 
 equalityTestCases
 	^#('' 'a' 'abc' '' 'tükörfúrógép')!
@@ -312,13 +321,13 @@ testReverse
 
 testStreamUtfRoundTrip
 	| expected actual |
-	self skipUnless: [self collectionClass ~~ Symbol].
+	self collectionClass == Symbol ifTrue: [^self].
 	"Test a variety of 1 to 4 byte encodings"
 	{''.
 		'a'.
 		'abc'.
-		'£'.
-		'être'.
+		'?'.
+		'?tre'.
 		Utf8String fromByteArray: #[228 185 157 233 190 141 231 129 163].
 		Utf8String
 			fromByteArray: #[230 150 135 229 173 151 229 140 150 227 129 145 227 131 134 227 130 185 227 131 136].
@@ -375,9 +384,9 @@ testSubStrings
 
 testTrimNulls
 	"#1187"
+
 	| string trimmed |
-	string := self collectionClass new: 3.
-	string at: 1 put: $a.
+	string := self newCollection: #($a $\0 $\0).
 	trimmed := string trimNulls.
 	self assert: trimmed size = 1.
 	self assert: (self newCollection: trimmed) = (self newCollection: 'a')!
@@ -456,7 +465,16 @@ testWithNormalizedLineDelimiters
 	"CRLFLF"
 	self assert: (cr , lf , lf) withNormalizedLineDelimiters = (crlf , crlf).
 	"CRLFCR"
-	self assert: (cr , lf , cr) withNormalizedLineDelimiters = (crlf , crlf)! !
+	self assert: (cr , lf , cr) withNormalizedLineDelimiters = (crlf , crlf)!
+
+verifyConcatenationResult: resultString of: receiverString with: argumentString
+	"When concatenating strings the result should be of the same type as the receiver, unless a UTF string is being concatenated with a ByteString, in which case the result will be of the same type as the argument."
+
+	| expectedClass |
+	expectedClass := receiverString species.
+	(expectedClass == ByteString and: [argumentString isString])
+		ifTrue: [expectedClass := argumentString species].
+	self assert: resultString isKindOf: expectedClass! !
 !AbstractStringTest categoriesFor: #assimilate:!helpers!private! !
 !AbstractStringTest categoriesFor: #assimilateString:!helpers!private! !
 !AbstractStringTest categoriesFor: #caseConversionCases!constants!private! !
@@ -464,7 +482,7 @@ testWithNormalizedLineDelimiters
 !AbstractStringTest categoriesFor: #newNumericArray:!helpers!private! !
 !AbstractStringTest categoriesFor: #reverseTestCases!constants!private! !
 !AbstractStringTest categoriesFor: #testAsByteArray!public!unit tests! !
-!AbstractStringTest categoriesFor: #testAt!public!testing / accessing! !
+!AbstractStringTest categoriesFor: #testAt!public!unit tests! !
 !AbstractStringTest categoriesFor: #testCapitalized!public!unit tests! !
 !AbstractStringTest categoriesFor: #testCaseConversions!public! !
 !AbstractStringTest categoriesFor: #testEmpty!public!testing / accessing! !
@@ -478,4 +496,5 @@ testWithNormalizedLineDelimiters
 !AbstractStringTest categoriesFor: #testTrimNulls!public!unit tests! !
 !AbstractStringTest categoriesFor: #testUnescapePercents!public!unit tests! !
 !AbstractStringTest categoriesFor: #testWithNormalizedLineDelimiters!public!unit tests! !
+!AbstractStringTest categoriesFor: #verifyConcatenationResult:of:with:!helpers!private! !
 

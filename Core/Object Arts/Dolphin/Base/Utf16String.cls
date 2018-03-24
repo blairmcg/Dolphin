@@ -38,7 +38,7 @@ asLowercase
 
 	| copy |
 	copy := self basicCopy.
-	UserLibrary default stringLowerW: copy.
+	UserLibrary default charLowerBuffW: copy cchLength: copy size.
 	^copy!
 
 asSymbol
@@ -50,7 +50,7 @@ asUppercase
 
 	| copy |
 	copy := self basicCopy.
-	UserLibrary default stringUpperW: copy.
+	UserLibrary default charUpperBuffW: copy cchLength: copy size.
 	^copy!
 
 asUtf16String
@@ -88,7 +88,7 @@ at: anInteger encode: aCharacter
 at: anInteger put: aCharacter
 	"Replace the character at index, anInteger, in the receiver with aCharacter."
 
-	^self wordAtOffset: anInteger + anInteger - 2 put: aCharacter asInteger!
+	^self wordAtOffset: anInteger + anInteger - 2 put: aCharacter codeUnit!
 
 beginsWith: aCollection
 	"Answer whether the receiver begins with the sequence
@@ -99,7 +99,7 @@ beginsWith: aCollection
 byteSize
 	"Private - Answer the size in bytes of this object, including the null terminator."
 
-	^self basicSize + 2!
+	^(self basicSize + 1) * 2!
 
 copyToBuffer: anAddress ofSize: anInteger
 	CRTLibrary default
@@ -190,15 +190,33 @@ replaceFrom: startInteger to: stopInteger with: aReadableString startingAt: star
 resize: anInteger
 	^super resize: anInteger * 2!
 
+reverse
+	"Answer a copy of the receiver but with its elements in reverse order."
+
+	| reversed i j size |
+	j := size := self size.
+	reversed := self class new: size.
+	i := 1.
+	[i <= size] whileTrue: 
+			[| ch |
+			ch := self at: i.
+			ch isSurrogate
+				ifTrue: 
+					[reversed
+						at: j put: (self at: i + 1);
+						at: j - 1 put: ch.
+					j := j - 2.
+					i := i + 2]
+				ifFalse: 
+					[reversed at: j put: ch.
+					i := i + 1.
+					j := j - 1]].
+	^reversed!
+
 shallowCopy
 	"Implemented here to ensure that copied Utf16Strings are correctly terminated with a double null"
 
 	^self class fromAddress: self yourAddress length: self size!
-
-size
-	"Answer the number of code units in the receiver."
-
-	^self basicSize bitShift: -1!
 
 strcspn: aString start: anInteger
 	^CRTLibrary default wcscspn: self yourAddress + ((anInteger - 1) * 2)
@@ -253,8 +271,8 @@ wordAtOffset: anInteger put: anObject
 !Utf16String categoriesFor: #printOn:!printing!public! !
 !Utf16String categoriesFor: #replaceFrom:to:with:startingAt:!public!replacing! !
 !Utf16String categoriesFor: #resize:!mutating!public! !
-!Utf16String categoriesFor: #shallowCopy!public! !
-!Utf16String categoriesFor: #size!accessing!public! !
+!Utf16String categoriesFor: #reverse!copying!public! !
+!Utf16String categoriesFor: #shallowCopy!copying!public! !
 !Utf16String categoriesFor: #strcspn:start:!private!searching! !
 !Utf16String categoriesFor: #wordAtOffset:!accessing!primitives!private! !
 !Utf16String categoriesFor: #wordAtOffset:put:!accessing!primitives!private! !
