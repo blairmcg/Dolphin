@@ -9,7 +9,7 @@ Character guid: (GUID fromString: '{87b4c651-026e-11d3-9fd7-00a0cc3e4a32}')!
 Character addClassConstant: 'EncodingMask' value: 1056964608!
 Character addClassConstant: 'EscapeChars' value: #($0 nil nil nil nil nil nil $a $b $t $n $v $f $r)!
 Character addClassConstant: 'Utf16Mask' value: 33554432!
-Character addClassConstant: 'Utf32Mask' value: 33554432!
+Character addClassConstant: 'Utf32Mask' value: 50331648!
 Character addClassConstant: 'Utf8Mask' value: 16777216!
 Character addClassConstant: 'Utf8TrailMask' value: 192!
 Character comment: 'Character is the class of objects which serve as the elemental values of Smalltalk Strings. Each Character instance represents a specific Unicode code point. The instances for the first 256 code points are unique. Smalltalk characters have a literal syntax which is the $ symbol followed by the normal printed representation of the character. Dolphin also supports the following escaped literal formats to provide a literal representation of any character:
@@ -611,7 +611,7 @@ value: anInteger
 		ifFalse: 
 			[AnsiCharacters at: anInteger
 				ifAbsent: 
-					[anInteger <= Win32Constants.MAX_UCSCHAR
+					[(anInteger <= Win32Constants.MAX_UCSCHAR and: [(anInteger bitAnd: 16rFFFE) ~~ 16rFFFE])
 						ifTrue: [(self newCode: (Utf32Mask bitOr: anInteger)) isImmutable: true]
 						ifFalse: [self error: 'Invalid code point ' , anInteger hex]]]! !
 !Character class categoriesFor: #ansiValue:!instance creation!public! !

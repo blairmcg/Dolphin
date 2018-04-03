@@ -78,9 +78,10 @@ testCaseConversions
 			[:each |
 			subject := self assimilateString: each first.
 			actual := subject asUppercase.
-			expected := (self assimilateString: each last) basicCopy.
-			self assert: actual equals: expected.
-			self assert: actual asLowercase equals: subject basicCopy]!
+			expected := (self assimilateString: each last).
+			self assert: actual equals: expected mutableCopy.
+			actual := expected asLowercase.
+			self assert: actual equals: subject mutableCopy]!
 
 testEmpty
 	self assert: self collectionClass empty class sameAs: self collectionClass!
@@ -308,6 +309,16 @@ testInvalidComparisons
 	literals do: [:each | self should: [each > str] raise: Error].
 	literals do: [:each | self should: [each >= str] raise: Error]!
 
+testMutableCopy
+	self caseConversionCases do: 
+			[:each |
+			| subject actual |
+			subject := self assimilateString: each first.
+			actual := subject mutableCopy.
+			self deny: actual sameAs: subject.
+			self assert: actual isKindOf: subject species.
+			self assert: (actual _cmp: subject) equals: 0]!
+
 testReverse
 	"Tests reversing a variety of 1, 2, 3 and 4 byte encodings"
 
@@ -317,7 +328,7 @@ testReverse
 			subject := self assimilateString: each first.
 			expected := self assimilateString: each last.
 			actual := subject reverse.
-			self assert: actual equals: expected basicCopy]!
+			self assert: actual equals: expected mutableCopy]!
 
 testStreamUtfRoundTrip
 	| expected actual |
@@ -490,6 +501,7 @@ verifyConcatenationResult: resultString of: receiverString with: argumentString
 !AbstractStringTest categoriesFor: #testFindStringStartingAt!public!unit tests! !
 !AbstractStringTest categoriesFor: #testFindStringStartingAtIgnoreCase!public!unit tests! !
 !AbstractStringTest categoriesFor: #testInvalidComparisons!public!unit tests! !
+!AbstractStringTest categoriesFor: #testMutableCopy!public! !
 !AbstractStringTest categoriesFor: #testReverse!public! !
 !AbstractStringTest categoriesFor: #testStreamUtfRoundTrip!public! !
 !AbstractStringTest categoriesFor: #testSubStrings!public!unit tests! !

@@ -2,7 +2,7 @@
 
 ArrayedCollection variableByteSubclass: #String
 	instanceVariableNames: ''
-	classVariableNames: 'EncodingAnsi EncodingUtf16 EncodingUtf32 EncodingUtf8 LineDelimiter NullPrintCharacter'
+	classVariableNames: 'EncodingAnsi EncodingUtf16 EncodingUtf32 EncodingUtf8 LineDelimiter'
 	poolDictionaries: ''
 	classInstanceVariableNames: 'empty'!
 String guid: (GUID fromString: '{87b4c514-026e-11d3-9fd7-00a0cc3e4a32}')!
@@ -14,7 +14,7 @@ String addClassConstant: 'EncodingUtf32' value: 3!
 String addClassConstant: 'EncodingUtf8' value: 1!
 String addClassConstant: 'LineDelimiter' value: '
 '!
-String comment: 'String is the abstract class of <ArrayedCollection>s representing strings of <Character>s. It has subclasses the represent common encodings, e.g. Latin1, UTF-8, and UTF-16.
+String comment: 'String is the abstract class of <ArrayedCollection>s representing strings of <Character>s. It has subclasses for strings in the most common encodings, e.g. Latin1, UTF-8, and UTF-16.
 
 N.B. Dolphin Strings are, unlike Smalltalk-80 strings, null terminated. Space for the null terminator is implicity included when a String is allocated, but is not reported when the size of the String is requested.
 
@@ -169,6 +169,18 @@ _separateSubStringsIn: aReadableString
 
 	^(self _collate: comparand) >= 0!
 
+appendToStream: puttableStream
+	"Private - Append the receiver's elements to the argument, puttableStream.
+	We can be able to do a fast block copy. Answer the receiver.
+	Implementation note: Double dispatched from puttableStream>>nextPutAll:."
+
+	| chars |
+	#todo. "This works but is sub-optimal. Need to coerce the receiver to the encoding of the target stream so we can do a block write through next:putAll:startingAt:. The stream probably needs to forward the request to its contents class, not directly to the collection arg of #nextPutAll:, similarly to #nextPut: sending #encode:on:"
+	chars := self readStream.
+	[chars atEnd] whileFalse: [
+		puttableStream nextPut: chars next].
+!
+
 asAnsiString
 	"Answer an ANSI encoded string representation of the receiver."
 
@@ -198,6 +210,11 @@ asNumber
 	printString of a Number."
 
 	^Number fromString: self!
+
+asParameter
+	"On Windows wide string APIs will be expected UTF-16"
+
+	^self asUtf16String!
 
 asPhrase
 	"Answer a <sequencedReadableCollection> of the 'words' in the receiver, as capitalized strings.
@@ -295,12 +312,6 @@ at: anInteger put: aCharacter
 		ifTrue: [self errorAt: anInteger put: aCharacter]
 		ifFalse: [self error: ('can''t hold <1p>''s' expandMacrosWith: aCharacter class)]!
 
-basicCopy
-	"Private - Answer a writable copy of the receiver."
-
-	^self shallowCopy
-!
-
 beginsWith: comperand
 	"Answer whether the receiver starts with the exact characters
 	of the argument, comperand."
@@ -365,6 +376,8 @@ capitalized
 	^write contents!
 
 codePage
+	"Answer the Windows code page constant for the receiver's encoding."
+
 	^self class codePage!
 
 contains: aString
@@ -390,6 +403,9 @@ displayString
 
 	^self!
 
+encoding
+	^self class encoding!
+
 equals: comperand
 	"Answer whether the characters of the receiver are identical to those of 
 	the argument, comperand. Should not be overridden by subclasses (a kind of basic=).
@@ -398,14 +414,12 @@ equals: comperand
 
 	| size |
 	<primitive: 55>
-	#todo. "Doesn't work correctly for comparing Symbols to UTF encoded strings. This could be
+	#todo.	"Doesn't work correctly for comparing Symbols to UTF encoded strings. This could be
 	       deprecated if we allowed strings and symbols to be equal for the same code point
 	       sequence."
 	(self == comperand or: [self = comperand]) ifTrue: [^true].
-	self species == comperand species ifFalse: [^false].
-	(comperand size = (size := self size)) ifFalse: [^false].
-	1 to: size do: [:i | (self at: i) = (comperand at: i) ifFalse: [^false]].
-	^true!
+	comperand isString ifFalse: [^false].
+	^(self _cmp: comperand) == 0!
 
 expandMacros
 	"Expand the receiver with replacable arguments.
@@ -528,11 +542,6 @@ findString: aString startingAt: anInteger ignoreCase: aBoolean
 	meLower := self asLowercase.
 	subLower := aString asLowercase.
 	^meLower findString: subLower startingAt: anInteger!
-
-first: anInteger
-	"Answer a new string comprising the leftmost anInteger characters of the receiver."
-
-	^self subclassResponsibility!
 
 formatWith: anObject
 	"Answer a <readableString> which is a message formatted from the receiver (assumed to be a
@@ -783,17 +792,18 @@ occurrencesOf: anObject from: startInteger to: endInteger
 	^occurrences!
 
 printOn: aStream
-	"Append the receiver as a quoted string to aStream. Internal quotes are doubled to produce a
-	literal String. Null characters are printed as another character to avoid them being treated
-	as null terminators by C api's"
+	"Append the receiver as a quoted string to aStream. The stream is expected to be over a
+	String suitable for holding any Unicode code point (e.g. Utf8String or Utf16String).
+	Internal quotes are doubled to produce a literal String. Null characters are printed as
+	the Unicode Null symbol to avoid them being treated as null terminators by C api's."
 
+	| chars |
 	aStream nextPut: $'.
-	1 to: self size
-		do: 
-			[:i |
-			| ch |
-			(ch := self at: i) == $\0
-				ifTrue: [aStream nextPut: NullPrintCharacter]
+	chars := ReadStream on: self.
+	[chars atEnd] whileFalse: 
+			[| ch |
+			(ch := chars next) == $\0
+				ifTrue: [aStream nextPut: $\x2400]
 				ifFalse: [(aStream nextPut: ch) == $' ifTrue: [aStream nextPut: $']]].
 	aStream nextPut: $'!
 
@@ -838,7 +848,7 @@ reverse
 	works in place, so we must get a copy)."
 
 	| copy |
-	copy := self basicCopy.
+	copy := self mutableCopy.
 	CRTLibrary default _strrev: copy.
 	^copy!
 
@@ -1115,10 +1125,12 @@ withNormalizedLineDelimiters
 !String categoriesFor: #=!comparing!public! !
 !String categoriesFor: #>!comparing!public! !
 !String categoriesFor: #>=!comparing!public! !
+!String categoriesFor: #appendToStream:!double dispatch!private! !
 !String categoriesFor: #asAnsiString!converting!public! !
 !String categoriesFor: #asByteArray!converting!public! !
 !String categoriesFor: #asLowercase!converting!public! !
 !String categoriesFor: #asNumber!converting!public! !
+!String categoriesFor: #asParameter!converting!public! !
 !String categoriesFor: #asPhrase!converting!public! !
 !String categoriesFor: #asString!converting!public! !
 !String categoriesFor: #asSymbol!converting!public! !
@@ -1129,7 +1141,6 @@ withNormalizedLineDelimiters
 !String categoriesFor: #at:!accessing!public! !
 !String categoriesFor: #at:ifAbsent:!accessing!public! !
 !String categoriesFor: #at:put:!accessing!public! !
-!String categoriesFor: #basicCopy!copying!private! !
 !String categoriesFor: #beginsWith:!comparing!public! !
 !String categoriesFor: #beginsWith:ignoreCase:!comparing!public! !
 !String categoriesFor: #between:and:!comparing!public! !
@@ -1142,6 +1153,7 @@ withNormalizedLineDelimiters
 !String categoriesFor: #copyToBuffer:ofSize:!constants!copying!private! !
 !String categoriesFor: #displayOn:!printing!public! !
 !String categoriesFor: #displayString!printing!public! !
+!String categoriesFor: #encoding!constants!public! !
 !String categoriesFor: #equals:!comparing!public! !
 !String categoriesFor: #expandMacros!printing!public! !
 !String categoriesFor: #expandMacrosWith:!printing!public! !
@@ -1152,7 +1164,6 @@ withNormalizedLineDelimiters
 !String categoriesFor: #findString:!public!searching! !
 !String categoriesFor: #findString:startingAt:!public!searching! !
 !String categoriesFor: #findString:startingAt:ignoreCase:!public!searching! !
-!String categoriesFor: #first:!copying!public! !
 !String categoriesFor: #formatWith:!printing!public! !
 !String categoriesFor: #formatWith:with:!printing!public! !
 !String categoriesFor: #formatWith:with:with:!printing!public! !
@@ -1200,6 +1211,9 @@ withNormalizedLineDelimiters
 !String categoriesFor: #unescapePercents!operations!public! !
 !String categoriesFor: #withNormalizedLineDelimiters!converting!public! !
 
+String methodProtocol: #readableString attributes: #(#ansi #readOnly) selectors: #(#, #< #<= #> #>= #after: #asLowercase #asString #asSymbol #asUppercase #at: #at:ifAbsent: #before: #between:and: #copyFrom:to: #copyReplaceAll:with: #copyReplaceFrom:to:with: #copyReplaceFrom:to:withObject: #copyReplacing:withObject: #copyWith: #copyWithout: #do: #findFirst: #findLast: #first #from:to:do: #from:to:keysAndValuesDo: #indexOf: #indexOf:ifAbsent: #indexOfSubCollection:startingAt: #indexOfSubCollection:startingAt:ifAbsent: #keysAndValuesDo: #last #max: #min: #reverse #reverseDo: #sameAs: #subStrings: #with:do:)!
+String methodProtocol: #String attributes: #(#ansi #readOnly) selectors: #(#, #< #<= #> #>= #after: #allSatisfy: #anySatisfy: #asArray #asBag #asByteArray #asLowercase #asOrderedCollection #asSet #asSortedCollection #asSortedCollection: #asString #asSymbol #asUppercase #at: #at:ifAbsent: #at:put: #atAll:put: #atAllPut: #before: #between:and: #collect: #copyFrom:to: #copyReplaceAll:with: #copyReplaceFrom:to:with: #copyReplaceFrom:to:withObject: #copyReplacing:withObject: #copyWith: #copyWithout: #detect: #detect:ifNone: #do: #do:separatedBy: #findFirst: #findLast: #first #from:to:do: #from:to:keysAndValuesDo: #includes: #indexOf: #indexOf:ifAbsent: #indexOfSubCollection:startingAt: #indexOfSubCollection:startingAt:ifAbsent: #inject:into: #isEmpty #keysAndValuesDo: #last #max: #min: #notEmpty #occurrencesOf: #rehash #reject: #replaceFrom:to:with: #replaceFrom:to:with:startingAt: #replaceFrom:to:withObject: #reverse #reverseDo: #sameAs: #select: #size #subStrings: #with:do:)!
+
 !String class methodsFor!
 
 ansiClass
@@ -1211,8 +1225,16 @@ basicEncoding
 	^self extraInstanceSpec!
 
 codePage
+	"Answer the Windows code page constant for the receiver's encoding."
+
 	#todo.	"This should really be 1252 as the current code page may vary by machine and so is not suitable for persisted strings, but historically we have used the current ANSI code page because the Win32 'A' apis do."
 	^Win32Constants.CP_ACP!
+
+decode: anInteger
+	"Answer a <Character> that corresponds to the <integer> code unit, anInteger, in the
+	receiver's encoding."
+
+	^self subclassResponsibility!
 
 elementSize
 	"Answer the size of the elements of the receiver in bytes."
@@ -1226,7 +1248,11 @@ empty
 
 	^empty!
 
-encode: aCharacter on: aPuttableStream
+encode: aCharacter on: aWriteStream
+	"Encode the <Character> argument onto the <WriteStream> argument using the character
+	encoding of the receiver, e.g. for Utf8String, this would be the relevant sequence of 1 to 4
+	UTF-8 encoded bytes necessary to represent the Unicode code point of the character."
+
 	^self subclassResponsibility!
 
 encoding
@@ -1295,7 +1321,7 @@ fromAtomId: anInteger
 fromByteArray: aByteArray
 	| size answer |
 	size := aByteArray size.
-	answer := self basicNew: size.
+	answer := self basicNew: size / self elementSize.
 	aByteArray replaceBytesOf: answer from: 1 to: size startingAt: 1.
 	^answer!
 
@@ -1308,10 +1334,10 @@ fromId: resourceId in: anExternalLibraryOrHandle
 	"Answer a new String loaded from the resources of the module with handle, anExternalLibraryOrHandle."
 
 	| answer len |
-	answer := self new: 256.
+	answer := Utf16String new: 256.
 	(len := UserLibrary default 
 		loadString: anExternalLibraryOrHandle asParameter 
-		uID: resourceId 
+		uID: resourceId asParameter
 		lpBuffer: answer 
 		nBufferMax: answer size) isZero
 			ifTrue: [UserLibrary default systemError].
@@ -1357,7 +1383,6 @@ icon
 	^##(self) defaultIcon!
 
 initialize
-	NullPrintCharacter := Character value: 63.
 	empty := ''.
 	self
 		addClassConstant: 'EncodingAnsi' value: 0;
@@ -1382,7 +1407,9 @@ lineDelimiter
 new: aSmallInteger
 	"Answer an instance of the default string class of sufficient size to hold the specified number of code units."
 
-	^ByteString new: aSmallInteger!
+	<primitive: 71>
+	self isNonInstantiable ifTrue: [^ByteString new: aSmallInteger].
+	^self primitiveFailed!
 
 newFixed: aSmallInteger
 	"Answer a sub-instance of the receiver of size aSmallInteger bytes (this method is 
@@ -1391,13 +1418,9 @@ newFixed: aSmallInteger
 	move to assist garbage collection, whereas those allocated with primitive 76 
 	are in a traditional fixed heap)."
 
-	^ByteString newFixed: aSmallInteger!
-
-nullPrintCharacter
-	^NullPrintCharacter!
-
-nullPrintCharacter: aCharacter
-	NullPrintCharacter := aCharacter!
+	<primitive: 76>
+	self isNonInstantiable ifTrue: [^ByteString newFixed: aSmallInteger].
+	^self primitiveFailed!
 
 readFrom: aStream 
 	"Answer a <String> read from the <gettableStream>, aStream
@@ -1422,6 +1445,16 @@ readFrom: aStream
 							^answer contents]].
 			answer nextPut: ch].
 	^answer contents!
+
+stbConvertFrom: aSTBClassConversion
+	"As of version 1, String is abstract and non-instantiable. We want to create ByteString instances instead.
+	This will only be used for reading very old (version 0) STB data, as after version 0 there is special case
+	handling for Strings and they are automatically mapped to ByteStrings."
+
+	^[:data | ByteString fromByteArray: data]!
+
+stbVersion
+	^1!
 
 supportedCodePages
 	"Answer the names of all code pages installed on the host system.
@@ -1473,10 +1506,11 @@ utf8Class
 !String class categoriesFor: #ansiClass!constants!public! !
 !String class categoriesFor: #basicEncoding!accessing!public! !
 !String class categoriesFor: #codePage!constants!public! !
+!String class categoriesFor: #decode:!encode/decode!public! !
 !String class categoriesFor: #elementSize!constants!public! !
 !String class categoriesFor: #empty!instance creation!public! !
-!String class categoriesFor: #encode:on:!helpers!private! !
-!String class categoriesFor: #encoding!accessing!public! !
+!String class categoriesFor: #encode:on:!encode/decode!public! !
+!String class categoriesFor: #encoding!accessing!constants!public! !
 !String class categoriesFor: #encodings!constants!public! !
 !String class categoriesFor: #errorInvalidCodePoint:!exceptions!private! !
 !String class categoriesFor: #formatMessage:in:withArguments:!instance creation!public! !
@@ -1496,9 +1530,9 @@ utf8Class
 !String class categoriesFor: #lineDelimiter!instance creation!public! !
 !String class categoriesFor: #new:!instance creation!public! !
 !String class categoriesFor: #newFixed:!instance creation!public! !
-!String class categoriesFor: #nullPrintCharacter!accessing!public! !
-!String class categoriesFor: #nullPrintCharacter:!accessing!development!public! !
 !String class categoriesFor: #readFrom:!instance creation!public! !
+!String class categoriesFor: #stbConvertFrom:!binary filing!public! !
+!String class categoriesFor: #stbVersion!binary filing!constants!public! !
 !String class categoriesFor: #supportedCodePages!enquiries!public! !
 !String class categoriesFor: #systemCodePages:!enquiries!private! !
 !String class categoriesFor: #tab!instance creation!public! !

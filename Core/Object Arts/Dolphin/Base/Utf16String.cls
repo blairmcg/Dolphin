@@ -2,14 +2,15 @@
 
 UtfEncodedString variableByteSubclass: #Utf16String
 	instanceVariableNames: ''
-	classVariableNames: ''
+	classVariableNames: 'LeadOffset'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Utf16String guid: (GUID fromString: '{87b4c51e-026e-11d3-9fd7-00a0cc3e4a32}')!
 Utf16String isNullTerminated: true!
-Utf16String comment: 'Utf16String is a minimal class to support UTF16 encoded wide character strings. Natively Dolphin uses byte-character strings at present.
+Utf16String addClassConstant: 'LeadOffset' value: 55232!
+Utf16String comment: 'Utf16String is the class of <Strings>s that use a the two or four byte UTF-16 encoding. UTF-16 is the standard encoding used for strings in the Windows APIs. Most of the time it is not necessary to worry about converting to UTF-16, however, since the class library and VM will normally be able to provide automatic conversions when required. It is recommended that Utf8String be used internally for all strings, and that conversion to/from UTF-16 be performed at interface boundaries where necessary.
 
-Utf16Strings can be constructed from <String>s when needed by sending the #asUtf16String message, and converted back again by sending the #asString message.'!
+The cautionary notes in the abstract superclass (UtfEncodedString) should be read carefully to understand the compromises made in introducing a variable width encoding into the SequenceableCollection hierarchy.'!
 !Utf16String categoriesForClass!Collections-Text! !
 !Utf16String methodsFor!
 
@@ -37,7 +38,7 @@ asLowercase
 	to lowercase."
 
 	| copy |
-	copy := self basicCopy.
+	copy := self mutableCopy.
 	UserLibrary default charLowerBuffW: copy cchLength: copy size.
 	^copy!
 
@@ -49,7 +50,7 @@ asUppercase
 	to uppercase."
 
 	| copy |
-	copy := self basicCopy.
+	copy := self mutableCopy.
 	UserLibrary default charUpperBuffW: copy cchLength: copy size.
 	^copy!
 
@@ -63,32 +64,6 @@ at: anInteger
 
 	<primitive: 63>
 	^Character utf16Value: (self wordAtOffset: anInteger + anInteger - 2)!
-
-at: anInteger encode: aCharacter
-	"Encode the specified <Character> beginning at the specified position in the receiver.
-	Answer the number of slots consumed by the encoded representation."
-
-	| codePoint |
-	codePoint := aCharacter codePoint.
-	^codePoint <= 16rFFFF
-		ifTrue: 
-			[self wordAtOffset: anInteger + anInteger - 2 put: codePoint.
-			1]
-		ifFalse: 
-			[codePoint <= Win32Constants.MAX_UCSCHAR
-				ifTrue: 
-					[| offset |
-					codePoint := codePoint - 16r10000.
-					self
-						wordAtOffset: (offset := anInteger + anInteger) - 2 put: (codePoint bitShift: -10) + 16rD800;
-						wordAtOffset: offset put: (codePoint bitAnd: 16r3FF) + 16rDC00.
-					2]
-				ifFalse: [self class errorInvalidCodePoint: codePoint]]!
-
-at: anInteger put: aCharacter
-	"Replace the character at index, anInteger, in the receiver with aCharacter."
-
-	^self wordAtOffset: anInteger + anInteger - 2 put: aCharacter codeUnit!
 
 beginsWith: aCollection
 	"Answer whether the receiver begins with the sequence
@@ -113,6 +88,26 @@ displayOn: aStream
 	We must convert to mbcs for display."
 
 	aStream nextPutAll: self asString!
+
+encodedAt: anInteger put: aCharacter
+	"Encode the specified <Character> beginning at the specified position in the receiver.
+	Answer the <integer> index of the last code unit updated."
+
+	| codePoint |
+	codePoint := aCharacter asInteger.
+	^codePoint <= 16rFFFF
+		ifTrue: 
+			[self basicAt: anInteger put: codePoint.
+			anInteger]
+		ifFalse: 
+			[codePoint <= Win32Constants.MAX_UCSCHAR
+				ifTrue: 
+					[codePoint := codePoint - 16r10000.
+					self
+						basicAt: anInteger put: (codePoint bitShift: -10) + 16rD800;
+						basicAt: anInteger + 1 put: (codePoint bitAnd: 16r3FF) + 16rDC00.
+					anInteger + 1]
+				ifFalse: [self class errorInvalidCodePoint: codePoint]]!
 
 findString: aString startingAt: anInteger 
 	"Answer the index of the <String> argument within the receiver, starting at the <integer>
@@ -169,9 +164,6 @@ nextIndexOf: anElement from: start to: stop
 	self from: start to: stop keysAndValuesDo: [:i :elem | elem = anElement ifTrue: [^i]].
 	^0!
 
-printOn: aStream
-	self asString printOn: aStream!
-
 replaceFrom: startInteger to: stopInteger with: aReadableString startingAt: startAtInteger 
 	"Replace the characters of the receiver at index positions startInteger through stopInteger
 	inclusive with consecutive characters of the <readableString>, aReadableString, beginning at
@@ -195,7 +187,7 @@ reverse
 
 	| reversed i j size |
 	j := size := self size.
-	reversed := self class new: size.
+	reversed := self species new: size.
 	i := 1.
 	[i <= size] whileTrue: 
 			[| ch |
@@ -257,18 +249,16 @@ wordAtOffset: anInteger put: anObject
 !Utf16String categoriesFor: #asUppercase!converting!public! !
 !Utf16String categoriesFor: #asUtf16String!converting!public! !
 !Utf16String categoriesFor: #at:!accessing!public! !
-!Utf16String categoriesFor: #at:encode:!accessing!public! !
-!Utf16String categoriesFor: #at:put:!accessing!public! !
 !Utf16String categoriesFor: #beginsWith:!comparing!public! !
 !Utf16String categoriesFor: #byteSize!accessing!private! !
 !Utf16String categoriesFor: #copyToBuffer:ofSize:!copying!private! !
 !Utf16String categoriesFor: #displayOn:!printing!public! !
+!Utf16String categoriesFor: #encodedAt:put:!accessing!public! !
 !Utf16String categoriesFor: #findString:startingAt:!public!searching! !
 !Utf16String categoriesFor: #indexOfSubCollection:startingAt:!public!searching! !
 !Utf16String categoriesFor: #maxEncoding!constants!private! !
 !Utf16String categoriesFor: #nextIdentityIndexOf:from:to:!public!searching! !
 !Utf16String categoriesFor: #nextIndexOf:from:to:!public!searching! !
-!Utf16String categoriesFor: #printOn:!printing!public! !
 !Utf16String categoriesFor: #replaceFrom:to:with:startingAt:!public!replacing! !
 !Utf16String categoriesFor: #resize:!mutating!public! !
 !Utf16String categoriesFor: #reverse!copying!public! !
@@ -280,7 +270,15 @@ wordAtOffset: anInteger put: anObject
 !Utf16String class methodsFor!
 
 codePage
+	"Answer the Windows code page constant for the receiver's encoding."
+
 	^Win32Constants.CP_UNICODE!
+
+decode: anInteger
+	"Answer a <Character> that corresponds to the UTF-16 code unit, anInteger. Note that this
+	can be a surrogate character."
+
+	^Character utf16Value: anInteger!
 
 elementSize
 	"Answer the size of the elements of the receiver in bytes."
@@ -288,20 +286,23 @@ elementSize
 	^2!
 
 encode: aCharacter on: aPuttableStream
-	"UTF-16 encode the <Character>, aCharacter, onto the <puttableStream> over a <ByteArray>,
-	aPuttableStream."
+	"Encode the <Character> argument onto the <WriteStream> argument using the UTF-16
+	encoding. This requires either one or two 2-byte code units be written to the stream, depending
+	on whether the code point is in the basic multi-lingual plane (one code unit), or beyond the BMP
+	(two code units). An error is raised if the <Character> has an invalid code point."
 
 	| codePoint |
 	codePoint := aCharacter codePoint.
 	^codePoint <= 16rFFFF
-		ifTrue: [aPuttableStream nextWordPut: codePoint]
+		ifTrue: [aPuttableStream basicNextPut: codePoint]
 		ifFalse: 
 			[codePoint <= Win32Constants.MAX_UCSCHAR
 				ifTrue: 
-					[codePoint := codePoint - 16r10000.
+					[#todo.	"http://www.unicode.org/faq/utf_bom.html suggests there might be a simpler (more efficient) calculation, but it looks incorrect to me"
+					codePoint := codePoint - 16r10000.
 					aPuttableStream
-						nextWordPut: (codePoint bitShift: -10) + 16rD800;
-						nextWordPut: (codePoint bitAnd: 16r3FF) + 16rDC00]
+						basicNextPut: (codePoint bitShift: -10) + 16rD800;
+						basicNextPut: (codePoint bitAnd: 16r3FF) + 16rDC00]
 				ifFalse: [self errorInvalidCodePoint: codePoint]]!
 
 fromAddress: anAddress
@@ -373,25 +374,28 @@ initialize
 	empty := self new
 				isImmutable: true;
 				yourself.
-	VMLibrary default registryAt: #Utf16String put: self!
+	VMLibrary default registryAt: #Utf16String put: self.
+	self extraInstanceSpec: EncodingUtf16.
+	self addClassConstant: 'LeadOffset' value: 16rD800 - (16r10000 >> 10)!
 
-new: anInteger
-	"Answer an instance of the receiver to accomodate exactly anInteger characters (plus a
-	null-terminator, space for which is in addition to the size requested)."
+with: aCharacter
+	"Answer a new instance of the receiver containing the single <Character> element,
+	aCharacter."
 
-	^self basicNew: anInteger * 2!
-
-newFixed: aSmallInteger 
-	"Answer an instance of the receiver of size aSmallInteger bytes (this method is 
-	only valid for byte objects). The object is allocated from the fixed memory heap
-	and will not move in memory (objects allocated with primitive 71 are free to 
-	move to assist garbage collection, whereas those allocated with primitive 76 
-	are in a traditional fixed heap)."
-
-	^self basicNewFixed: aSmallInteger * 2! !
+	| cp |
+	^(cp := aCharacter codePoint) <= 16rFFFF
+		ifTrue: 
+			[(self new: 1)
+				basicAt: 1 put: cp;
+				yourself]
+		ifFalse: 
+			[(self new: 2)
+				encodedAt: 1 put: cp;
+				yourself]! !
 !Utf16String class categoriesFor: #codePage!constants!public! !
+!Utf16String class categoriesFor: #decode:!encode/decode!public! !
 !Utf16String class categoriesFor: #elementSize!constants!public! !
-!Utf16String class categoriesFor: #encode:on:!helpers!private! !
+!Utf16String class categoriesFor: #encode:on:!encode/decode!public! !
 !Utf16String class categoriesFor: #fromAddress:!instance creation!public! !
 !Utf16String class categoriesFor: #fromAddress:length:!instance creation!public! !
 !Utf16String class categoriesFor: #fromAtomId:!instance creation!public! !
@@ -399,6 +403,5 @@ newFixed: aSmallInteger
 !Utf16String class categoriesFor: #fromString:!instance creation!public! !
 !Utf16String class categoriesFor: #fromUtf16String:!instance creation!public! !
 !Utf16String class categoriesFor: #initialize!development!initializing!public! !
-!Utf16String class categoriesFor: #new:!instance creation!public! !
-!Utf16String class categoriesFor: #newFixed:!instance creation!public! !
+!Utf16String class categoriesFor: #with:!instance creation!public! !
 

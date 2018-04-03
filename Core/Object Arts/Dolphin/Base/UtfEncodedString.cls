@@ -8,7 +8,30 @@ String variableByteSubclass: #UtfEncodedString
 UtfEncodedString guid: (GUID fromString: '{f19f0843-d636-4c39-8815-afe452d16cb0}')!
 UtfEncodedString isNullTerminated: true!
 UtfEncodedString isAbstract: true!
-UtfEncodedString comment: ''!
+UtfEncodedString comment: 'UtfEncodedString is the abstract class of variable-width UTF-encoded strings. It has specialised subclasses for UTF-8, and UTF-16.
+
+Like ByteString and Utf32String, the elements of a UtfEncodedString are represented by Character instances when enumerating or accessing by index, but unlike those fixed-width encodings the values of the elements are really code units rather than whole code points. Consequently the Character instances may represent surrogate (partial) characters from the encoding. This is a compromise required to represent the variable-width UTF encodings within the Smalltalk SequenceableCollection hierarchy, which was designed long before UTF-8 and UTF-16 for fixed-width elements, yet which also requires that the elements of Strings be Characters. ANSI Smalltalk did nothing to address this issue, and the <readableString> protocol is a sub-protocol of <sequencedReadableCollection> and contains many indexed access messages that cannot really be implemented efficiently against a variable width string; even calculating the result for #size would require counting the characters and the count could be invalidated by any #at:put: operation, which might also require the string to be resized and its contents shuffled. Given the difficulty of squaring this circle, and the limited scenarios that really require direct indexing into strings, we have opted to interpret the requirement that the elements of strings be Characters by including surrogate Characters as valid elements. 
+
+In practice, therefore, the implementation of <readableString> on UtfEncodeStrings may return surrogate (partial) characters, for example:
+
+	(Character dolphin asUtf16String at: 1) isSurrogate "true"
+
+In order to enumerate the actual Unicode code points of a UtfEncodedString it is necessary to either be prepared to assemble complete code points from surrogate code units, or Streams should be used. When streaming over a UtfEncodedString, the #next and #nextPut: messages will return a Character representing a whole code point, or store one, respectively. As an example:
+
+	multi := Character dolphin asUtf8String.
+	multi size. "4"
+	stream := multi readStream.
+	stream next "$\x1F42C"
+	stream position "4"
+
+And an example of writing into a UtfEncodedString:
+
+	stream := Utf8String writeStream.
+	stream nextPut: Character dolphin.
+	stream position. "4"
+	stream contents. "''ðŸ¬''"
+
+The fact that Characters may actually occupy more than one code unit element of a UtfEncodeString does give rise to some inconsistencies in both the Stream and String hierarchies. When working with the PositionableStream hierarchy one must be careful when recording or adjusting the position, and remember that relative positioning (e.g. with #skip:) always works in terms of the code-unit elements of the streamed over collection, not necessarily whole characters. In the case of UtfEncodeStrings the underlying elements are code unit integers of 8 or 16 bits for UTF-8 and UTF-16 respectively. The position of a stream over a UtfEncodedString is the position in terms of code units, not Characters. The use of relative positioning either through #skip: or by directly adjusting the position to a point calculated without regard to the encoding is likely to lead to positioning errors. It is safe to reset the position to step back (for example) by using a previously recorded position. To advance the stream next and peek family should be used unless to a previously recorded position at the start of an encoded character. It is generally not a good idea to mix position or size calculations based on the fixed width code units used as indices and sizes for the collection itself and for the stream position with the variable width code points read and written by the streams. '!
 !UtfEncodedString categoriesForClass!Collections-Text! !
 !UtfEncodedString methodsFor!
 
@@ -19,25 +42,17 @@ asString
 	#todo. "For temporary compatibility reasons, this is always an ANSI-encoded byte string."
 	^self asAnsiString!
 
-at: anInteger encode: aCharacter
-	"Encode the specified <Character> beginning at the specified position in the receiver.
-	Answer the number of slots consumed by the encoded representation."
-
-	^self subclassResponsibility!
-
 copyWith: newElement
 	"Answer a <sequencedReadableCollection> which is a copy of 
 	the receiver that has newElement concatenated to its end."
 
 	^self, (self class with: newElement)!
 
-first: anInteger
-	"Answer a new string comprising up to the leftmost anInteger characters of the receiver. 
-	Implementation Note: Rather than implement in terms of the generic #copyFrom:to: method, 
-	we can take advantage of the fact that this selector is specific to Strings, and implement more 
-	efficiently."
+encodedAt: anInteger put: aCharacter
+	"Encode the specified <Character> beginning at the specified position in the receiver.
+	Answer the <integer> index of the last code unit updated."
 
-	^self readStream next: anInteger!
+	^self subclassResponsibility!
 
 growSize
 	"Private - Answer the number of elements by which the receiver should grow, when growing!!
@@ -46,32 +61,20 @@ growSize
 	^self size max: self maxEncoding!
 
 maxEncoding
-	^self subclassResponsibility!
-
-reverse
-	"Answer a copy of the receiver but with its elements in reverse order."
-
 	^self subclassResponsibility! !
 !UtfEncodedString categoriesFor: #asString!converting!public! !
-!UtfEncodedString categoriesFor: #at:encode:!accessing!public! !
 !UtfEncodedString categoriesFor: #copyWith:!copying!public! !
-!UtfEncodedString categoriesFor: #first:!copying!public! !
+!UtfEncodedString categoriesFor: #encodedAt:put:!accessing!public! !
 !UtfEncodedString categoriesFor: #growSize!accessing!private! !
 !UtfEncodedString categoriesFor: #maxEncoding!constants!private! !
-!UtfEncodedString categoriesFor: #reverse!copying!public! !
 
-UtfEncodedString methodProtocol: #readableString attributes: #(#ansi #readOnly) selectors: #(#, #< #<= #> #>= #after: #asLowercase #asString #asSymbol #asUppercase #at: #at:ifAbsent: #before: #between:and: #copyFrom:to: #copyReplaceAll:with: #copyReplaceFrom:to:with: #copyReplaceFrom:to:withObject: #copyReplacing:withObject: #copyWith: #copyWithout: #do: #findFirst: #findLast: #first #from:to:do: #from:to:keysAndValuesDo: #indexOf: #indexOf:ifAbsent: #indexOfSubCollection:startingAt: #indexOfSubCollection:startingAt:ifAbsent: #keysAndValuesDo: #last #max: #min: #reverse #reverseDo: #sameAs: #subStrings: #with:do:)!
 UtfEncodedString methodProtocol: #String attributes: #(#ansi #readOnly) selectors: #(#, #< #<= #> #>= #after: #allSatisfy: #anySatisfy: #asArray #asBag #asByteArray #asLowercase #asOrderedCollection #asSet #asSortedCollection #asSortedCollection: #asString #asSymbol #asUppercase #at: #at:ifAbsent: #at:put: #atAll:put: #atAllPut: #before: #between:and: #collect: #copyFrom:to: #copyReplaceAll:with: #copyReplaceFrom:to:with: #copyReplaceFrom:to:withObject: #copyReplacing:withObject: #copyWith: #copyWithout: #detect: #detect:ifNone: #do: #do:separatedBy: #findFirst: #findLast: #first #from:to:do: #from:to:keysAndValuesDo: #includes: #indexOf: #indexOf:ifAbsent: #indexOfSubCollection:startingAt: #indexOfSubCollection:startingAt:ifAbsent: #inject:into: #isEmpty #keysAndValuesDo: #last #max: #min: #notEmpty #occurrencesOf: #rehash #reject: #replaceFrom:to:with: #replaceFrom:to:with:startingAt: #replaceFrom:to:withObject: #reverse #reverseDo: #sameAs: #select: #size #subStrings: #with:do:)!
 
 !UtfEncodedString class methodsFor!
 
 codePage
-	^self subclassResponsibility!
+	"Answer the Windows code page constant for the receiver's encoding."
 
-encode: aCharacter on: aPuttableStream
-	^self subclassResponsibility!
-
-new: aSmallInteger
 	^self subclassResponsibility!
 
 new: elementCount withAll: elementValue
@@ -83,9 +86,6 @@ new: elementCount withAll: elementValue
 	stream := self writeStream: elementCount.
 	elementCount timesRepeat: [stream nextPut: elementValue].
 	^stream contents!
-
-newFixed: aSmallInteger
-	^self subclassResponsibility!
 
 with: element1
 	"Answer a new instance of the receiver containing the single <Character> element, element1."
@@ -143,10 +143,7 @@ withAll: newElements
 	newElements do: [:each | stream nextPut: each].
 	^stream contents! !
 !UtfEncodedString class categoriesFor: #codePage!constants!public! !
-!UtfEncodedString class categoriesFor: #encode:on:!helpers!private! !
-!UtfEncodedString class categoriesFor: #new:!instance creation!public! !
 !UtfEncodedString class categoriesFor: #new:withAll:!instance creation!public! !
-!UtfEncodedString class categoriesFor: #newFixed:!instance creation!public! !
 !UtfEncodedString class categoriesFor: #with:!instance creation!public! !
 !UtfEncodedString class categoriesFor: #with:with:!instance creation!public! !
 !UtfEncodedString class categoriesFor: #with:with:with:!instance creation!public! !
