@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 ValueAdaptor subclass: #AspectAccessor
 	instanceVariableNames: 'aspectDescriptor'
@@ -196,7 +196,7 @@ valueTextOnly
 	containing name=value. We retain the latter for compatibility and introduce this method."
 
 	| aStream |
-	aStream := String writeStream: 40.
+	aStream := Utf8String writeStream: 40.
 	[self aspectDescriptor displayAspectValueOf: self subject on: aStream] on: Error
 		do: [:ex | aStream basicPrint: ex].
 	^aStream contents!

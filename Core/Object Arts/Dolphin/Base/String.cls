@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 ArrayedCollection variableByteSubclass: #String
 	instanceVariableNames: ''
@@ -175,17 +175,15 @@ appendToStream: puttableStream
 	Implementation note: Double dispatched from puttableStream>>nextPutAll:."
 
 	| chars |
-	#todo. "This works but is sub-optimal. Need to coerce the receiver to the encoding of the target stream so we can do a block write through next:putAll:startingAt:. The stream probably needs to forward the request to its contents class, not directly to the collection arg of #nextPutAll:, similarly to #nextPut: sending #encode:on:"
-	chars := self readStream.
-	[chars atEnd] whileFalse: [
-		puttableStream nextPut: chars next].
-!
+	#todo.	"This works but is sub-optimal. Need to coerce the receiver to the encoding of the target stream so we can do a block write through next:putAll:startingAt:. The stream probably needs to forward the request to its contents class, not directly to the collection arg of #nextPutAll:, similarly to #nextPut: sending #encode:on:"
+	chars := ReadStream on: self.
+	[chars atEnd] whileFalse: [puttableStream nextPut: chars next]!
 
 asAnsiString
 	"Answer an ANSI encoded string representation of the receiver."
 
 	<primitive: 217>
-	^self asUtf16String asByteString: ByteString!
+	^self asUtf16String asByteString: AnsiString!
 
 asByteArray
 	"Answer a <ByteArray> containing the encoded representations of the characters of the
@@ -276,7 +274,7 @@ asUtf16String
 	^Utf16String withAll: self!
 
 asUtf8String
-	"Answer a UTF8 encoded string representation of the receiver."
+	"Answer a UTF-8 encoded string representation of the receiver."
 
 	<primitive: 216>
 	^self asUtf16String asByteString: Utf8String!
@@ -358,7 +356,8 @@ byteAt: aSmallInteger put: value
 	^self errorAt: aSmallInteger put: value!
 
 byteSize
-	"Private - Answer the size in bytes of this object, including the null terminator."
+	"Private - Answer the size in bytes of this object. N.B. this includes a null terminator,
+	which may be of 1, 2, or 4 bytes length (see class #elementSize)."
 
 	^self basicSize + 1!
 
@@ -657,6 +656,12 @@ lines
 	N.B. It is assumed that a line delimiter consists of two characters."
 
 	^self subStrings: String lineDelimiter!
+
+lookup: keyInteger
+	"Answer the <Character> value named by the <Integer> argument, keyInteger, or nil if there is no such key in the receiver."
+
+	<primitive: 63>
+	^nil!
 
 match: aString 
 	"Answer whether the receiver (which may contain wildcard characters) matches the 
@@ -1178,6 +1183,7 @@ withNormalizedLineDelimiters
 !String categoriesFor: #isString!public!testing! !
 !String categoriesFor: #leftString:!copying!public! !
 !String categoriesFor: #lines!copying!public! !
+!String categoriesFor: #lookup:!accessing!public! !
 !String categoriesFor: #match:!public!searching! !
 !String categoriesFor: #match:ignoreCase:!public!searching! !
 !String categoriesFor: #matchPatternFrom:in:from:ignoreCase:!private!searching! !
@@ -1219,7 +1225,7 @@ String methodProtocol: #String attributes: #(#ansi #readOnly) selectors: #(#, #<
 ansiClass
 	"Answer the class of String to use for ANSI-encoded strings."
 
-	^ByteString!
+	^AnsiString!
 
 basicEncoding
 	^self extraInstanceSpec!
@@ -1236,6 +1242,11 @@ decode: anInteger
 
 	^self subclassResponsibility!
 
+decodeNextFrom: aReadStream
+	"Answer the next <Character> in the receiver's encoding from the <ReadStream> argument ."
+
+	^self subclassResponsibility!
+
 elementSize
 	"Answer the size of the elements of the receiver in bytes."
 
@@ -1248,7 +1259,7 @@ empty
 
 	^empty!
 
-encode: aCharacter on: aWriteStream
+encodeOn: aWriteStream put: aCharacter
 	"Encode the <Character> argument onto the <WriteStream> argument using the character
 	encoding of the receiver, e.g. for Utf8String, this would be the relevant sequence of 1 to 4
 	UTF-8 encoded bytes necessary to represent the Unicode code point of the character."
@@ -1408,7 +1419,7 @@ new: aSmallInteger
 	"Answer an instance of the default string class of sufficient size to hold the specified number of code units."
 
 	<primitive: 71>
-	self isNonInstantiable ifTrue: [^ByteString new: aSmallInteger].
+	self isNonInstantiable ifTrue: [^AnsiString new: aSmallInteger].
 	^self primitiveFailed!
 
 newFixed: aSmallInteger
@@ -1419,7 +1430,7 @@ newFixed: aSmallInteger
 	are in a traditional fixed heap)."
 
 	<primitive: 76>
-	self isNonInstantiable ifTrue: [^ByteString newFixed: aSmallInteger].
+	self isNonInstantiable ifTrue: [^AnsiString newFixed: aSmallInteger].
 	^self primitiveFailed!
 
 readFrom: aStream 
@@ -1428,7 +1439,7 @@ readFrom: aStream
 	single quoted and with embedded quotes doubled."
 
 	| answer |
-	answer := String writeStream: 16.
+	answer := self writeStream: 16.
 	aStream skipTo: $'.	"Skip any leading chars up to just after the first quote"
 	[aStream atEnd] whileFalse: 
 			[| ch |
@@ -1447,11 +1458,11 @@ readFrom: aStream
 	^answer contents!
 
 stbConvertFrom: aSTBClassConversion
-	"As of version 1, String is abstract and non-instantiable. We want to create ByteString instances instead.
+	"As of version 1, String is abstract and non-instantiable. We want to create AnsiString instances instead.
 	This will only be used for reading very old (version 0) STB data, as after version 0 there is special case
-	handling for Strings and they are automatically mapped to ByteStrings."
+	handling for Strings and they are automatically mapped to AnsiStrings."
 
-	^[:data | ByteString fromByteArray: data]!
+	^[:data | AnsiString fromByteArray: data]!
 
 stbVersion
 	^1!
@@ -1507,9 +1518,10 @@ utf8Class
 !String class categoriesFor: #basicEncoding!accessing!public! !
 !String class categoriesFor: #codePage!constants!public! !
 !String class categoriesFor: #decode:!encode/decode!public! !
+!String class categoriesFor: #decodeNextFrom:!encode/decode!public! !
 !String class categoriesFor: #elementSize!constants!public! !
 !String class categoriesFor: #empty!instance creation!public! !
-!String class categoriesFor: #encode:on:!encode/decode!public! !
+!String class categoriesFor: #encodeOn:put:!encode/decode!public! !
 !String class categoriesFor: #encoding!accessing!constants!public! !
 !String class categoriesFor: #encodings!constants!public! !
 !String class categoriesFor: #errorInvalidCodePoint:!exceptions!private! !

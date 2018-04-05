@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 nil subclass: #ProtoObject
 	instanceVariableNames: ''
@@ -65,7 +65,7 @@ basicPrintString
 	Should not be overridden by subclasses"
 
 	| aStream |
-	aStream := String writeStream: 16.
+	aStream := Utf8String writeStream: 16.
 	self basicPrintOn: aStream.
 	^aStream contents!
 

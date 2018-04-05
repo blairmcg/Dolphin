@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+ï»¿"Filed out from Dolphin Smalltalk 7"!
 
 ArrayedCollectionTest subclass: #AbstractStringTest
 	instanceVariableNames: ''
@@ -18,25 +18,25 @@ assimilateString: aString
 	^self subclassResponsibility!
 
 caseConversionCases
-	"#(#('abc £12' 'ABC £12') #('oña' 'OÑA') #('árvízturo tükörfúrógép' 'ÁRVÍZTURO TÜKÖRFÚRÓGÉP') #('a\0b' 'A\0B'))"
+	"#(#('abc Â£12' 'ABC Â£12') #('oÃ±a' 'OÃ‘A') #('Ã¡rvÃ­zturo tÃ¼kÃ¶rfÃºrÃ³gÃ©p' 'ÃRVÃZTURO TÃœKÃ–RFÃšRÃ“GÃ‰P') #('a\0b' 'A\0B'))"
 
-	^{{ByteString fromByteArray: #[97 98 99 32 163 49 50].
-			ByteString fromByteArray: #[65 66 67 32 163 49 50]}.
-		{ByteString fromByteArray: #[111 241 97]. ByteString fromByteArray: #[79 209 65]}.
-		{ByteString
+	^{{AnsiString fromByteArray: #[97 98 99 32 163 49 50].
+			AnsiString fromByteArray: #[65 66 67 32 163 49 50]}.
+		{AnsiString fromByteArray: #[111 241 97]. AnsiString fromByteArray: #[79 209 65]}.
+		{AnsiString
 				fromByteArray: #[225 114 118 237 122 116 117 114 111 32 116 252 107 246 114 102 250 114 243 103 233 112].
-			ByteString
+			AnsiString
 				fromByteArray: #[193 82 86 205 90 84 85 82 79 32 84 220 75 214 82 70 218 82 211 71 201 80]}.
-		{ByteString fromByteArray: #[97 0 98]. ByteString fromByteArray: #[65 0 66]}}!
+		{AnsiString fromByteArray: #[97 0 98]. AnsiString fromByteArray: #[65 0 66]}}!
 
 equalityTestCases
-	^#('' 'a' 'abc' '' 'tükörfúrógép')!
+	^#('' 'a' 'abc' '' 'tÃ¼kÃ¶rfÃºrÃ³gÃ©p')!
 
 newNumericArray: anInteger 
 	^self newCollection: ((1 to: anInteger) collect: [:each | Character digitValue: each])!
 
 reverseTestCases
-	^#(#('abc' 'cba') #('oña' 'año'))!
+	^#(#('abc' 'cba') #('oÃ±a' 'aÃ±o'))!
 
 testAsByteArray
 	super testAsByteArray.
@@ -82,6 +82,32 @@ testCaseConversions
 			self assert: actual equals: expected mutableCopy.
 			actual := expected asLowercase.
 			self assert: actual equals: subject mutableCopy]!
+
+testClassReadFrom
+	"Tests String class>>readFrom:. Some interested cases are:
+	- Content before the first quote (skipped - not sure that is right, but has always done that)
+	- Unterminated (reads up to end)
+	- Embedded (doubled) quotes - quotes are undoubled
+	- Trailing content - should be left with the stream positioned after the final quote."
+
+	{#('' '' '').
+		#('abc' '' '').
+		#('abc''A''B' 'A' 'B').
+		#('a''AB''CD' 'AB' 'CD').
+		#('''a''' 'a' '').
+		#('''a' 'a' '').
+		#('''abc''' 'abc' '').
+		#('''abc' 'abc' '').
+		#('''abc''''d'' ''e''' 'abc''d' ' ''e''')} do: 
+				[:each |
+				| actual expected stream remainder |
+				expected := self assimilateString: each second.
+				stream := each first readStream.
+				actual := self collectionClass readFrom: stream.
+				self assert: actual class sameAs: self collectionClass.
+				self assert: actual equals: expected.
+				remainder := stream upToEnd.
+				self assert: remainder equals: each last]!
 
 testEmpty
 	self assert: self collectionClass empty class sameAs: self collectionClass!
@@ -479,11 +505,13 @@ testWithNormalizedLineDelimiters
 	self assert: (cr , lf , cr) withNormalizedLineDelimiters = (crlf , crlf)!
 
 verifyConcatenationResult: resultString of: receiverString with: argumentString
-	"When concatenating strings the result should be of the same type as the receiver, unless a UTF string is being concatenated with a ByteString, in which case the result will be of the same type as the argument."
+	"When concatenating strings the result should be of the same type as the receiver, unless a
+	UTF string is being concatenated with an AnsiString, in which case the result will be of the
+	same type as the argument."
 
 	| expectedClass |
 	expectedClass := receiverString species.
-	(expectedClass == ByteString and: [argumentString isString])
+	(expectedClass == AnsiString and: [argumentString isString])
 		ifTrue: [expectedClass := argumentString species].
 	self assert: resultString isKindOf: expectedClass! !
 !AbstractStringTest categoriesFor: #assimilate:!helpers!private! !
@@ -496,6 +524,7 @@ verifyConcatenationResult: resultString of: receiverString with: argumentString
 !AbstractStringTest categoriesFor: #testAt!public!unit tests! !
 !AbstractStringTest categoriesFor: #testCapitalized!public!unit tests! !
 !AbstractStringTest categoriesFor: #testCaseConversions!public! !
+!AbstractStringTest categoriesFor: #testClassReadFrom!public! !
 !AbstractStringTest categoriesFor: #testEmpty!public!testing / accessing! !
 !AbstractStringTest categoriesFor: #testEquals!public!unit tests! !
 !AbstractStringTest categoriesFor: #testFindStringStartingAt!public!unit tests! !

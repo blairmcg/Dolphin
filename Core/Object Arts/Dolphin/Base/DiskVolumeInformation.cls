@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #DiskVolumeInformation
 	instanceVariableNames: 'path rootPath label serialNumber maxComponentLength fileSystemFlags fileSystemName sectorsPerCluster bytesPerSector freeClusters totalClusters freeBytes totalBytes totalFreeBytes'
@@ -58,7 +58,7 @@ explorerName
 
 	| vol |
 	vol := self label.
-	^(String writeStream: 40)
+	^(Utf8String writeStream: 40)
 		nextPutAll: (vol isEmpty ifTrue: ['Local Disk'] ifFalse: [vol]);
 		nextPutAll: ' (';
 		nextPutAll: self driveLetter;

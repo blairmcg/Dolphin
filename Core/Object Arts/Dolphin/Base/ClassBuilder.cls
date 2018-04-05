@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #ClassBuilder
 	instanceVariableNames: 'currentClass className instanceVariables superclass instanceSpec classVariables sharedPools comment flags categories'
@@ -80,7 +80,7 @@ checkNoInstances
 	instCount > 0 
 		ifTrue: 
 			["Oh dear still extant instances - raise an error"
-			self errorInvalidRemove: ((String writeStream)
+			self errorInvalidRemove: ((Utf8String writeStream)
 						print: self currentClass;
 						nextPutAll: ' has ';
 						display: instCount;
@@ -92,7 +92,7 @@ checkNoSubclasses
 	subs := currentClass subclasses.
 	subs notEmpty 
 		ifTrue: 
-			[self errorInvalidRemove: ((String writeStream)
+			[self errorInvalidRemove: ((Utf8String writeStream)
 						print: self currentClass;
 						nextPutAll: ' has ';
 						display: subs size;

@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 Magnitude subclass: #Character
 	instanceVariableNames: 'code'
@@ -99,7 +99,7 @@ asAnsiString
 	"Answer a new ANSI-encoded <String> whose sole element is the receiver. It is an error if
 	the receiver's code point cannot be represented in ANSI encoding."
 
-	^ByteString with: self!
+	^AnsiString with: self!
 
 asciiValue
 	"Answers the ascii character value of the receiver."
@@ -370,7 +370,7 @@ printOn: aStream
 	| codePoint |
 	aStream nextPut: $$.
 	codePoint := self codePoint.
-	(codePoint > 32 and: [codePoint <= 255 and: [codePoint ~= 127]])
+	(codePoint > 32 and: [codePoint < 127 or: [codePoint <= 255 and: [self isGraph]]])
 		ifTrue: [aStream nextPut: self]
 		ifFalse: 
 			[aStream nextPut: $\.
@@ -386,14 +386,7 @@ printOn: aStream
 shallowCopy
 	"Answer the receiver, as Characters are immutable."
 
-	^self!
-
-species
-	"Answer the 'species' of the receiver.
-	Implementation Note: The primitive superclass implementation
-	will fail for immediate classes, so we must override here."
-
-	^Character! !
+	^self! !
 !Character categoriesFor: #_beginsString:!comparing!double dispatch!private! !
 !Character categoriesFor: #_separateSubStringsIn:!double dispatch!private! !
 !Character categoriesFor: #<!comparing!public! !
@@ -446,15 +439,19 @@ species
 !Character categoriesFor: #isWhitespace!public!testing! !
 !Character categoriesFor: #printOn:!printing!public! !
 !Character categoriesFor: #shallowCopy!copying!public! !
-!Character categoriesFor: #species!accessing!public! !
 
 Character methodProtocol: #Character attributes: #(#ansi #readOnly) selectors: #(#asLowercase #asString #asUppercase #codePoint #isAlphaNumeric #isDigit #isLetter #isLowercase #isUppercase)!
 
 !Character class methodsFor!
 
 ansiValue: anInteger
-	^CharacterSet at: anInteger + 1
-		ifAbsent: [self error: 'Invalid ANSI code unit: ' , anInteger printString]!
+	^(CharacterSet lookup: anInteger + 1)
+		ifNil: [self error: 'Invalid ANSI code unit: ' , anInteger printString]!
+
+asciiValue: anInteger
+	^(anInteger >= 0 and: [anInteger <= 127])
+		ifTrue: [CharacterSet at: anInteger + 1]
+		ifFalse: [self error: 'Invalid ASCII code point: ' , anInteger printString]!
 
 backspace
 	"Answer the backspace control <Character>."
@@ -469,7 +466,7 @@ basicNew
 	^self shouldNotImplement!
 
 byteCharacterSet
-	"Answer the ANSI character set, i.e. the complete set of Characters that can be encoded in a <ByteString>."
+	"Answer the ANSI character set, i.e. the complete set of Characters that can be encoded in an <AnsiString>."
 
 	^CharacterSet!
 
@@ -534,6 +531,13 @@ initialize
 	self addClassConstant: 'EncodingMask' value: 2r111111 << 24.
 	self addClassConstant: 'Utf8TrailMask' value: 16rC0.!
 
+isValidCodePoint: anInteger
+	"Answer whether the <integer> argument represents a valid Unicode code point. Invalid code
+	points are those outside the range 0..0x10FFFF, or within that range but non-characters."
+
+	#todo.	"This is not complete"
+	^anInteger <= Win32Constants.MAX_UCSCHAR and: [(anInteger bitAnd: 16rFFFE) ~~ 16rFFFE]!
+
 lf
 	"Answer the linefeed control <Character>."
 
@@ -579,6 +583,9 @@ onStartup
 	ansiCharacters isImmutable: true.
 	AnsiCharacters := ansiCharacters!
 
+replacement
+	^$\xFFFD!
+
 space
 	"Answer the space <Character>."
 
@@ -590,17 +597,40 @@ tab
 	^$\t!
 
 utf16Value: anInteger
-	^CharacterSet at: anInteger + 1
-		ifAbsent: 
-			[anInteger <= 16rFFFF
-				ifTrue: [self newCode: (Utf16Mask bitOr: anInteger)]
-				ifFalse: [self error: 'Invalid UTF-16 code unit: ' , anInteger printString]]!
+	"Answer a Character representing the <integer> UTF-16 code unit, anInteger.
+	Note that the character may not represent a valid Unicode code point."
+
+	^anInteger < 16r80
+		ifTrue: 
+			["Ascii"
+			CharacterSet at: anInteger + 1]
+		ifFalse: 
+			[(AnsiCharacters lookup: anInteger)
+				ifNil: 
+					[(anInteger >= 16rD800 or: [anInteger <= 16rDFFF])
+						ifTrue: 
+							["Surrogate"
+							self newCode: (Utf16Mask bitOr: anInteger)]
+						ifFalse: 
+							[anInteger <= 16rFFFF
+								ifTrue: 
+									["Valid non-ascii/non-ansi code point"
+									self newCode: (Utf32Mask bitOr: anInteger)]
+								ifFalse: [self error: 'Invalid UTF-16 code unit: ' , anInteger printString]]]]!
 
 utf8Value: anInteger
-	^CharacterSet at: anInteger + 1
-		ifAbsent: 
+	"Answer a <Character> representing the <integer> UTF-8 code unit, anInteger.
+	Note that the character may not represent a valid Unicode code point."
+
+	^anInteger < 16r80
+		ifTrue: 
+			["Ascii"
+			CharacterSet at: anInteger + 1]
+		ifFalse: 
 			[anInteger <= 16rFF
-				ifTrue: [self newCode: (Utf8Mask bitOr: anInteger)]
+				ifTrue: 
+					["Some kind of surrogate"
+					self newCode: (Utf8Mask bitOr: anInteger)]
 				ifFalse: [self error: 'Invalid UTF-8 code unit: ' , anInteger printString]]!
 
 value: anInteger
@@ -609,12 +639,13 @@ value: anInteger
 	^anInteger < 16r80
 		ifTrue: [CharacterSet at: anInteger + 1]
 		ifFalse: 
-			[AnsiCharacters at: anInteger
-				ifAbsent: 
-					[(anInteger <= Win32Constants.MAX_UCSCHAR and: [(anInteger bitAnd: 16rFFFE) ~~ 16rFFFE])
+			[(AnsiCharacters lookup: anInteger)
+				ifNil: 
+					[(self isValidCodePoint: anInteger)
 						ifTrue: [(self newCode: (Utf32Mask bitOr: anInteger)) isImmutable: true]
 						ifFalse: [self error: 'Invalid code point ' , anInteger hex]]]! !
 !Character class categoriesFor: #ansiValue:!instance creation!public! !
+!Character class categoriesFor: #asciiValue:!instance creation!public! !
 !Character class categoriesFor: #backspace!constants!public! !
 !Character class categoriesFor: #basicNew!instance creation!public! !
 !Character class categoriesFor: #byteCharacterSet!constants!public! !
@@ -626,6 +657,7 @@ value: anInteger
 !Character class categoriesFor: #esc!constants!public! !
 !Character class categoriesFor: #icon!constants!public! !
 !Character class categoriesFor: #initialize!development!initializing!public! !
+!Character class categoriesFor: #isValidCodePoint:!instance creation!public! !
 !Character class categoriesFor: #lf!constants!public! !
 !Character class categoriesFor: #new!instance creation!public! !
 !Character class categoriesFor: #newCode:!instance creation!private! !
@@ -633,6 +665,7 @@ value: anInteger
 !Character class categoriesFor: #nl!constants!public! !
 !Character class categoriesFor: #null!constants!public! !
 !Character class categoriesFor: #onStartup!event handling!public! !
+!Character class categoriesFor: #replacement!accessing!public! !
 !Character class categoriesFor: #space!constants!public! !
 !Character class categoriesFor: #tab!constants!public! !
 !Character class categoriesFor: #utf16Value:!instance creation!public! !

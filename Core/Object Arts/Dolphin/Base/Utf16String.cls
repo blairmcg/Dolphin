@@ -1,14 +1,15 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 UtfEncodedString variableByteSubclass: #Utf16String
 	instanceVariableNames: ''
-	classVariableNames: 'LeadOffset'
+	classVariableNames: 'LeadOffset SurrogateOffset'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Utf16String guid: (GUID fromString: '{87b4c51e-026e-11d3-9fd7-00a0cc3e4a32}')!
 Utf16String isNullTerminated: true!
 Utf16String addClassConstant: 'LeadOffset' value: 55232!
-Utf16String comment: 'Utf16String is the class of <Strings>s that use a the two or four byte UTF-16 encoding. UTF-16 is the standard encoding used for strings in the Windows APIs. Most of the time it is not necessary to worry about converting to UTF-16, however, since the class library and VM will normally be able to provide automatic conversions when required. It is recommended that Utf8String be used internally for all strings, and that conversion to/from UTF-16 be performed at interface boundaries where necessary.
+Utf16String addClassConstant: 'SurrogateOffset' value: 56613888!
+Utf16String comment: 'Utf16String is the class of <Strings>s that use a the two or four byte UTF-16 LE encoding. UTF-16 is the standard encoding used for strings in the Windows APIs. Most of the time it is not necessary to worry about converting to UTF-16, however, since the class library and VM will normally be able to provide automatic conversions when required. It is recommended that Utf8String be used internally for all strings, and that conversion to/from UTF-16 be performed at interface boundaries where necessary.
 
 The cautionary notes in the abstract superclass (UtfEncodedString) should be read carefully to understand the compromises made in introducing a variable width encoding into the SequenceableCollection hierarchy.'!
 !Utf16String categoriesForClass!Collections-Text! !
@@ -74,7 +75,7 @@ beginsWith: aCollection
 byteSize
 	"Private - Answer the size in bytes of this object, including the null terminator."
 
-	^(self basicSize + 1) * 2!
+	^(self basicSize + 1) << 1!
 
 copyToBuffer: anAddress ofSize: anInteger
 	CRTLibrary default
@@ -280,12 +281,37 @@ decode: anInteger
 
 	^Character utf16Value: anInteger!
 
+decodeNextFrom: aReadStream
+	"Read the next <Character> in the receiver's encoding from the <ReadStream> argument, which
+	is assumed to be over a Utf16String (or a stream over a double-byte object) ."
+
+	| c |
+	c := aReadStream basicNext.
+	^(c bitAnd: 16rFFFFC00) == 16rD800
+		ifTrue: 
+			["Lead surrogate encountered"
+			aReadStream basicNextAvailable
+				ifNil: 
+					["Lead surrogate but no trailing surrogate, answer the replacement character"
+					$\xFFFD]
+				ifNotNil: 
+					[:c2 |
+					(c2 bitAnd: 16rFFFFFC00) == 16rDC00
+						ifTrue: 
+							["Valid surrogate pair"
+							Character codePoint: (c << 10) + c2 - SurrogateOffset]
+						ifFalse: 
+							["No trailing surrogate, answer the replacement character"
+							aReadStream pop.
+							$\xFFFD]]]
+		ifFalse: [Character utf16Value: c]!
+
 elementSize
 	"Answer the size of the elements of the receiver in bytes."
 
 	^2!
 
-encode: aCharacter on: aPuttableStream
+encodeOn: aPuttableStream put: aCharacter
 	"Encode the <Character> argument onto the <WriteStream> argument using the UTF-16
 	encoding. This requires either one or two 2-byte code units be written to the stream, depending
 	on whether the code point is in the basic multi-lingual plane (one code unit), or beyond the BMP
@@ -376,7 +402,14 @@ initialize
 				yourself.
 	VMLibrary default registryAt: #Utf16String put: self.
 	self extraInstanceSpec: EncodingUtf16.
-	self addClassConstant: 'LeadOffset' value: 16rD800 - (16r10000 >> 10)!
+	self addClassConstant: 'LeadOffset' value: 16rD800 - (16r10000 >> 10).
+	self addClassConstant: 'SurrogateOffset' value: (16rD800 << 10) + 16rDC00 - 16r10000!
+
+skipEncodingMarkerFrom: aGettableStream
+	"Skip over any encoding marker used for the stream encoding this collection represents on the <gettableStream> argument, which 
+	is assumed to be at the start of its sequence."
+
+	^Error notYetImplemented!
 
 with: aCharacter
 	"Answer a new instance of the receiver containing the single <Character> element,
@@ -394,8 +427,9 @@ with: aCharacter
 				yourself]! !
 !Utf16String class categoriesFor: #codePage!constants!public! !
 !Utf16String class categoriesFor: #decode:!encode/decode!public! !
+!Utf16String class categoriesFor: #decodeNextFrom:!encode/decode!public! !
 !Utf16String class categoriesFor: #elementSize!constants!public! !
-!Utf16String class categoriesFor: #encode:on:!encode/decode!public! !
+!Utf16String class categoriesFor: #encodeOn:put:!encode/decode!public! !
 !Utf16String class categoriesFor: #fromAddress:!instance creation!public! !
 !Utf16String class categoriesFor: #fromAddress:length:!instance creation!public! !
 !Utf16String class categoriesFor: #fromAtomId:!instance creation!public! !
@@ -403,5 +437,6 @@ with: aCharacter
 !Utf16String class categoriesFor: #fromString:!instance creation!public! !
 !Utf16String class categoriesFor: #fromUtf16String:!instance creation!public! !
 !Utf16String class categoriesFor: #initialize!development!initializing!public! !
+!Utf16String class categoriesFor: #skipEncodingMarkerFrom:!encode/decode!public! !
 !Utf16String class categoriesFor: #with:!instance creation!public! !
 

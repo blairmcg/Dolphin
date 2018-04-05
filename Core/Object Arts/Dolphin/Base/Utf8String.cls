@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 UtfEncodedString variableByteSubclass: #Utf8String
 	instanceVariableNames: ''
@@ -32,7 +32,7 @@ asUppercase
 	^self asUtf16String asUppercase asUtf8String!
 
 asUtf8String
-	"Answer a UTF8 encoded string representation of the receiver."
+	"Answer a UTF-8 encoded string representation of the receiver."
 
 	^self!
 
@@ -48,7 +48,7 @@ encodedAt: anInteger put: aCharacter
 	Answer the <integer> index of the last code unit updated."
 
 	| codePoint |
-	codePoint := aCharacter codePoint.
+	codePoint := aCharacter asInteger.
 	^codePoint < 16r80
 		ifTrue: 
 			[self basicAt: anInteger put: codePoint.
@@ -155,12 +155,74 @@ decode: anInteger
 
 	^Character utf8Value: anInteger!
 
+decodeNextFrom: aReadStream
+	"Read the next <Character> in the receiver's encoding from the <ReadStream> argument ."
+
+	"0xxxxxxx	0x00..0x7F	1-byte character encoding for ASCII
+	110xxxxx	0xC0..0xDF	Lead byte of a 2-byte character encoding
+	1110xxxx	0xE0..0xEF	Lead byte of a 3-byte character encoding
+	11110xxx	0xF0..0xF4	Lead byte of a 4-byte character encoding
+	10xxxxxx	0x80..0xBF	Continuation bytes (x1, x2, or x3)"
+
+	| c |
+	c := aReadStream basicNext.
+	c < 16r80
+		ifTrue: 
+			["Ascii char"
+			^Character asciiValue: c]
+		ifFalse: 
+			["Lead byte?"
+			c >= 16rC0
+				ifTrue: 
+					["At least 2 byte character"
+					aReadStream basicNextAvailable
+						ifNil: [^$\xFFFD]
+						ifNotNil: 
+							[:c2 |
+							| codePoint |
+							(c2 bitAnd: 16rC0) == 16r80
+								ifTrue: [codePoint := (c bitAnd: 16r1F) << 6 bitOr: (c2 bitAnd: 16r3F)]
+								ifFalse: 
+									["Invalid1st continuation"
+									aReadStream pop.
+									^$\xFFFD].
+							c >= 16rE0
+								ifTrue: 
+									["At least a 3-byte character"
+									aReadStream basicNextAvailable
+										ifNil: [^$\xFFFD]
+										ifNotNil: 
+											[:c3 |
+											(c3 bitAnd: 16rC0) == 16r80
+												ifTrue: [codePoint := (codePoint bitAnd: 16r3FF) << 6 bitOr: (c3 bitAnd: 16r3F)]
+												ifFalse: 
+													["Invalid 2nd continuation"
+													aReadStream pop.
+													^$\xFFFD].
+											c >= 16rF0
+												ifTrue: 
+													["4-byte character"
+													aReadStream basicNextAvailable
+														ifNil: [^$\xFFFD]
+														ifNotNil: 
+															[:c4 |
+															(c4 bitAnd: 16rC0) == 16r80
+																ifTrue: [codePoint := (codePoint bitAnd: 16r7FFF) << 6 bitOr: (c4 bitAnd: 16r3F)]
+																ifFalse: 
+																	["Invalid 3rd continuation"
+																	aReadStream pop.
+																	^$\xFFFD]]]]].
+							^Character codePoint: codePoint]]
+				ifFalse: 
+					["On a continution byte so in the middle of a character, which is invalid"
+					^$\xFFFD]]!
+
 elementSize
 	"Answer the size of the elements of the receiver in bytes."
 
 	^1!
 
-encode: aCharacter on: aPuttableStream
+encodeOn: aPuttableStream put: aCharacter
 	"Encode the <Character> argument onto the <WriteStream> argument using the UTF-8 encoding.
 	This requires between one and four byte code units to be written to the stream, depending on
 	the magnitude of the code point. An error is raised if the <Character> has an invalid code
@@ -214,11 +276,13 @@ initialize
 	self addClassConstant: 'LeadByteMask2' value: 16rC0.
 	self addClassConstant: 'LeadByteMask3' value: 16rE0.
 	self addClassConstant: 'LeadByteMask4' value: 16rF0.
-	self addClassConstant: 'TrailByteMask' value: 16r80! !
+	self addClassConstant: 'TrailByteMask' value: 16r80.
+	bom := #[16rEF 16rBB 16rBF]! !
 !Utf8String class categoriesFor: #codePage!instance creation!public! !
 !Utf8String class categoriesFor: #decode:!encode/decode!public! !
+!Utf8String class categoriesFor: #decodeNextFrom:!encode/decode!public! !
 !Utf8String class categoriesFor: #elementSize!constants!public! !
-!Utf8String class categoriesFor: #encode:on:!encode/decode!public! !
+!Utf8String class categoriesFor: #encodeOn:put:!encode/decode!public! !
 !Utf8String class categoriesFor: #fromString:!instance creation!public! !
 !Utf8String class categoriesFor: #initialize!development!initializing!public! !
 

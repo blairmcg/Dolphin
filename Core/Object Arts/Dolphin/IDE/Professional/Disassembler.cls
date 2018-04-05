@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 InstructionInterpreter subclass: #Disassembler
 	instanceVariableNames: 'stream'
@@ -157,7 +157,7 @@ incTemp: suffix temp: offset
 	self printTempSuffix: offset!
 
 initialize
-	stream := String writeStream: 256!
+	stream := Utf8String writeStream: 256!
 
 isZero
 	"Private - Interpret an IsZero instruction (compares for identity with SmallInteger zero)."

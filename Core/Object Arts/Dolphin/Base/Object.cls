@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 nil subclass: #Object
 	instanceVariableNames: ''
@@ -331,7 +331,7 @@ basicPrintString
 	Should not be overridden by subclasses"
 
 	| aStream |
-	aStream := String writeStream: 16.
+	aStream := Utf8String writeStream: 16.
 	self basicPrintOn: aStream.
 	^aStream contents!
 
@@ -1344,7 +1344,7 @@ storeString
 	an object similar to the receiver."
 
 	| stream |
-	stream := String writeStream: 32.
+	stream := Utf8String writeStream: 32.
 	self storeOn: stream.
 	^stream contents!
 

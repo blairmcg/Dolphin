@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #Package
 	instanceVariableNames: 'name packagePathname comment classNames methodNames globalNames prerequisiteNames events scripts doNotReuse imageStripperBytes aboutBlock packageVersion manualPrerequisites timestamp untracedGlobals'
@@ -438,7 +438,7 @@ comment
 		ifNil: ['']
 		ifNotNil: 
 			[comment isInteger 
-				ifTrue: [String readFrom: (self sourceManager getSourceFromDescriptor: comment) readStream]
+				ifTrue: [Utf8String readFrom: (self sourceManager getSourceFromDescriptor: comment) readStream]
 				ifFalse: [comment]]!
 
 comment: aString 
@@ -1680,7 +1680,7 @@ savePAXChunkOn: aSourceFiler
 	is included. None of the code, including the package scripts, is evaluated."
 
 	| stream |
-	stream := String writeStream: 1024.
+	stream := Utf8String writeStream: 1024.
 	self
 		savePAXPackageOn: stream;
 		savePAXPackageVersionOn: stream;

@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 String variableByteSubclass: #Utf32String
 	instanceVariableNames: ''
@@ -7,8 +7,21 @@ String variableByteSubclass: #Utf32String
 	classInstanceVariableNames: ''!
 Utf32String guid: (GUID fromString: '{4c1290ce-1711-4dcd-86c0-6ca89b5b9287}')!
 Utf32String isNullTerminated: true!
-Utf32String comment: ''!
+Utf32String comment: 'Utf32String is the class of <Strings>s that use the four byte UTF-32 encoding.
+
+UTF-32 has the advantage of being a fixed-width encoding - one code unit equates to one code point. This means it fits without issue into the Smalltalk SequenceableCollection hierarchy. However, it has the significant disadvantage of consuming four bytes for every character. This is very wasteful, especially as a Unicode code point requires only 21-bits, so a byte is wasted even for characters beyond the basic multi-lingual plane.
+
+** This class is a placeholder. The implementation is unfinished **'!
 !Utf32String categoriesForClass!Collections-Text! !
+!Utf32String methodsFor!
+
+byteSize
+	"Private - Answer the size in bytes of this object. N.B. this includes a null terminator,
+	which may be of 1, 2, or 4 bytes length (see class #elementSize)."
+
+	^self basicSize + 1 << 2! !
+!Utf32String categoriesFor: #byteSize!accessing!private! !
+
 !Utf32String class methodsFor!
 
 decode: anInteger
@@ -17,12 +30,24 @@ decode: anInteger
 
 	^Character codePoint: anInteger!
 
+decodeNextFrom: aReadStream
+	"Read the next <Character> in the receiver's encoding from the <ReadStream> argument ."
+
+	^Character value: aReadStream basicNext!
+
 elementSize
 	"Answer the size of the elements of the receiver in bytes."
 
 	^4!
 
-encode: aCharacter on: aWriteStream
+emitEncodingMarkerOn: aPositionableStream
+	"Emit any encoding marker used for the stream encoding this collection represents onto the
+	<PositionableStream> argument, which is assumed to be at the start of its sequence. This
+	typically only relevant to string encodings, so there is nothing to do by default."
+
+	^Error notYetImplemented!
+
+encodeOn: aWriteStream put: aCharacter
 	"Encode the <Character> argument onto the <WriteStream> argument using the character
 	encoding of the receiver. In this case the underlying representation is UTF-32, so can
 	always directly encode the full Unicode code point of the character in one 4-byte code
@@ -35,9 +60,18 @@ initialize
 				isImmutable: true;
 				yourself.
 	"VMLibrary default registryAt: #Utf32String put: self."
-	self extraInstanceSpec: EncodingUtf32! !
+	self extraInstanceSpec: EncodingUtf32!
+
+skipEncodingMarkerFrom: aGettableStream
+	"Skip over any encoding marker used for the stream encoding this collection represents on the <gettableStream> argument, which 
+	is assumed to be at the start of its sequence."
+
+	^Error notYetImplemented! !
 !Utf32String class categoriesFor: #decode:!encode/decode!public! !
+!Utf32String class categoriesFor: #decodeNextFrom:!encode/decode!public! !
 !Utf32String class categoriesFor: #elementSize!constants!public! !
-!Utf32String class categoriesFor: #encode:on:!encode/decode!public! !
+!Utf32String class categoriesFor: #emitEncodingMarkerOn:!encode/decode!public! !
+!Utf32String class categoriesFor: #encodeOn:put:!encode/decode!public! !
 !Utf32String class categoriesFor: #initialize!development!initializing!public! !
+!Utf32String class categoriesFor: #skipEncodingMarkerFrom:!encode/decode!public! !
 

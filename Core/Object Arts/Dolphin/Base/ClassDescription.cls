@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 Behavior subclass: #ClassDescription
 	instanceVariableNames: 'instanceVariables methodsCatalogue protocols'
@@ -432,7 +432,7 @@ definition
 	receiver."
 
 	| strm |
-	strm := String writeStream: 256.
+	strm := Utf8String writeStream: 256.
 	self printDefinitionOn: strm.
 	^strm contents!
 

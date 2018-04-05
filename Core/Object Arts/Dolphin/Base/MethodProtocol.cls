@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #MethodProtocol
 	instanceVariableNames: 'name comment selectors flags'
@@ -187,7 +187,7 @@ compileStub: selector into: behavior
 	selector, into the <ClassDescription>, behavior."
 
 	| target args sig |
-	target  := String writeStream: 128.
+	target  := Utf8String writeStream: 128.
 	args := selector argumentCount.
 	args == 0
 		ifTrue: [target nextPutAll: selector]
