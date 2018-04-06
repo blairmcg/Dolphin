@@ -594,12 +594,11 @@ formatWithArguments: aCollection
 		withArguments: aCollection!
 
 hash
-	"Hash the characters of the string using a built-in algorithm.
-	Do NOT change this as the VM relies on this implementation.
-	The primitive should not fail."
+	"Answer the <integer> hash value for the receiver. Note that this must be the same for equal
+	objects, and therefore it should be the same for the same sequence of characters, regardless
+	of encoding."
 
-	<primitive: 106>
-	^VMLibrary default hashBytes: self count: self size!
+	^self asUtf8String hash!
 
 hashCharacters
 	"Private - Use the standard byte hashing algorithm to hash the characters of 

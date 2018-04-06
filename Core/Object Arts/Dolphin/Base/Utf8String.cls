@@ -88,6 +88,14 @@ encodedAt: anInteger put: aCharacter
 									anInteger + 3]
 								ifFalse: [self class errorInvalidCodePoint: codePoint]]]]!
 
+hash
+	"Hash the characters of the string using a built-in algorithm.
+	Do NOT change this as the VM relies on this implementation.
+	The primitive should not fail."
+
+	<primitive: 106>
+	^VMLibrary default hashBytes: self count: self size!
+
 maxEncoding
 	^4!
 
@@ -166,6 +174,7 @@ reverse
 !Utf8String categoriesFor: #asUtf8String!converting!public! !
 !Utf8String categoriesFor: #copyToBuffer:ofSize:!copying!private! !
 !Utf8String categoriesFor: #encodedAt:put:!accessing!public! !
+!Utf8String categoriesFor: #hash!comparing!public! !
 !Utf8String categoriesFor: #maxEncoding!constants!private! !
 !Utf8String categoriesFor: #nextIndexOf:from:to:!public!searching! !
 !Utf8String categoriesFor: #reverse!copying!public! !
