@@ -895,7 +895,7 @@ sprintfWith: arg1
 	crt := VMLibrary default.
 	size := self size + 64.
 	
-	[buf := String new: size.
+	[buf := Utf8String new: size.
 	n := crt
 				_snprintf_s: buf
 				bufferSize: size + 1
@@ -919,7 +919,7 @@ sprintfWith: arg1 with: arg2
 	lib := VMLibrary default.
 	size := self size + 128.
 	
-	[buf := String new: size.
+	[buf := Utf8String new: size.
 	written := lib
 				_snprintf_s: buf
 				bufferSize: size + 1
@@ -1316,11 +1316,49 @@ fromAtomId: anInteger
 	^self fromString: (Utf16String fromAtomId: anInteger)!
 
 fromByteArray: aByteArray
-	| size answer |
-	size := aByteArray size.
-	answer := self basicNew: size / self elementSize.
-	aByteArray replaceBytesOf: answer from: 1 to: size startingAt: 1.
+	^self
+		fromByteArray: aByteArray
+		length: aByteArray size // self elementSize
+		startingAt: 1!
+
+fromByteArray: aByteArray length: cchInteger
+	"Answer a new instance of the receiver of length (in character code units), cchInteger,
+	copied from the bytes of <ByteArray>, aByteArray, starting with that at the <integer> byte
+	index , indexInteger. Note that the length is specified in characters (because it specifies
+	the size of the new String), and the starting index in bytes (because it is an offset into a
+	ByteArray)."
+
+	^self
+		fromByteArray: aByteArray
+		length: cchInteger
+		startingAt: 1!
+
+fromByteArray: aByteArray length: cchInteger startingAt: indexInteger
+	"Answer a new instance of the receiver of length (in character code units), cchInteger,
+	copied from the bytes of <ByteArray>, aByteArray, starting with that at the <integer> byte
+	index , indexInteger. Note that the length is specified in characters (because it specifies
+	the size of the new String), and the starting index in bytes (because it is an offset into a
+	ByteArray)."
+
+	| answer |
+	answer := self basicNew: cchInteger.
+	aByteArray
+		replaceBytesOf: answer
+		from: 1
+		to: cchInteger * self elementSize
+		startingAt: indexInteger.
 	^answer!
+
+fromByteArray: aByteArray startingAt: indexInteger
+	"Answer a new instance of the receiver copied from the bytes of <ByteArray>, aByteArray,
+	starting with that at the <integer> byte index , indexInteger. The length of the new
+	instance will depend on the size of the ByteArray, the starting index, and the string
+	encoding element size."
+
+	^self
+		fromByteArray: aByteArray
+		length: (aByteArray size - indexInteger + 1) // self elementSize
+		startingAt: indexInteger!
 
 fromId: anInteger
 	"Answer a new String loaded from resources."
@@ -1518,6 +1556,9 @@ utf8Class
 !String class categoriesFor: #fromAddress:length:!instance creation!public! !
 !String class categoriesFor: #fromAtomId:!instance creation!public! !
 !String class categoriesFor: #fromByteArray:!public! !
+!String class categoriesFor: #fromByteArray:length:!public! !
+!String class categoriesFor: #fromByteArray:length:startingAt:!public! !
+!String class categoriesFor: #fromByteArray:startingAt:!public! !
 !String class categoriesFor: #fromId:!instance creation!public! !
 !String class categoriesFor: #fromId:in:!instance creation!public! !
 !String class categoriesFor: #fromString:!instance creation!public! !

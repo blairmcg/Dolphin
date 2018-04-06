@@ -239,6 +239,13 @@ shallowCopy
 
 	^self class fromAddress: self yourAddress length: self size!
 
+stbSaveOn: anSTBOutFiler
+	"At present this is needed because STB doesn't work correctly with double-byte objects. It
+	is may be desirable, anyway, to save as UTF-8 to save space, and the intention is that
+	Utf8String and Utf16String instances be largely interchangeable."
+
+	^self asUtf8String stbSaveOn: anSTBOutFiler!
+
 strcspn: aString start: anInteger
 	^CRTLibrary default wcscspn: self yourAddress + ((anInteger - 1) * 2)
 		strCharSet: aString asUtf16String!
@@ -292,6 +299,7 @@ wordAtOffset: anInteger put: anObject
 !Utf16String categoriesFor: #resize:!mutating!public! !
 !Utf16String categoriesFor: #reverse!copying!public! !
 !Utf16String categoriesFor: #shallowCopy!copying!public! !
+!Utf16String categoriesFor: #stbSaveOn:!binary filing!public! !
 !Utf16String categoriesFor: #strcspn:start:!private!searching! !
 !Utf16String categoriesFor: #wordAtOffset:!accessing!primitives!private! !
 !Utf16String categoriesFor: #wordAtOffset:put:!accessing!primitives!private! !

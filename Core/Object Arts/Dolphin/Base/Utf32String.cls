@@ -19,8 +19,16 @@ byteSize
 	"Private - Answer the size in bytes of this object. N.B. this includes a null terminator,
 	which may be of 1, 2, or 4 bytes length (see class #elementSize)."
 
-	^self basicSize + 1 << 2! !
+	^self basicSize + 1 << 2!
+
+stbSaveOn: anSTBOutFiler
+	"At present this is needed because STB doesn't work correctly with quad-byte objects. It
+	is may be desirable, anyway, to save as UTF-8 to save space, and the intention is that
+	Utf8String and Utf32String instances be largely interchangeable."
+
+	^self asUtf8String stbSaveOn: anSTBOutFiler! !
 !Utf32String categoriesFor: #byteSize!accessing!private! !
+!Utf32String categoriesFor: #stbSaveOn:!binary filing!public! !
 
 !Utf32String class methodsFor!
 
