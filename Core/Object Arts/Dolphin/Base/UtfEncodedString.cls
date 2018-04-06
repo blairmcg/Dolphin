@@ -39,13 +39,6 @@ The fact that Characters may actually occupy more than one code unit element of 
 !UtfEncodedString categoriesForClass!Collections-Text! !
 !UtfEncodedString methodsFor!
 
-asString
-	"Answer a <readableString> containing the same characters as the receiver,
-	i.e. the receiver."
-
-	#todo. "For temporary compatibility reasons, this is always an ANSI-encoded byte string."
-	^self asAnsiString!
-
 copyWith: newElement
 	"Answer a <sequencedReadableCollection> which is a copy of 
 	the receiver that has newElement concatenated to its end."
@@ -66,7 +59,6 @@ growSize
 
 maxEncoding
 	^self subclassResponsibility! !
-!UtfEncodedString categoriesFor: #asString!converting!public! !
 !UtfEncodedString categoriesFor: #copyWith:!copying!public! !
 !UtfEncodedString categoriesFor: #encodedAt:put:!accessing!public! !
 !UtfEncodedString categoriesFor: #growSize!accessing!private! !
@@ -83,6 +75,19 @@ codePage
 	"Answer the Windows code page constant for the receiver's encoding."
 
 	^self subclassResponsibility!
+
+decodeFrom: aReadStream upTo: aCharacter
+	"Answer the future sequence values of the <ReadStream>, aReadStream, up to but not including, the <Object>, anObject.
+	The stream is left positioned after anObject. If there are no occurrences of anObject in the future sequence values of the
+	stream, then the remainder of the future sequence is answered and the stream is left at end."
+
+	^aCharacter isAscii
+		ifTrue: [aReadStream basicUpTo: aCharacter]
+		ifFalse: 
+			[| newStream ch |
+			newStream := self writeStream: 128.
+			[(ch := aReadStream nextAvailable) isNil or: [ch = aCharacter]] whileFalse: [newStream nextPut: ch].
+			^newStream contents]!
 
 emitEncodingMarkerOn: aPositionableStream
 	"Emit any encoding marker used for the stream encoding this collection represents onto the
@@ -122,7 +127,7 @@ skipEncodingMarkerFrom: aPositionableStream
 with: element1
 	"Answer a new instance of the receiver containing the single <Character> element, element1."
 
-	^(self writeStream: 1)
+	^(self writeStream: 4)
 		nextPut: element1;
 		contents!
 
@@ -176,6 +181,7 @@ withAll: newElements
 	^stream contents! !
 !UtfEncodedString class categoriesFor: #bom!accessing!private! !
 !UtfEncodedString class categoriesFor: #codePage!constants!public! !
+!UtfEncodedString class categoriesFor: #decodeFrom:upTo:!encode/decode!public! !
 !UtfEncodedString class categoriesFor: #emitEncodingMarkerOn:!accessing!public! !
 !UtfEncodedString class categoriesFor: #new:withAll:!instance creation!public! !
 !UtfEncodedString class categoriesFor: #skipEncodingMarkerFrom:!encode/decode!public! !

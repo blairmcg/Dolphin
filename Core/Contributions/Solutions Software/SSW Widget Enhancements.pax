@@ -1,7 +1,7 @@
-| package |
+﻿| package |
 package := Package name: 'SSW Widget Enhancements'.
 package paxVersion: 1;
-	basicComment: '� Solutions Software/John Aspinall 2017
+	basicComment: '© Solutions Software/John Aspinall 2017
 Provided under the same licence terms as Dolphin Smalltalk 7'.
 
 package basicPackageVersion: '0.001'.
@@ -222,8 +222,11 @@ onViewDestroyed
 	super onViewDestroyed!
 
 openTheme
-
-	^self themePartName ifNotNil: [ :themePartName | self propertyAt: #themeHandle put: (ThemeLibrary default openThemeData: self asParameter pszClassList: themePartName asUnicodeString)]!
+	^self themePartName
+		ifNotNil: 
+			[:themePartName |
+			self propertyAt: #themeHandle
+				put: (ThemeLibrary default openThemeData: self asParameter pszClassList: themePartName)]!
 
 theme
 

@@ -55,6 +55,11 @@ encodeOn: aWriteStream put: aCharacter
 
 	^aWriteStream basicNextPut: aCharacter codePoint!
 
+fromString: aString
+	"Answer an instance of the receiver containing the same characters as the argument, aString."
+
+	^Error notYetImplemented!
+
 initialize
 	empty := self new
 				isImmutable: true;
@@ -72,6 +77,7 @@ skipEncodingMarkerFrom: aGettableStream
 !Utf32String class categoriesFor: #elementSize!constants!public! !
 !Utf32String class categoriesFor: #emitEncodingMarkerOn:!encode/decode!public! !
 !Utf32String class categoriesFor: #encodeOn:put:!encode/decode!public! !
+!Utf32String class categoriesFor: #fromString:!instance creation!public! !
 !Utf32String class categoriesFor: #initialize!development!initializing!public! !
 !Utf32String class categoriesFor: #skipEncodingMarkerFrom:!encode/decode!public! !
 

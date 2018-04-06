@@ -17,6 +17,12 @@ The cautionary notes in the abstract superclass (UtfEncodedString) should be rea
 !Utf8String categoriesForClass!Collections-Text! !
 !Utf8String methodsFor!
 
+_beginsString: aString
+	^(CRTLibrary default
+		strncmp: aString asUtf8String
+		string2: self
+		count: self size) == 0!
+
 asLowercase
 	"Answer a <readableString> which is a copy of the receiver but with the contents converted
 	to lowercase."
@@ -85,6 +91,26 @@ encodedAt: anInteger put: aCharacter
 maxEncoding
 	^4!
 
+nextIndexOf: anElement from: start to: stop
+	"Answer the index of the next occurrence of anElement in the receiver between 
+	startIndex and stopIndex inclusive. If there are no such occurrences, answer 0."
+
+	^anElement class == Character
+		ifFalse: 
+			["Strings can only contain Characters"
+			0]
+		ifTrue: 
+			[anElement isAscii
+				ifTrue: 
+					[self
+						nextIdentityIndexOf: anElement
+						from: start
+						to: stop]
+				ifFalse: 
+					[| found |
+					found := self indexOfSubCollection: (self class with: anElement) startingAt: start.
+					found <= stop ifTrue: [found] ifFalse: [0]]]!
+
 reverse
 	"Answer a copy of the receiver but with its elements in reverse order."
 
@@ -134,12 +160,14 @@ reverse
 									j := j - 4.
 									i := i + 4]]]].
 	^reversed! !
+!Utf8String categoriesFor: #_beginsString:!comparing!double dispatch!private! !
 !Utf8String categoriesFor: #asLowercase!converting!public! !
 !Utf8String categoriesFor: #asUppercase!converting!public! !
 !Utf8String categoriesFor: #asUtf8String!converting!public! !
 !Utf8String categoriesFor: #copyToBuffer:ofSize:!copying!private! !
 !Utf8String categoriesFor: #encodedAt:put:!accessing!public! !
 !Utf8String categoriesFor: #maxEncoding!constants!private! !
+!Utf8String categoriesFor: #nextIndexOf:from:to:!public!searching! !
 !Utf8String categoriesFor: #reverse!copying!public! !
 
 !Utf8String class methodsFor!

@@ -15,6 +15,12 @@ The cautionary notes in the abstract superclass (UtfEncodedString) should be rea
 !Utf16String categoriesForClass!Collections-Text! !
 !Utf16String methodsFor!
 
+_beginsString: aString
+	^(CRTLibrary default
+		wcsncmp: aString asUtf16String
+		string2: self
+		count: self size) == 0!
+
 asByteString: aClass
 	"Private - Answer a byte-string encoded <String> of the specified class containing the same characters as the receiver."
 
@@ -65,12 +71,6 @@ at: anInteger
 
 	<primitive: 63>
 	^Character utf16Value: (self wordAtOffset: anInteger + anInteger - 2)!
-
-beginsWith: aCollection
-	"Answer whether the receiver begins with the sequence
-	of objects in the <Collection> argument."
-
-	^self basicBeginsWith: aCollection!
 
 byteSize
 	"Private - Answer the size in bytes of this object, including the null terminator."
@@ -150,20 +150,48 @@ maxEncoding
 
 nextIdentityIndexOf: anElement from: start to: stop
 	"Answer the index of the next occurrence of anElement in the receiver's indexable
-	variables between startIndex and stopIndex inclusive. If there are no such occurrences, answer 0.
-	Implementation Note: Override the inherited implementation because the byte-character search
-	primitives won't work."
+	variables between startIndex and stopIndex inclusive. If there are no such occurrences, answer 0."
 
-	^anElement class == Character 
-		ifTrue: [self nextIndexOf: anElement from: start to: stop]
-		ifFalse: [0 "Can only contain characters"]!
+	#todo.	"Remove when primitive is fixed"
+	start to: stop do: [:i | (self at: i) = anElement ifTrue: [^i]].
+	^0!
 
 nextIndexOf: anElement from: start to: stop
 	"Answer the index of the next occurrence of anElement in the receiver between 
 	startIndex and stopIndex inclusive. If there are no such occurrences, answer 0."
 
-	self from: start to: stop keysAndValuesDo: [:i :elem | elem = anElement ifTrue: [^i]].
-	^0!
+	| codePoint |
+	anElement class ~~ Character
+		ifTrue: 
+			["Strings can only contain Characters"
+			^0].
+	codePoint := anElement codePoint.
+	codePoint < 16r80
+		ifTrue: 
+			[^self
+				nextIdentityIndexOf: anElement
+				from: start
+				to: stop].
+	codePoint <= 16rFFFF
+		ifTrue: 
+			[anElement isUtf8Surrogate
+				ifFalse: [start to: stop do: [:i | (self at: i) = anElement ifTrue: [^i]]].
+			^0]
+		ifFalse: 
+			[| lead trail current |
+			codePoint := codePoint - 16r10000.
+			lead := Character utf16Value: (codePoint bitShift: -10) + 16rD800.
+			trail := Character utf16Value: (codePoint bitAnd: 16r3FF) + 16rDC00.
+			current := self
+						nextIndexOf: lead
+						from: start
+						to: stop - 1.
+			[current ~~ 0 and: [current < stop and: [(self at: current + 1) ~= trail]]] whileTrue: 
+					[current := self
+								nextIndexOf: lead
+								from: current + 1
+								to: stop - 1].
+			^current]!
 
 replaceFrom: startInteger to: stopInteger with: aReadableString startingAt: startAtInteger 
 	"Replace the characters of the receiver at index positions startInteger through stopInteger
@@ -244,13 +272,13 @@ wordAtOffset: anInteger put: anObject
 
 	<primitive: 125>
 	^self primitiveFailed! !
+!Utf16String categoriesFor: #_beginsString:!comparing!double dispatch!private! !
 !Utf16String categoriesFor: #asByteString:!converting!private! !
 !Utf16String categoriesFor: #asLowercase!converting!public! !
 !Utf16String categoriesFor: #asSymbol!converting!public! !
 !Utf16String categoriesFor: #asUppercase!converting!public! !
 !Utf16String categoriesFor: #asUtf16String!converting!public! !
 !Utf16String categoriesFor: #at:!accessing!public! !
-!Utf16String categoriesFor: #beginsWith:!comparing!public! !
 !Utf16String categoriesFor: #byteSize!accessing!private! !
 !Utf16String categoriesFor: #copyToBuffer:ofSize:!copying!private! !
 !Utf16String categoriesFor: #displayOn:!printing!public! !

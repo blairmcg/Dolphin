@@ -28,8 +28,8 @@ At present only byte characters (that are not control characters) have a printab
 !Character categoriesForClass!Magnitude-General! !
 !Character methodsFor!
 
-_beginsString: aString 
-	^aString first = self!
+_beginsString: aString
+	^aString readStream peek = self!
 
 _separateSubStringsIn: tokens
 	"Private - Answer the sub-strings of the <readableString> argument
@@ -75,7 +75,7 @@ _separateSubStringsIn: tokens
 	There is a unique Character instance for each possible byte-character value,
 	but the instances are not unique for codepoints > 255."
 
-	^self == comperand or: [comperand class == Character and: [comperand codePoint == self codePoint]]!
+	^self == comperand or: [comperand class == Character and: [comperand code == code]]!
 
 > aCharacter
 	"Answer whether the receiver is greater than the parameter aCharacter."
@@ -237,7 +237,7 @@ isAlphaNumeric
 isAscii
 	"Answer whether the receiver is an ascii character"
 
-	^self codeUnit < 16r80!
+	^(code bitAnd: 16r1FFFFF) < 16r80!
 
 isAtomic
 	"Answer whether or not the receiver is the single unique instance of its class that
@@ -324,7 +324,7 @@ isSeparator
 isSurrogate
 	"Answer whether the receiver is a leading or trailing code unit of a multi-code unit character in it's encoding."
 
-	^(code bitAnd: 16rFFF800) == 16rD800 or: [code allMask: ##(String.EncodingUtf8 << 24 | 16r80)]!
+	^self isUtf16Surrogate or: [self isUtf8Surrogate]!
 
 isUppercase
 	"Answer whether the receiver is an uppercase letter."
@@ -337,6 +337,11 @@ isUpperCase
 	^self isUppercase
 !
 
+isUtf16Surrogate
+	"Answer whether the receiver is a UTF-16 surrogate (partial character)."
+
+	^(code bitAnd: 16rFFF800) == 16rD800!
+
 isUtf8
 	"Answer whether the receiver is a UTF-8 code unit."
 
@@ -346,6 +351,11 @@ isUtf8Lead
 	"Answer whether the receiver is a UTF-8 leading byte."
 
 	^(code bitAnd: EncodingMask) == Utf8Mask and: [code allMask: 2r11000000]!
+
+isUtf8Surrogate
+	"Answer whether the receiver is a UTF-8 surrogate (partial character)."
+
+	^(code bitAnd: EncodingMask | 16r80) == ##(Utf8Mask | 16r80)!
 
 isUtf8Trail
 	"Answer whether the receiver is a UTF-8 trailing byte."
@@ -432,8 +442,10 @@ shallowCopy
 !Character categoriesFor: #isSurrogate!public!testing! !
 !Character categoriesFor: #isUppercase!public!testing! !
 !Character categoriesFor: #isUpperCase!public!testing! !
+!Character categoriesFor: #isUtf16Surrogate!public!testing! !
 !Character categoriesFor: #isUtf8!public!testing! !
 !Character categoriesFor: #isUtf8Lead!public!testing! !
+!Character categoriesFor: #isUtf8Surrogate!public!testing! !
 !Character categoriesFor: #isUtf8Trail!public!testing! !
 !Character categoriesFor: #isVowel!public!testing! !
 !Character categoriesFor: #isWhitespace!public!testing! !
@@ -607,7 +619,7 @@ utf16Value: anInteger
 		ifFalse: 
 			[(AnsiCharacters lookup: anInteger)
 				ifNil: 
-					[(anInteger >= 16rD800 or: [anInteger <= 16rDFFF])
+					[(anInteger >= 16rD800 and: [anInteger <= 16rDFFF])
 						ifTrue: 
 							["Surrogate"
 							self newCode: (Utf16Mask bitOr: anInteger)]

@@ -316,21 +316,23 @@ beginsWith: comperand
 
 	^comperand _beginsString: self!
 
-beginsWith: aString ignoreCase: aBoolean 
+beginsWith: aString ignoreCase: aBoolean
 	"Answer whether the receiver starts with the characters of the argument, aString. The
 	comparison may be case sensitive or insensitive, depending on the <Boolean> argument. Note
 	that unlike #beginsWith:, the comperand must be a <String>."
 
-	| string1 string2 |
+	| string1 string2 cch |
 	string1 := self asUtf16String.
 	string2 := aString asUtf16String.
-	^(KernelLibrary default
-		compareString: Win32Constants.LOCALE_USER_DEFAULT
-		dwCmpFlags: (aBoolean ifTrue: [Win32Constants.NORM_IGNORECASE] ifFalse: [0])
-		lpString1: string1
-		cchCount1: string1 size
-		lpString2: string2
-		cchCount2: string2 size) == Win32Constants.CSTR_EQUAL!
+	cch := string2 size.
+	^cch <= string1 size and: 
+			[(KernelLibrary default
+				compareString: Win32Constants.LOCALE_USER_DEFAULT
+				dwCmpFlags: (aBoolean ifTrue: [Win32Constants.NORM_IGNORECASE] ifFalse: [0])
+				lpString1: string1
+				cchCount1: cch
+				lpString2: string2
+				cchCount2: cch) == Win32Constants.CSTR_EQUAL]!
 
 between: min and: max
 	"Answer whether the receiver is inclusively between the <magnitude> arguments, 
@@ -607,13 +609,6 @@ hashCharacters
 	^VMLibrary default hashBytes: self count: self size
 !
 
-includes: aCharacter 
-	"Answer whether the <Character> argument is one of the elements of the receiver."
-
-	"Implementation Note: Override superclass to provide a more efficient implementation."
-
-	^self identityIncludes: aCharacter!
-
 indexOfAnyOf: aCollectionOfCharacters startingAt: anInteger 
 	"Answer the one-based integer index of the first encountered element of the receiver which
 	is equal to one of the characters in the argument, aCollectionOfCharacters, starting from
@@ -762,13 +757,6 @@ nextIdentityIndexOf: anElement from: start to: stop
 	^anElement class == Character 
 		ifTrue: [self basicIdentityIndexOf: anElement asInteger from: start to: stop]
 		ifFalse: [0 "Can only contain characters"]!
-
-nextIndexOf: anElement from: start to: stop
-	"Answer the index of the next occurrence of anElement in the receiver between 
-	startIndex and stopIndex inclusive. If there are no such occurrences, answer 0."
-
-	<primitive: 52>
-	^self nextIdentityIndexOf: anElement from: start to: stop!
 
 occurrencesOf: anObject 
 	"Answer how many of the receiver's elements are equal to anObject.
@@ -1176,7 +1164,6 @@ withNormalizedLineDelimiters
 !String categoriesFor: #formatWithArguments:!printing!public! !
 !String categoriesFor: #hash!comparing!public! !
 !String categoriesFor: #hashCharacters!comparing!private! !
-!String categoriesFor: #includes:!public!searching! !
 !String categoriesFor: #indexOfAnyOf:startingAt:!public!searching! !
 !String categoriesFor: #indexOfSubCollection:startingAt:!public!searching! !
 !String categoriesFor: #isLiteral!public!testing! !
@@ -1191,7 +1178,6 @@ withNormalizedLineDelimiters
 !String categoriesFor: #midString:from:!copying!public! !
 !String categoriesFor: #min:!comparing!public! !
 !String categoriesFor: #nextIdentityIndexOf:from:to:!public!searching! !
-!String categoriesFor: #nextIndexOf:from:to:!public!searching! !
 !String categoriesFor: #occurrencesOf:!public!searching! !
 !String categoriesFor: #occurrencesOf:from:to:!public!searching! !
 !String categoriesFor: #printOn:!printing!public! !
@@ -1272,7 +1258,7 @@ encoding
 	^self encodings at: self basicEncoding + 1!
 
 encodings
-	^#(#ansi #utf8 #utf16 #utf32)!
+	^#(#ansi #utf8 #utf16le #utf32)!
 
 errorInvalidCodePoint: codePoint
 	^self error: 'Invalid code point ' , codePoint hex!
@@ -1357,7 +1343,7 @@ fromId: resourceId in: anExternalLibraryOrHandle
 fromString: aString
 	"Answer an instance of the receiver containing the same characters as the argument, aString."
 
-	^aString asAnsiString!
+	^self subclassResponsibility!
 
 fromUtf16String: anAddressOrUtf16String
 	"Answer a byte-encoded String representation of the UTF16 string at the specified
