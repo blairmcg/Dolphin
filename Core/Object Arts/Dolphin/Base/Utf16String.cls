@@ -250,6 +250,13 @@ strcspn: aString start: anInteger
 	^CRTLibrary default wcscspn: self yourAddress + ((anInteger - 1) * 2)
 		strCharSet: aString asUtf16String!
 
+trimNulls
+	"Answer a copy of the receiver with trailing nulls removed."
+
+	| len |
+	len := KernelLibrary default lstrlenW: self.
+	^len = self size ifTrue: [self] ifFalse: [self copyFrom: 1 to: len]!
+
 wordAtOffset: anInteger
 	"Private - Answer the unsigned 2 byte integer at offset (i.e. zero relative) anInteger in the receiver. 
 	On iX86 the high and low order bytes are reversed; i.e. the bytes are ordered least 
@@ -301,6 +308,7 @@ wordAtOffset: anInteger put: anObject
 !Utf16String categoriesFor: #shallowCopy!copying!public! !
 !Utf16String categoriesFor: #stbSaveOn:!binary filing!public! !
 !Utf16String categoriesFor: #strcspn:start:!private!searching! !
+!Utf16String categoriesFor: #trimNulls!copying!public! !
 !Utf16String categoriesFor: #wordAtOffset:!accessing!primitives!private! !
 !Utf16String categoriesFor: #wordAtOffset:put:!accessing!primitives!private! !
 

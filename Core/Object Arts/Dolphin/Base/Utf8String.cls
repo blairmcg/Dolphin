@@ -167,7 +167,16 @@ reverse
 										basicAt: j - 3 put: ch.
 									j := j - 4.
 									i := i + 4]]]].
-	^reversed! !
+	^reversed!
+
+trimNulls
+	"Answer a copy of the receiver with trailing nulls removed."
+
+	| len |
+	len := CRTLibrary default strlen: self.
+	^len = self size 
+		ifTrue: [self]
+		ifFalse: [self copyFrom: 1 to: len]! !
 !Utf8String categoriesFor: #_beginsString:!comparing!double dispatch!private! !
 !Utf8String categoriesFor: #asLowercase!converting!public! !
 !Utf8String categoriesFor: #asUppercase!converting!public! !
@@ -178,6 +187,7 @@ reverse
 !Utf8String categoriesFor: #maxEncoding!constants!private! !
 !Utf8String categoriesFor: #nextIndexOf:from:to:!public!searching! !
 !Utf8String categoriesFor: #reverse!copying!public! !
+!Utf8String categoriesFor: #trimNulls!copying!public! !
 
 !Utf8String class methodsFor!
 

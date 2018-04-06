@@ -1023,7 +1023,7 @@ trimNulls
 	Take advantage of some private knowledge about the implementation of
 	#fromAddress:"
 
-	^self species fromAddress: self yourAddress!
+	^self subclassResponsibility!
 
 trueCompare: comparand
 	"Private - Answer the receiver's <integer> collation order with respect to 

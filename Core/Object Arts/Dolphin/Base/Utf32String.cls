@@ -26,9 +26,15 @@ stbSaveOn: anSTBOutFiler
 	is may be desirable, anyway, to save as UTF-8 to save space, and the intention is that
 	Utf8String and Utf32String instances be largely interchangeable."
 
-	^self asUtf8String stbSaveOn: anSTBOutFiler! !
+	^self asUtf8String stbSaveOn: anSTBOutFiler!
+
+trimNulls
+	"Answer a copy of the receiver with trailing nulls removed."
+
+	^Error notYetImplemented! !
 !Utf32String categoriesFor: #byteSize!accessing!private! !
 !Utf32String categoriesFor: #stbSaveOn:!binary filing!public! !
+!Utf32String categoriesFor: #trimNulls!copying!public! !
 
 !Utf32String class methodsFor!
 
