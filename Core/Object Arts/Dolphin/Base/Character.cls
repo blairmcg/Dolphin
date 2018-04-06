@@ -337,10 +337,20 @@ isUpperCase
 	^self isUppercase
 !
 
+isUtf16Lead
+	"Answer whether the receiver is a UTF-16 lead surrogate (leading code unit of two part character)."
+
+	^(code bitAnd: 16rFFFC00) == 16rD800!
+
 isUtf16Surrogate
 	"Answer whether the receiver is a UTF-16 surrogate (partial character)."
 
 	^(code bitAnd: 16rFFF800) == 16rD800!
+
+isUtf16Trail
+	"Answer whether the receiver is a UTF-16 lead surrogate (leading code unit of two part character)."
+
+	^(code bitAnd: 16rFFFC00) == 16rDC00!
 
 isUtf8
 	"Answer whether the receiver is a UTF-8 code unit."
@@ -442,7 +452,9 @@ shallowCopy
 !Character categoriesFor: #isSurrogate!public!testing! !
 !Character categoriesFor: #isUppercase!public!testing! !
 !Character categoriesFor: #isUpperCase!public!testing! !
+!Character categoriesFor: #isUtf16Lead!public!testing! !
 !Character categoriesFor: #isUtf16Surrogate!public!testing! !
+!Character categoriesFor: #isUtf16Trail!public!testing! !
 !Character categoriesFor: #isUtf8!public!testing! !
 !Character categoriesFor: #isUtf8Lead!public!testing! !
 !Character categoriesFor: #isUtf8Surrogate!public!testing! !
