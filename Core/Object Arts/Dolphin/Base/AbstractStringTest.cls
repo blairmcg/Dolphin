@@ -354,7 +354,10 @@ testReverse
 			subject := self assimilateString: each first.
 			expected := self assimilateString: each last.
 			actual := subject reverse.
-			self assert: actual equals: expected mutableCopy]!
+			self assert: actual equals: expected mutableCopy.
+			"Reverse it back"
+			actual := actual reverse.
+			self assert: actual equals: subject mutableCopy]!
 
 testStreamUtfRoundTrip
 	| expected actual |
