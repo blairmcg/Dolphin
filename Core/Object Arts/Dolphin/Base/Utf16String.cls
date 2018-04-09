@@ -317,6 +317,9 @@ wordAtOffset: anInteger put: anObject
 codePage
 	"Answer the Windows code page constant for the receiver's encoding."
 
+	"Note: This is not a real code page, and cannot be used with most APIs expecting a code page
+	identifier. It's main purpose is to distinguish UTF-16 in some circumstances."
+
 	^Win32Constants.CP_UNICODE!
 
 decode: anInteger
@@ -329,26 +332,27 @@ decodeNextFrom: aReadStream
 	"Read the next <Character> in the receiver's encoding from the <ReadStream> argument, which
 	is assumed to be over a Utf16String (or a stream over a double-byte object) ."
 
-	| c |
-	c := aReadStream basicNext.
-	^(c bitAnd: 16rFFFFC00) == 16rD800
-		ifTrue: 
-			["Lead surrogate encountered"
-			aReadStream basicNextAvailable
-				ifNil: 
-					["Lead surrogate but no trailing surrogate, answer the replacement character"
-					$\xFFFD]
-				ifNotNil: 
-					[:c2 |
-					(c2 bitAnd: 16rFFFFFC00) == 16rDC00
-						ifTrue: 
-							["Valid surrogate pair"
-							Character codePoint: (c << 10) + c2 - SurrogateOffset]
-						ifFalse: 
-							["No trailing surrogate, answer the replacement character"
-							aReadStream pop.
-							$\xFFFD]]]
-		ifFalse: [Character utf16Value: c]!
+	^aReadStream basicNextAvailable
+		ifNotNil: 
+			[:c |
+			^(c bitAnd: 16rFFFFC00) == 16rD800
+				ifTrue: 
+					["Lead surrogate encountered"
+					aReadStream basicNextAvailable
+						ifNil: 
+							["Lead surrogate but no trailing surrogate, answer the replacement character"
+							Character replacement]
+						ifNotNil: 
+							[:c2 |
+							(c2 bitAnd: 16rFFFFFC00) == 16rDC00
+								ifTrue: 
+									["Valid surrogate pair"
+									Character codePoint: (c << 10) + c2 - SurrogateOffset]
+								ifFalse: 
+									["No trailing surrogate, answer the replacement character"
+									aReadStream pop.
+									Character replacement]]]
+				ifFalse: [Character utf16Value: c]]!
 
 elementSize
 	"Answer the size of the elements of the receiver in bytes."
@@ -447,7 +451,9 @@ initialize
 	VMLibrary default registryAt: #Utf16String put: self.
 	self extraInstanceSpec: EncodingUtf16.
 	self addClassConstant: 'LeadOffset' value: 16rD800 - (16r10000 >> 10).
-	self addClassConstant: 'SurrogateOffset' value: (16rD800 << 10) + 16rDC00 - 16r10000!
+	self addClassConstant: 'SurrogateOffset' value: (16rD800 << 10) + 16rDC00 - 16r10000.
+	bom := #[255 254]
+!
 
 skipEncodingMarkerFrom: aGettableStream
 	"Skip over any encoding marker used for the stream encoding this collection represents on the <gettableStream> argument, which 

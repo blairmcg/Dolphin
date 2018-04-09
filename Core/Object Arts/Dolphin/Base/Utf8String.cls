@@ -211,58 +211,59 @@ decodeNextFrom: aReadStream
 	11110xxx	0xF0..0xF4	Lead byte of a 4-byte character encoding
 	10xxxxxx	0x80..0xBF	Continuation bytes (x1, x2, or x3)"
 
-	| c |
-	c := aReadStream basicNext.
-	c < 16r80
-		ifTrue: 
-			["Ascii char"
-			^Character asciiValue: c]
-		ifFalse: 
-			["Lead byte?"
-			c >= 16rC0
+	^aReadStream basicNextAvailable
+		ifNotNil: 
+			[:c |
+			c < 16r80
 				ifTrue: 
-					["At least 2 byte character"
-					aReadStream basicNextAvailable
-						ifNil: [^$\xFFFD]
-						ifNotNil: 
-							[:c2 |
-							| codePoint |
-							(c2 bitAnd: 16rC0) == 16r80
-								ifTrue: [codePoint := (c bitAnd: 16r1F) << 6 bitOr: (c2 bitAnd: 16r3F)]
-								ifFalse: 
-									["Invalid1st continuation"
-									aReadStream pop.
-									^$\xFFFD].
-							c >= 16rE0
-								ifTrue: 
-									["At least a 3-byte character"
-									aReadStream basicNextAvailable
-										ifNil: [^$\xFFFD]
-										ifNotNil: 
-											[:c3 |
-											(c3 bitAnd: 16rC0) == 16r80
-												ifTrue: [codePoint := (codePoint bitAnd: 16r3FF) << 6 bitOr: (c3 bitAnd: 16r3F)]
-												ifFalse: 
-													["Invalid 2nd continuation"
-													aReadStream pop.
-													^$\xFFFD].
-											c >= 16rF0
-												ifTrue: 
-													["4-byte character"
-													aReadStream basicNextAvailable
-														ifNil: [^$\xFFFD]
-														ifNotNil: 
-															[:c4 |
-															(c4 bitAnd: 16rC0) == 16r80
-																ifTrue: [codePoint := (codePoint bitAnd: 16r7FFF) << 6 bitOr: (c4 bitAnd: 16r3F)]
-																ifFalse: 
-																	["Invalid 3rd continuation"
-																	aReadStream pop.
-																	^$\xFFFD]]]]].
-							^Character codePoint: codePoint]]
+					["Ascii char"
+					Character asciiValue: c]
 				ifFalse: 
-					["On a continution byte so in the middle of a character, which is invalid"
-					^$\xFFFD]]!
+					["Lead byte?"
+					c >= 16rC0
+						ifTrue: 
+							["At least 2 byte character"
+							aReadStream basicNextAvailable
+								ifNil: [^Character replacement]
+								ifNotNil: 
+									[:c2 |
+									| codePoint |
+									(c2 bitAnd: 16rC0) == 16r80
+										ifTrue: [codePoint := (c bitAnd: 16r1F) << 6 bitOr: (c2 bitAnd: 16r3F)]
+										ifFalse: 
+											["Invalid1st continuation"
+											aReadStream pop.
+											^Character replacement].
+									c >= 16rE0
+										ifTrue: 
+											["At least a 3-byte character"
+											aReadStream basicNextAvailable
+												ifNil: [^Character replacement]
+												ifNotNil: 
+													[:c3 |
+													(c3 bitAnd: 16rC0) == 16r80
+														ifTrue: [codePoint := (codePoint bitAnd: 16r3FF) << 6 bitOr: (c3 bitAnd: 16r3F)]
+														ifFalse: 
+															["Invalid 2nd continuation"
+															aReadStream pop.
+															^Character replacement].
+													c >= 16rF0
+														ifTrue: 
+															["4-byte character"
+															aReadStream basicNextAvailable
+																ifNil: [^Character replacement]
+																ifNotNil: 
+																	[:c4 |
+																	(c4 bitAnd: 16rC0) == 16r80
+																		ifTrue: [codePoint := (codePoint bitAnd: 16r7FFF) << 6 bitOr: (c4 bitAnd: 16r3F)]
+																		ifFalse: 
+																			["Invalid 3rd continuation"
+																			aReadStream pop.
+																			^Character replacement]]]]].
+									Character codePoint: codePoint]]
+						ifFalse: 
+							["On a continution byte so in the middle of a character, which is invalid"
+							Character replacement]]]!
 
 elementSize
 	"Answer the size of the elements of the receiver in bytes."

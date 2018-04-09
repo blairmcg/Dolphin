@@ -52,6 +52,7 @@ package methodNames
 	add: #CRTLibrary -> #fabs:;
 	add: #CRTLibrary -> #floor:;
 	add: #CRTLibrary -> #fopen:mode:;
+	add: #CRTLibrary -> #fopen_s:filename:mode:;
 	add: #CRTLibrary -> #fread:size:count:stream:;
 	add: #CRTLibrary -> #freopen:mode:stream:;
 	add: #CRTLibrary -> #frexp:expptr:;
@@ -355,6 +356,10 @@ fopen: nameString mode: modeString
 	#deprecated.	"Insecure - use fopen_s"
 	^self invalidCall!
 
+fopen_s: pFile filename: nameString mode: modeString
+	<cdecl: sdword fopen_s handle* lpstr lpstr>
+	^self invalidCall!
+
 fread: buffer size: size count: count stream: aFILE
 	<overlap cdecl: sdword fread lpvoid intptr intptr handle>
 	#deprecated.	"Insecure - use fread_s"
@@ -492,6 +497,7 @@ thread_errno
 !CRTLibrary categoriesFor: #fabs:!CRT functions-floating point support!public! !
 !CRTLibrary categoriesFor: #floor:!CRT functions-floating point support!public! !
 !CRTLibrary categoriesFor: #fopen:mode:!CRT functions-stream I/O!public! !
+!CRTLibrary categoriesFor: #fopen_s:filename:mode:!CRT functions-stream I/O!public! !
 !CRTLibrary categoriesFor: #fread:size:count:stream:!CRT functions-stream I/O!public! !
 !CRTLibrary categoriesFor: #freopen:mode:stream:!CRT functions-stream I/O!public! !
 !CRTLibrary categoriesFor: #frexp:expptr:!CRT functions-floating point support!public! !
