@@ -28,12 +28,24 @@ stbSaveOn: anSTBOutFiler
 
 	^self asUtf8String stbSaveOn: anSTBOutFiler!
 
+strlen
+	"Answer the length of the receiver (in characters) up to the first null terminator. This may
+	be less than its size if it contains embedded nulls. It can never be greater than the
+	receiver's size."
+
+	^Error notYetImplemented!
+
+subclassResponsibility
+	^Error notYetImplemented!
+
 trimNulls
 	"Answer a copy of the receiver with trailing nulls removed."
 
 	^Error notYetImplemented! !
 !Utf32String categoriesFor: #byteSize!accessing!private! !
 !Utf32String categoriesFor: #stbSaveOn:!binary filing!public! !
+!Utf32String categoriesFor: #strlen!accessing!private! !
+!Utf32String categoriesFor: #subclassResponsibility!exceptions!public! !
 !Utf32String categoriesFor: #trimNulls!copying!public! !
 
 !Utf32String class methodsFor!
@@ -47,7 +59,7 @@ decode: anInteger
 decodeNextFrom: aReadStream
 	"Read the next <Character> in the receiver's encoding from the <ReadStream> argument ."
 
-	^Character value: aReadStream basicNext!
+	^aReadStream basicNext ifNotNil: [:cp | Character value: cp]!
 
 elementSize
 	"Answer the size of the elements of the receiver in bytes."

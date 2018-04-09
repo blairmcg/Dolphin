@@ -50,7 +50,7 @@ copyToBuffer: anAddress ofSize: anInteger
 		count: CRTConstants._TRUNCATE!
 
 encodedAt: anInteger put: aCharacter
-	"Encode the specified <Character> beginning at the specified position in the receiver.
+	"Private - Encode the specified <Character> beginning at the specified position in the receiver.
 	Answer the <integer> index of the last code unit updated."
 
 	| codePoint |
@@ -169,25 +169,23 @@ reverse
 									i := i + 4]]]].
 	^reversed!
 
-trimNulls
-	"Answer a copy of the receiver with trailing nulls removed."
+strlen
+	"Private - Answer the length of the receiver (in characters) up to the first null terminator. This may
+	be less than its size if it contains embedded nulls. It can never be greater than the
+	receiver's size."
 
-	| len |
-	len := CRTLibrary default strlen: self.
-	^len = self size 
-		ifTrue: [self]
-		ifFalse: [self copyFrom: 1 to: len]! !
+	^CRTLibrary default strlen: self! !
 !Utf8String categoriesFor: #_beginsString:!comparing!double dispatch!private! !
 !Utf8String categoriesFor: #asLowercase!converting!public! !
 !Utf8String categoriesFor: #asUppercase!converting!public! !
 !Utf8String categoriesFor: #asUtf8String!converting!public! !
 !Utf8String categoriesFor: #copyToBuffer:ofSize:!copying!private! !
-!Utf8String categoriesFor: #encodedAt:put:!accessing!public! !
+!Utf8String categoriesFor: #encodedAt:put:!accessing!encode/decode!private! !
 !Utf8String categoriesFor: #hash!comparing!public! !
 !Utf8String categoriesFor: #maxEncoding!constants!private! !
 !Utf8String categoriesFor: #nextIndexOf:from:to:!public!searching! !
 !Utf8String categoriesFor: #reverse!copying!public! !
-!Utf8String categoriesFor: #trimNulls!copying!public! !
+!Utf8String categoriesFor: #strlen!accessing!private! !
 
 !Utf8String class methodsFor!
 

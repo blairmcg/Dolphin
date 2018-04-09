@@ -174,10 +174,10 @@ appendToStream: puttableStream
 	We can be able to do a fast block copy. Answer the receiver.
 	Implementation note: Double dispatched from puttableStream>>nextPutAll:."
 
-	| chars |
+	| chars ch |
 	#todo.	"This works but is sub-optimal. Need to coerce the receiver to the encoding of the target stream so we can do a block write through next:putAll:startingAt:. The stream probably needs to forward the request to its contents class, not directly to the collection arg of #nextPutAll:, similarly to #nextPut: sending #encode:on:"
 	chars := ReadStream on: self.
-	[chars atEnd] whileFalse: [puttableStream nextPut: chars next]!
+	[(ch := chars nextAvailable) isNil] whileFalse: [puttableStream nextPut: ch]!
 
 asAnsiString
 	"Answer an ANSI encoded string representation of the receiver."
@@ -942,6 +942,13 @@ storeOn: aStream
 strcspn: aString start: anInteger 
 	^CRTLibrary default strcspn: self yourAddress + anInteger - 1 strCharSet: aString!
 
+strlen
+	"Answer the length of the receiver (in characters) up to the first null terminator. This may
+	be less than its size if it contains embedded nulls. It can never be greater than the
+	receiver's size."
+
+	^self subclassResponsibility!
+
 subStrings
 	"Answer an Array containing the substrings of the receiver which are separated by one or 
 	more Characters which answer true to #isSeparator."
@@ -1034,11 +1041,10 @@ trimBlanks
 	^self copyFrom: first to: last!
 
 trimNulls
-	"Answer a copy of the receiver with trailing nulls removed.
-	Take advantage of some private knowledge about the implementation of
-	#fromAddress:"
+	"Answer a copy of the receiver with trailing nulls removed."
 
-	^self subclassResponsibility!
+	| len |
+	^(len := self strlen) = self size ifTrue: [self] ifFalse: [self copyFrom: 1 to: len]!
 
 trueCompare: comparand
 	"Private - Answer the receiver's <integer> collation order with respect to 
@@ -1206,6 +1212,7 @@ withNormalizedLineDelimiters
 !String categoriesFor: #sprintfWith:with:!printing!public! !
 !String categoriesFor: #storeOn:!printing!public! !
 !String categoriesFor: #strcspn:start:!private!searching! !
+!String categoriesFor: #strlen!accessing!private! !
 !String categoriesFor: #subStrings!copying!public! !
 !String categoriesFor: #subStrings:!copying!public! !
 !String categoriesFor: #subStringsAnsi:!copying!public! !

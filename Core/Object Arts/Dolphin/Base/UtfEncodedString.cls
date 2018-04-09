@@ -57,7 +57,7 @@ copyWith: newElement
 	^self, (self class with: newElement)!
 
 encodedAt: anInteger put: aCharacter
-	"Encode the specified <Character> beginning at the specified position in the receiver.
+	"Private - Encode the specified <Character> beginning at the specified position in the receiver.
 	Answer the <integer> index of the last code unit updated."
 
 	^self subclassResponsibility!
@@ -72,7 +72,7 @@ maxEncoding
 	^self subclassResponsibility! !
 !UtfEncodedString categoriesFor: #asArray!public! !
 !UtfEncodedString categoriesFor: #copyWith:!copying!public! !
-!UtfEncodedString categoriesFor: #encodedAt:put:!accessing!public! !
+!UtfEncodedString categoriesFor: #encodedAt:put:!accessing!encode/decode!private! !
 !UtfEncodedString categoriesFor: #growSize!accessing!private! !
 !UtfEncodedString categoriesFor: #maxEncoding!constants!private! !
 
@@ -101,12 +101,22 @@ decodeFrom: aReadStream upTo: aCharacter
 			[(ch := aReadStream nextAvailable) isNil or: [ch = aCharacter]] whileFalse: [newStream nextPut: ch].
 			^newStream contents]!
 
+decodeNextFrom: aReadStream
+	"Answer the next <Object> in the receiver's encoding from the <ReadStream> argument ."
+
+	^aReadStream basicNextAvailable!
+
 emitEncodingMarkerOn: aPositionableStream
 	"Emit any encoding marker used for the stream encoding this collection represents onto the
 	<PositionableStream> argument, which is assumed to be at the start of its sequence. This
 	typically only relevant to string encodings, so there is nothing to do by default."
 
 	bom do: [:each | aPositionableStream basicNextPut: each]!
+
+encodeOn: aWriteStream next: sizeInteger putAll: aSequenceableCollection startingAt: startInteger
+	startInteger to: startInteger + sizeInteger - 1
+		do: [:i | self encodeOn: aWriteStream put: (aSequenceableCollection at: i)].
+	^aSequenceableCollection!
 
 new: elementCount withAll: elementValue
 	"Answer a new instance of the receiver with <integer>, elementCount, 
@@ -194,7 +204,9 @@ withAll: newElements
 !UtfEncodedString class categoriesFor: #bom!accessing!private! !
 !UtfEncodedString class categoriesFor: #codePage!constants!public! !
 !UtfEncodedString class categoriesFor: #decodeFrom:upTo:!encode/decode!public! !
+!UtfEncodedString class categoriesFor: #decodeNextFrom:!encode/decode!public! !
 !UtfEncodedString class categoriesFor: #emitEncodingMarkerOn:!accessing!public! !
+!UtfEncodedString class categoriesFor: #encodeOn:next:putAll:startingAt:!encode/decode!public! !
 !UtfEncodedString class categoriesFor: #new:withAll:!instance creation!public! !
 !UtfEncodedString class categoriesFor: #skipEncodingMarkerFrom:!encode/decode!public! !
 !UtfEncodedString class categoriesFor: #with:!instance creation!public! !

@@ -91,7 +91,7 @@ displayOn: aStream
 	aStream nextPutAll: self asString!
 
 encodedAt: anInteger put: aCharacter
-	"Encode the specified <Character> beginning at the specified position in the receiver.
+	"Private - Encode the specified <Character> beginning at the specified position in the receiver.
 	Answer the <integer> index of the last code unit updated."
 
 	| codePoint |
@@ -193,15 +193,16 @@ nextIndexOf: anElement from: start to: stop
 								to: stop - 1].
 			^current]!
 
-replaceFrom: startInteger to: stopInteger with: aReadableString startingAt: startAtInteger 
+replaceFrom: startInteger to: stopInteger with: aReadableString startingAt: startAtInteger
 	"Replace the characters of the receiver at index positions startInteger through stopInteger
 	inclusive with consecutive characters of the <readableString>, aReadableString, beginning at
 	index position startAtInteger. Answer the receiver."
 
 	| offset |
+	#todo.	"Fix the block copy primitive to work with double-byte objects, then this can be removed."
 	offset := startAtInteger - startInteger.
 	"Perform overlapping moves backwards, otherwise forwards"
-	(self == aReadableString and: [startAtInteger < startInteger]) 
+	(self == aReadableString and: [startAtInteger < startInteger])
 		ifTrue: 
 			[stopInteger to: startInteger
 				by: -1
@@ -250,12 +251,12 @@ strcspn: aString start: anInteger
 	^CRTLibrary default wcscspn: self yourAddress + ((anInteger - 1) * 2)
 		strCharSet: aString asUtf16String!
 
-trimNulls
-	"Answer a copy of the receiver with trailing nulls removed."
+strlen
+	"Answer the length of the receiver (in characters) up to the first null terminator. This may
+	be less than its size if it contains embedded nulls. It can never be greater than the
+	receiver's size."
 
-	| len |
-	len := KernelLibrary default lstrlenW: self.
-	^len = self size ifTrue: [self] ifFalse: [self copyFrom: 1 to: len]!
+	^KernelLibrary default lstrlenW: self!
 
 wordAtOffset: anInteger
 	"Private - Answer the unsigned 2 byte integer at offset (i.e. zero relative) anInteger in the receiver. 
@@ -296,7 +297,7 @@ wordAtOffset: anInteger put: anObject
 !Utf16String categoriesFor: #byteSize!accessing!private! !
 !Utf16String categoriesFor: #copyToBuffer:ofSize:!copying!private! !
 !Utf16String categoriesFor: #displayOn:!printing!public! !
-!Utf16String categoriesFor: #encodedAt:put:!accessing!public! !
+!Utf16String categoriesFor: #encodedAt:put:!accessing!encode/decode!private! !
 !Utf16String categoriesFor: #findString:startingAt:!public!searching! !
 !Utf16String categoriesFor: #indexOfSubCollection:startingAt:!public!searching! !
 !Utf16String categoriesFor: #maxEncoding!constants!private! !
@@ -308,7 +309,7 @@ wordAtOffset: anInteger put: anObject
 !Utf16String categoriesFor: #shallowCopy!copying!public! !
 !Utf16String categoriesFor: #stbSaveOn:!binary filing!public! !
 !Utf16String categoriesFor: #strcspn:start:!private!searching! !
-!Utf16String categoriesFor: #trimNulls!copying!public! !
+!Utf16String categoriesFor: #strlen!accessing!private! !
 !Utf16String categoriesFor: #wordAtOffset:!accessing!primitives!private! !
 !Utf16String categoriesFor: #wordAtOffset:put:!accessing!primitives!private! !
 
