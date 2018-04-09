@@ -39,6 +39,17 @@ The fact that Characters may actually occupy more than one code unit element of 
 !UtfEncodedString categoriesForClass!Collections-Text! !
 !UtfEncodedString methodsFor!
 
+asArray
+	"Answer an <Array> whose elements are the Characters of the receiver in the same sequence.
+	Note that this may not be of the same size as the receiver as any Characters of the receiver
+	represented by multiple code-unit elements of the receiver will be decoded."
+
+	| chars stream ch |
+	chars := Array writeStream: self size.
+	stream := self readStream.
+	[(ch := stream nextAvailable) isNil] whileFalse: [chars nextPut: ch].
+	^chars contents!
+
 copyWith: newElement
 	"Answer a <sequencedReadableCollection> which is a copy of 
 	the receiver that has newElement concatenated to its end."
@@ -59,6 +70,7 @@ growSize
 
 maxEncoding
 	^self subclassResponsibility! !
+!UtfEncodedString categoriesFor: #asArray!public! !
 !UtfEncodedString categoriesFor: #copyWith:!copying!public! !
 !UtfEncodedString categoriesFor: #encodedAt:put:!accessing!public! !
 !UtfEncodedString categoriesFor: #growSize!accessing!private! !

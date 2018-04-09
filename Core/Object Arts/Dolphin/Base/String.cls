@@ -890,16 +890,17 @@ sprintfWith: arg1
 
 	Note: This is much faster than formatWith:."
 
-	| n crt buf size |
+	| n crt buf size format |
 	crt := VMLibrary default.
 	size := self size + 64.
+	format := self asUtf8String.
 	
 	[buf := Utf8String new: size.
 	n := crt
 				_snprintf_s: buf
 				bufferSize: size + 1
 				count: size
-				format: self
+				format: format
 				with: arg1.
 	n < 0]
 			whileTrue: [size := size * 2].
@@ -909,21 +910,23 @@ sprintfWith: arg1 with: arg2
 	"Answer a String which is a message formatted from the receiver (assumed to be a C-printf
 	format String) with substituations from the arguments.
 	e.g.
-	  'Hello %s' sprintfWith: 'World'.
+
+	  'Hello🐬  %s' sprintfWith: 'World'.
 	  'Hello %i %s' sprintfWith: 1 with: 'world'.
 
 	Note: This is much faster than formatWith:with:."
 
-	| written lib buf size |
+	| written lib buf size format |
 	lib := VMLibrary default.
 	size := self size + 128.
+	format := self asUtf8String.
 	
 	[buf := Utf8String new: size.
 	written := lib
 				_snprintf_s: buf
 				bufferSize: size + 1
 				count: size
-				format: self
+				format: format
 				with: arg1
 				with: arg2.
 	written < 0]
@@ -996,13 +999,25 @@ subStringsAnsi: separators
 titleCased
 	"Answer a <readableString> which is a copy of the receiver but with the first letter of each major word capitalized."
 
-	| kernel src dest len|
+	| kernel src dest len |
 	kernel := KernelLibrary default.
 	src := self asUtf16String.
-	len := kernel lcMapString: Win32Constants.LOCALE_USER_DEFAULT dwMapFlags: Win32Constants.LCMAP_TITLECASE lpScrStr: src cchSrc: src size lpDestStr: nil cchDest: 0.
+	len := kernel
+				lcMapString: Win32Constants.LOCALE_USER_DEFAULT
+				dwMapFlags: Win32Constants.LCMAP_TITLECASE
+				lpScrStr: src
+				cchSrc: src size
+				lpDestStr: nil
+				cchDest: 0.
 	len == 0 ifTrue: [kernel systemError].
-	dest := Utf16String new: len.
-	kernel lcMapString: Win32Constants.LOCALE_USER_DEFAULT dwMapFlags: Win32Constants.LCMAP_TITLECASE lpScrStr: src cchSrc: src size lpDestStr: dest cchDest: len.
+	dest := Utf16String newFixed: len.
+	kernel
+		lcMapString: Win32Constants.LOCALE_USER_DEFAULT
+		dwMapFlags: Win32Constants.LCMAP_TITLECASE
+		lpScrStr: src
+		cchSrc: src size
+		lpDestStr: dest
+		cchDest: len.
 	^dest!
 
 trimBlanks
@@ -1218,8 +1233,16 @@ basicEncoding
 codePage
 	"Answer the Windows code page constant for the receiver's encoding."
 
-	#todo.	"This should really be 1252 as the current code page may vary by machine and so is not suitable for persisted strings, but historically we have used the current ANSI code page because the Win32 'A' apis do."
-	^Win32Constants.CP_ACP!
+	"Ideally this should be fixed to Windows-1252, as the current code page may vary by machine
+	and so is not suitable for persisted strings, but historically we have used the current ANSI
+	code page because the Win32 'A' apis do. In order to continue to interpret pre-existing
+	strings as before on any particular users machine, this will be the machine's current code
+	page. If, however, the machine's code page is a multi-byte code page, then it will be
+	Windows-1252 instead, because Dolphin's ANSI string implementation does not work correctly
+	with multi-byte strings anyway. Going forwards the use of Unicode strings (e.g. Utf8String)
+	is recommended."
+
+	^Character.AnsiCodePage!
 
 decode: anInteger
 	"Answer a <Character> that corresponds to the <integer> code unit, anInteger, in the
@@ -1254,7 +1277,10 @@ encodeOn: aWriteStream put: aCharacter
 encoding
 	"Answer a <Symbol> naming the encoding of instances of the receiver, which will be one of #ansi, #utf8, #utf16 or #utf32."
 
-	^self encodings at: self basicEncoding + 1!
+	^self encodingName: self basicEncoding!
+
+encodingName: anInteger
+	^String encodings at: anInteger + 1!
 
 encodings
 	^#(#ansi #utf8 #utf16le #utf32)!
@@ -1368,7 +1394,7 @@ fromId: resourceId in: anExternalLibraryOrHandle
 	"Answer a new String loaded from the resources of the module with handle, anExternalLibraryOrHandle."
 
 	| answer len |
-	answer := Utf16String new: 256.
+	answer := Utf16String newFixed: 256.
 	(len := UserLibrary default 
 		loadString: anExternalLibraryOrHandle asParameter 
 		uID: resourceId asParameter
@@ -1512,16 +1538,7 @@ systemCodePages: anInteger
 	kernel := KernelLibrary default.
 	kernel enumSystemCodePages: enum asParameter dwFlags: anInteger.
 	enum free.
-	^ids collect: 
-			[:each |
-			| cp cpinfo |
-			cp := Integer fromString: each.
-			cpinfo := CPINFOEXW new.
-			kernel
-				getCPInfoExW: cp
-				dwFlags: 0
-				lpCPInfoEx: cpinfo.
-			cpinfo]!
+	^ids collect: [:each | CPINFOEXW codePage: (Integer fromString: each)]!
 
 tab
 	"Answer an instance of the receiver containing a tab character."
@@ -1546,6 +1563,7 @@ utf8Class
 !String class categoriesFor: #empty!instance creation!public! !
 !String class categoriesFor: #encodeOn:put:!encode/decode!public! !
 !String class categoriesFor: #encoding!accessing!constants!public! !
+!String class categoriesFor: #encodingName:!enquiries!public! !
 !String class categoriesFor: #encodings!constants!public! !
 !String class categoriesFor: #errorInvalidCodePoint:!exceptions!private! !
 !String class categoriesFor: #formatMessage:in:withArguments:!instance creation!public! !

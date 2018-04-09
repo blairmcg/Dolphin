@@ -2,7 +2,7 @@
 
 Magnitude subclass: #Character
 	instanceVariableNames: 'code'
-	classVariableNames: 'AnsiCharacters AnsiCodePoints CharacterSet EncodingMask EscapeChars Utf16Mask Utf32Mask Utf8Mask Utf8TrailMask'
+	classVariableNames: 'AnsiCharacters AnsiCodePage AnsiCodePoints CharacterSet EncodingMask EscapeChars Utf16Mask Utf32Mask Utf8Default Utf8Mask Utf8TrailMask'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Character guid: (GUID fromString: '{87b4c651-026e-11d3-9fd7-00a0cc3e4a32}')!
@@ -597,18 +597,20 @@ null
 
 onStartup
 	| utf ansiCharacters |
+	AnsiCodePage := (VMLibrary default getProcAddress: 'AnsiCodePage' ifAbsent: [#[0 0 0 0]])
+				dwordAtOffset: 0.
 	utf := self byteCharacterSet asUtf16String.
-	self assert: [utf size = 256].
 	AnsiCodePoints := ((0 to: utf size * 2 - 1 by: 2) collect: [:each | utf wordAtOffset: each])
 				isImmutable: true;
 				yourself.
 	ansiCharacters := IdentityDictionary new.
 	Character byteCharacterSet do: [:each | ansiCharacters at: each codePoint put: each].
 	ansiCharacters isImmutable: true.
-	AnsiCharacters := ansiCharacters!
+	AnsiCharacters := ansiCharacters.
+	Utf8Default := (CPINFOEXW codePage: Win32Constants.CP_UTF8) unicodeDefaultChar!
 
 replacement
-	^$\xFFFD!
+	^Utf8Default!
 
 space
 	"Answer the space <Character>."
