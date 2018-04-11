@@ -413,7 +413,6 @@ equals: comperand
 	Using this method strings and symbols compare equal if they contain the same
 	character sequence - this was not true in releases prior to 3.0."
 
-	| size |
 	<primitive: 55>
 	#todo.	"Doesn't work correctly for comparing Symbols to UTF encoded strings. This could be
 	       deprecated if we allowed strings and symbols to be equal for the same code point

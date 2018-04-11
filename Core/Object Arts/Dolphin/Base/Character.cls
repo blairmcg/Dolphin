@@ -261,7 +261,10 @@ isDigit
 isEnglishLetter
 	"Answer whether the receiver is a letter from the English alphabet."
 
-	^(self between: $a and: $z) or: [self between: $A and: $Z]!
+	| codePoint |
+	^(codePoint := self codePoint) <= ##($z codePoint) and: 
+			[codePoint >= ##($A codePoint)
+				and: [codePoint >= ##($a codePoint) or: [codePoint <= ##($Z codePoint)]]]!
 
 isGraph
 	"Answer whether the receiver is a printable character other than a space."
