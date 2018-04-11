@@ -667,7 +667,7 @@ UtfEncodedString variableByteSubclass: #Utf8String
 	classInstanceVariableNames: ''!
 Utf8String variableByteSubclass: #Symbol
 	instanceVariableNames: ''
-	classVariableNames: 'Table'
+	classVariableNames: 'CharClassifications Table'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 WeakArray variableSubclass: #MourningWeakArray
