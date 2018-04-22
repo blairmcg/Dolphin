@@ -30,7 +30,7 @@ addInsideObject: anObject minScale: minScale maxScale: maxScale
 	(anObject testCollisionIn: self backSurface) or: [anObject scale r > maxScale ]] 
 			whileFalse.
 	self model add: anObject.
-	anObject drawOn: self graphics!
+!
 
 background
 	^background 
@@ -93,28 +93,44 @@ dolphinOutline
 dolphins
 	^dolphins!
 
-drawInfoTextOn: graphics 
-	| version copyright fontCopyright brush infoString |
+drawInfoTextOn: graphics
+	| version copyright fontCopyright brush infoString stringFormat |
 	version := VMLibrary default versionInfo.
-	copyright := version legalCopyright copyReplaceAll: '. ' with: String lineDelimiter.
+	copyright := version legalCopyright subStrings: $..
 	brush := GdiplusSolidBrush color: ARGB white.
-	fontCopyright := GdiplusFont 
+	fontCopyright := GdiplusFont
 				name: 'Arial'
 				emSize: 9
 				style: nil
 				unit: UnitPoint.
-	infoString := copyright lines first , ', ' , copyright lines second , '.' , String lineDelimiter 
-				, 'Dolphin ' , SessionManager current versionString 
-				, ' is Open Source under the MIT License.'.
-	SessionManager current bootInfo 
-		ifNotNil: [:bootInfo | infoString := infoString , String lineDelimiter , 'Image boot info: ' , bootInfo].
+	infoString := Utf16String writeStream.
+	infoString
+		nextPutAll: copyright first;
+		nextPutAll: ', ';
+		nextPutAll: copyright second;
+		nextPut: $.;
+		cr;
+		nextPutAll: 'Dolphin ';
+		nextPutAll: SessionManager current versionString;
+		nextPutAll: ' is Open Source under the MIT License.'.
+	SessionManager current bootInfo
+		ifNotNil: 
+			[:bootInfo |
+			infoString
+				cr;
+				nextPutAll: 'Image boot info: ';
+				nextPutAll: bootInfo].
+	stringFormat := GdiplusStringFormat near.
 	graphics
 		textRenderingHint: TextRenderingHintAntiAlias;
-		drawString: infoString
+		drawString: infoString contents
 			font: fontCopyright
 			at: (48 @ 630 * self baseScale) rounded
-			format: GdiplusStringFormat near
-			brush: brush!
+			format: stringFormat
+			brush: brush.
+	fontCopyright free.
+	brush free.
+	stringFormat free!
 
 elapsedTime
 	"Answer the elapsed time in ms since the start of the animation"
@@ -122,36 +138,39 @@ elapsedTime
 	^TimeStamp current asMilliseconds - startTime asMilliseconds!
 
 fill
-	| dolphinPt |
+	| dolphinPt graphics |
 	self model removeAll.
 
 	"Render the Dolphin outline so we can fit out objects inside"
 	self render.
 	dolphinInside := (self randomFrom: self dolphins) copy.
 	dolphinInside rotation: (self random next * 360) rounded.
+	graphics := self graphics.
 
 	"Find a suitable position and scale for the dolphin inside"
 	
 	[dolphinPt := self randomFrom: self points.
 	dolphinInside position: dolphinPt.
-	(self 
+	(self
 		addInsideObject: dolphinInside
 		minScale: self dolphinMinScale
-		maxScale: self dolphinMaxScale) notNil 
-		and: [dolphinInside scale >= self dolphinMinScale]] 
+		maxScale: self dolphinMaxScale) notNil
+		and: [dolphinInside scale >= self dolphinMinScale]]
 			whileFalse.
-
+	dolphinInside drawOn: graphics.
 	"Now fill in the remaining objects inside"
 	self points do: 
-			[:pt | 
+			[:pt |
 			| object |
 			object := (self randomFrom: self objects) copy.
 			object position: pt.
 			object rotation: (self random next * 180) truncated - 90.
-			self 
+			self
 				addInsideObject: object
 				minScale: self insideObjectMinScale
-				maxScale: self insideObjectMaxScale].
+				maxScale: self insideObjectMaxScale.
+			object drawOn: graphics].
+	graphics free.
 
 	"Re-render to fill the Dolphin with objects of the correct scale"
 	dolphinInside color: self dolphinInsideBaseColor.
@@ -317,7 +336,8 @@ render
 				position: self sunPosition;
 				drawOn: graphics].
 	self drawInfoTextOn: graphics.
-	super render]
+	super render.
+	graphics free]
 			on: Error
 			do: 
 				[:ex |
