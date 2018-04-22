@@ -22,7 +22,7 @@ at: keyString put: valueDictionary
 	"Store the key-value pairs in the <abstractDictionary> argument as a named section of the initialization file."
 
 	| kvps |
-	kvps := Utf8String writeStream.
+	kvps := Utf16String writeStream.
 	valueDictionary keysAndValuesDo: 
 			[:eachKey :eachValue |
 			kvps
@@ -77,8 +77,8 @@ keysDo: operation
 	count = (buf size - 2)]
 			whileTrue: [buf := Utf16String newFixed: buf size * 2].
 	start := 1.
-	
 	buf := buf asUtf8String.
+	
 	[end := buf
 				nextIndexOf: $\0
 				from: start
