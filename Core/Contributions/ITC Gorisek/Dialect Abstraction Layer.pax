@@ -1417,7 +1417,7 @@ hours: hours minutes: minutes seconds: seconds milliseconds: msecs
 asFilenameString
 
 	| stream |
-	stream := Utf8String writeStream: 20.
+	stream := String writeStream: 20.
 	stream
 		nextPutAll: (self date year asLeadingZerosStringOfSize: 4);
 		nextPutAll: (self date monthIndex asLeadingZerosStringOfSize: 2);
