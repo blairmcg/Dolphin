@@ -360,6 +360,11 @@ elementSize
 
 	^2!
 
+encodedSizeOf: aCharacter
+	"Answer the number of basic slots occupied by the argument when encoded in the receiver."
+
+	^aCharacter codePoint <= 16rFFFF ifTrue: [1] ifFalse: [2]!
+
 encodeOn: aPuttableStream put: aCharacter
 	"Encode the <Character> argument onto the <WriteStream> argument using the UTF-16
 	encoding. This requires either one or two 2-byte code units be written to the stream, depending
@@ -480,6 +485,7 @@ with: aCharacter
 !Utf16String class categoriesFor: #decode:!encode/decode!public! !
 !Utf16String class categoriesFor: #decodeNextFrom:!encode/decode!public! !
 !Utf16String class categoriesFor: #elementSize!constants!public! !
+!Utf16String class categoriesFor: #encodedSizeOf:!encode/decode!public! !
 !Utf16String class categoriesFor: #encodeOn:put:!encode/decode!public! !
 !Utf16String class categoriesFor: #fromAddress:!instance creation!public! !
 !Utf16String class categoriesFor: #fromAddress:length:!instance creation!public! !

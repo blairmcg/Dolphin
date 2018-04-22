@@ -209,11 +209,6 @@ asNumber
 
 	^Number fromString: self!
 
-asParameter
-	"On Windows wide string APIs will be expected UTF-16"
-
-	^self asUtf16String!
-
 asPhrase
 	"Answer a <sequencedReadableCollection> of the 'words' in the receiver, as capitalized strings.
 	The word boundaries are identified by colons (i.e. keywords) and capital letters."
@@ -238,6 +233,11 @@ asPhrase
 									stream nextPut: each]].
 					last := each]].
 	^stream contents!
+
+asResourceId
+	"On Windows wide string APIs will be expecting string resource names to be in UTF-16."
+
+	^self asUtf16String!
 
 asString
 	"Answer a <readableString> containing the same characters as the receiver,
@@ -468,7 +468,7 @@ expandMacrosWithArguments: anArray
 	"
 
 	| newStream readStream index |
-	newStream := Utf8String writeStream: self size.
+	newStream := String writeStream: self size.
 	readStream := ReadStream on: self.
 	index := 1.
 	[readStream atEnd] whileFalse: 
@@ -1142,8 +1142,8 @@ withNormalizedLineDelimiters
 !String categoriesFor: #asByteArray!converting!public! !
 !String categoriesFor: #asLowercase!converting!public! !
 !String categoriesFor: #asNumber!converting!public! !
-!String categoriesFor: #asParameter!converting!public! !
 !String categoriesFor: #asPhrase!converting!public! !
+!String categoriesFor: #asResourceId!converting!public! !
 !String categoriesFor: #asString!converting!public! !
 !String categoriesFor: #asSymbol!converting!public! !
 !String categoriesFor: #asUIntPtr!converting!public! !
@@ -1323,12 +1323,9 @@ formatSystemMessage: anIntegerId withArguments: arguments
 		withArguments: arguments!
 
 fromAddress: anAddress
-	"Answer a new String instantiated from the null terminated string at anAddress.
-	Implementation note: We can use the external library call primitive to do the 
-	job for us by performing a simple nop which returns the original pointer (_strninc()
-	has the useful property that it returns NULL for NULL argument too)."
+	"Answer a new String instantiated from the null terminated string at anAddress."
 
-	^VMLibrary default stringFromAddress: anAddress!
+	^self subclassResponsibility!
 
 fromAddress: anAddress length: anInteger
 	"Answer a new String, of length anInteger, copied from the first anInteger
@@ -1391,6 +1388,14 @@ fromByteArray: aByteArray startingAt: indexInteger
 		length: (aByteArray size - indexInteger + 1) // self elementSize
 		startingAt: indexInteger!
 
+fromGlobalHandle: anExternalHandle
+	"Answer a new String instantiated from the contents of the global heap block with the specified handle."
+
+	| kernel p |
+	kernel := KernelLibrary default.
+	p := kernel globalLock: anExternalHandle.
+	^[self fromAddress: p] ensure: [kernel globalUnlock: anExternalHandle]!
+
 fromId: anInteger
 	"Answer a new String loaded from resources."
 
@@ -1401,12 +1406,12 @@ fromId: resourceId in: anExternalLibraryOrHandle
 
 	| answer len |
 	answer := Utf16String newFixed: 256.
-	(len := UserLibrary default 
-		loadString: anExternalLibraryOrHandle asParameter 
-		uID: resourceId asParameter
-		lpBuffer: answer 
-		nBufferMax: answer size) isZero
-			ifTrue: [UserLibrary default systemError].
+	(len := UserLibrary default
+				loadString: anExternalLibraryOrHandle asParameter
+				uID: resourceId asResourceId
+				lpBuffer: answer
+				nBufferMax: answer size) isZero
+		ifTrue: [UserLibrary default systemError].
 	^answer leftString: len!
 
 fromString: aString
@@ -1474,7 +1479,7 @@ new: aSmallInteger
 	"Answer an instance of the default string class of sufficient size to hold the specified number of code units."
 
 	<primitive: 71>
-	self isNonInstantiable ifTrue: [^AnsiString new: aSmallInteger].
+	self isNonInstantiable ifTrue: [^Utf8String new: aSmallInteger].
 	^self primitiveFailed!
 
 newFixed: aSmallInteger
@@ -1485,7 +1490,7 @@ newFixed: aSmallInteger
 	are in a traditional fixed heap)."
 
 	<primitive: 76>
-	self isNonInstantiable ifTrue: [^AnsiString newFixed: aSmallInteger].
+	self isNonInstantiable ifTrue: [^Utf8String newFixed: aSmallInteger].
 	^self primitiveFailed!
 
 readFrom: aStream 
@@ -1582,6 +1587,7 @@ utf8Class
 !String class categoriesFor: #fromByteArray:length:!public! !
 !String class categoriesFor: #fromByteArray:length:startingAt:!public! !
 !String class categoriesFor: #fromByteArray:startingAt:!public! !
+!String class categoriesFor: #fromGlobalHandle:!instance creation!public! !
 !String class categoriesFor: #fromId:!instance creation!public! !
 !String class categoriesFor: #fromId:in:!instance creation!public! !
 !String class categoriesFor: #fromString:!instance creation!public! !

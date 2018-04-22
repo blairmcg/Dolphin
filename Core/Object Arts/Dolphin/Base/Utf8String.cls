@@ -268,6 +268,16 @@ elementSize
 
 	^1!
 
+encodedSizeOf: aCharacter
+	"Answer the number of basic slots occupied by the argument when encoded in the receiver."
+
+	^aCharacter isUtf8
+		ifTrue: [1]
+		ifFalse: 
+			[| codePoint |
+			codePoint := aCharacter codePoint.
+			codePoint < 16r800 ifTrue: [2] ifFalse: [codePoint < 16rFFFF ifTrue: [3] ifFalse: [4]]]!
+
 encodeOn: aPuttableStream put: aCharacter
 	"Encode the <Character> argument onto the <WriteStream> argument using the UTF-8 encoding.
 	This requires between one and four byte code units to be written to the stream, depending on
@@ -308,6 +318,11 @@ encodeOn: aPuttableStream put: aCharacter
 										basicNextPut: (16r80 bitOr: (codePoint bitAnd: 16r3F))]
 								ifFalse: [self errorInvalidCodePoint: codePoint]]]]!
 
+fromAddress: anAddress
+	"Answer a new String instantiated from the null terminated string at anAddress."
+
+	^self fromAddress: anAddress length: (CRTLibrary default strlen: anAddress)!
+
 fromString: aString
 	"Answer an instance of the receiver containing the same characters as the argument, aString."
 
@@ -328,7 +343,9 @@ initialize
 !Utf8String class categoriesFor: #decode:!encode/decode!public! !
 !Utf8String class categoriesFor: #decodeNextFrom:!encode/decode!public! !
 !Utf8String class categoriesFor: #elementSize!constants!public! !
+!Utf8String class categoriesFor: #encodedSizeOf:!encode/decode!public! !
 !Utf8String class categoriesFor: #encodeOn:put:!encode/decode!public! !
+!Utf8String class categoriesFor: #fromAddress:!instance creation!public! !
 !Utf8String class categoriesFor: #fromString:!instance creation!public! !
 !Utf8String class categoriesFor: #initialize!development!initializing!public! !
 

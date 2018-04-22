@@ -113,6 +113,11 @@ emitEncodingMarkerOn: aPositionableStream
 
 	bom do: [:each | aPositionableStream basicNextPut: each]!
 
+encodedSizeOf: anObject
+	"Answer the number of basic slots occupied by the argument when encoded in the receiver."
+
+	^self subclassResponsibility!
+
 encodeOn: aWriteStream next: sizeInteger putAll: aSequenceableCollection startingAt: startInteger
 	startInteger to: startInteger + sizeInteger - 1
 		do: [:i | self encodeOn: aWriteStream put: (aSequenceableCollection at: i)].
@@ -206,6 +211,7 @@ withAll: newElements
 !UtfEncodedString class categoriesFor: #decodeFrom:upTo:!encode/decode!public! !
 !UtfEncodedString class categoriesFor: #decodeNextFrom:!encode/decode!public! !
 !UtfEncodedString class categoriesFor: #emitEncodingMarkerOn:!accessing!public! !
+!UtfEncodedString class categoriesFor: #encodedSizeOf:!encode/decode!public! !
 !UtfEncodedString class categoriesFor: #encodeOn:next:putAll:startingAt:!encode/decode!public! !
 !UtfEncodedString class categoriesFor: #new:withAll:!instance creation!public! !
 !UtfEncodedString class categoriesFor: #skipEncodingMarkerFrom:!encode/decode!public! !
