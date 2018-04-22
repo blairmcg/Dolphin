@@ -225,19 +225,13 @@ objectFromValue: bytes type: type size: size
 	"Private - Instantiate an appropriate object to represent the registry value with the
 	specified type, content, and size."
 
-	type == REG_SZ ifTrue: [^Utf16String fromByteArray: bytes length: bytes size // 2 - 1].
+	type == REG_SZ ifTrue: [^Utf16String fromByteArray: bytes length: (size bitShift: -1) - 1].
 	type == REG_DWORD ifTrue: [^bytes sdwordAtOffset: 0].
 	type == REG_BINARY ifTrue: [^bytes copyFrom: 1 to: size].
 	type == REG_MULTI_SZ
 		ifTrue: 
-			[| strings stream |
-			"Array of null-terminated strings that are terminated by two null
-			 characters. Note that the key may include extra nulls content within the
-			 size, so we do need to read up to the final double null."
-			strings := Array writeStream: 2.
-			stream := (Utf16String fromByteArray: bytes) readStream.
-			[stream atEnd or: [stream peek == $\0]] whileFalse: [strings nextPut: (stream upTo: $\0)].
-			^strings contents].
+			["Array of null-terminated strings that are terminated by two null characters."
+			^(Utf16String fromByteArray: bytes length: (size bitShift: -1) - 1) subStrings: $\0].
 	type == REG_NONE ifTrue: [^nil].
 	type == REG_EXPAND_SZ
 		ifTrue: 
