@@ -80,7 +80,7 @@ checkNoInstances
 	instCount > 0 
 		ifTrue: 
 			["Oh dear still extant instances - raise an error"
-			self errorInvalidRemove: ((Utf8String writeStream)
+			self errorInvalidRemove: ((String writeStream)
 						print: self currentClass;
 						nextPutAll: ' has ';
 						display: instCount;
@@ -92,7 +92,7 @@ checkNoSubclasses
 	subs := currentClass subclasses.
 	subs notEmpty 
 		ifTrue: 
-			[self errorInvalidRemove: ((Utf8String writeStream)
+			[self errorInvalidRemove: ((String writeStream)
 						print: self currentClass;
 						nextPutAll: ' has ';
 						display: subs size;
