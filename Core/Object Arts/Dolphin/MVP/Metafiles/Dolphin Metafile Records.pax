@@ -513,7 +513,7 @@ fromAddress: anAddress
 
 	| iType recordClass |
 	iType := anAddress dwordAtOffset: 0.
-	recordClass := (RecordTypes lookup: iType) ifNil: [ENHMETARECORD].
+	recordClass := (RecordTypes lookup: iType) ?? ENHMETARECORD.
 	^anAddress isNull ifFalse: [recordClass basicNew initializeAtAddress: anAddress]! !
 !ENHMETARECORD class categoriesFor: #fromAddress:!instance creation!public! !
 
