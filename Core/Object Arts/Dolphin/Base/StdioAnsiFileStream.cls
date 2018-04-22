@@ -45,6 +45,27 @@ nextPutAll: aCollection
 	crtlib fputs: aCollection asAnsiString stream: stream.
 	^aCollection!
 
+peek
+	"Answer the next element in the collection, but do not change the position reference. 
+	Answer nil if the receiver is at its end."
+
+	^self basicNextAvailable
+		ifNotNil: 
+			[:ch |
+			crtlib ungetc: ch stream: stream.
+			Character ansiValue: ch]!
+
+peekFor: anObject
+	"Determine the response to the message peek. If it is the same as the
+	argument, anObject, then increment the position reference and answer true.
+	Otherwise answer false and do not change the position reference"
+
+	| ch |
+	^(ch := self basicNextAvailable) notNil
+		and: [ch == anObject ansiValue or: 
+					[crtlib ungetc: ch stream: stream.
+					false]]!
+
 upToEnd
 	"Answer a collection consisting of the future sequence values of the receiver (i.e. from 
 	the current position to the end)."
@@ -60,5 +81,7 @@ upToEnd
 !StdioAnsiFileStream categoriesFor: #nextAvailable!accessing!public! !
 !StdioAnsiFileStream categoriesFor: #nextAvailable:!accessing!public! !
 !StdioAnsiFileStream categoriesFor: #nextPutAll:!accessing!public! !
+!StdioAnsiFileStream categoriesFor: #peek!accessing!public! !
+!StdioAnsiFileStream categoriesFor: #peekFor:!accessing!public! !
 !StdioAnsiFileStream categoriesFor: #upToEnd!accessing!public! !
 

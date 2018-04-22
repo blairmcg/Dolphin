@@ -114,6 +114,27 @@ nextPut: aCharacter
 
 	^self encodingClass encodeOn: self put: aCharacter!
 
+peek
+	"Answer the next element in the collection, but do not change the position reference. 
+	Answer nil if the receiver is at its end."
+
+	| pos ch |
+	pos := self position.
+	ch := self nextAvailable.
+	ch notNil ifTrue: [self position: pos].
+	^ch!
+
+peekFor: aCharacter
+	"Answer the next element in the collection, but do not change the position reference. 
+	Answer nil if the receiver is at its end."
+
+	| pos ch |
+	pos := self position.
+	^(ch := self nextAvailable) notNil
+		and: [ch = aCharacter or: 
+					[self position: pos.
+					false]]!
+
 upToEnd
 	"Answer a collection consisting of the future sequence values of the receiver (i.e. from 
 	the current position to the end)."
@@ -135,6 +156,8 @@ upToEnd
 !StdioTextFileStream categoriesFor: #nextAvailable!accessing!public! !
 !StdioTextFileStream categoriesFor: #nextLine!accessing!public! !
 !StdioTextFileStream categoriesFor: #nextPut:!accessing!public! !
+!StdioTextFileStream categoriesFor: #peek!accessing!public! !
+!StdioTextFileStream categoriesFor: #peekFor:!accessing!public! !
 !StdioTextFileStream categoriesFor: #upToEnd!accessing!public! !
 
 StdioTextFileStream methodProtocol: #puttableStream attributes: #(#ansi #readOnly) selectors: #(#cr #flush #nextPut: #nextPutAll: #space #tab)!

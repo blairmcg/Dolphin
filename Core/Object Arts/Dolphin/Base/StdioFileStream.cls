@@ -285,27 +285,14 @@ peek
 	"Answer the next element in the collection, but do not change the position reference. 
 	Answer nil if the receiver is at its end."
 
-	^self atEnd
-		ifFalse: 
-			[| ch |
-			ch := crtlib fgetc: stream.
-			ch == -1
-				ifFalse: 
-					[crtlib ungetc: ch stream: stream.
-					self isText ifTrue: [Character value: ch] ifFalse: [ch]]]!
+	^self subclassResponsibility!
 
 peekFor: anObject
 	"Determine the response to the message peek. If it is the same as the
 	argument, anObject, then increment the position reference and answer true.
 	Otherwise answer false and do not change the position reference"
 
-	^self atEnd not and: 
-			[| ch |
-			ch := crtlib fgetc: stream.
-			ch ~~ -1
-				and: [anObject asInteger == ch or: 
-							[crtlib ungetc: ch stream: stream.
-							false]]]!
+	^self subclassResponsibility!
 
 position
 	"Answer the absolute (zero-based) position of the file pointer."
