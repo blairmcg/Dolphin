@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 SmalltalkWorkspace subclass: #MethodWorkspace
 	instanceVariableNames: 'parseTree refactoringTool'
@@ -117,7 +117,7 @@ browseReferencesCommand
 
 buildParseTree
 	| methodClass |
-	methodClass := self parseContext ifNil: [ProtoObject].
+	methodClass := self parseContext ?? ProtoObject.
 	self clearErrors.
 	self selectedMethod 
 		ifNotNil: 
@@ -366,7 +366,7 @@ selectorFromNode: aStProgramNode
 
 selfClass
 	^evaluationContext 
-		ifNil: [self parseContext ifNil: [UndefinedObject]]
+		ifNil: [self parseContext ?? UndefinedObject]
 		ifNotNil: [:context | context basicClass]!
 
 setParseTimer
