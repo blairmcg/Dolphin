@@ -45,7 +45,7 @@ asLowercase
 	to lowercase."
 
 	| copy |
-	copy := self mutableCopy.
+	copy := self copy.
 	UserLibrary default charLowerBuffW: copy cchLength: copy size.
 	^copy!
 
@@ -57,7 +57,7 @@ asUppercase
 	to uppercase."
 
 	| copy |
-	copy := self mutableCopy.
+	copy := self copy.
 	UserLibrary default charUpperBuffW: copy cchLength: copy size.
 	^copy!
 

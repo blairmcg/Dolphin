@@ -27,15 +27,19 @@ asLowercase
 	"Answer a <readableString> which is a copy of the receiver but with the contents converted
 	to lowercase."
 
-	#todo.	"Provide a more efficient implementation"
-	^self asUtf16String asLowercase asUtf8String!
+	| utf16 |
+	utf16 := self asUtf16String.
+	UserLibrary default charLowerBuffW: utf16 cchLength: utf16 size.
+	^utf16 asUtf8String!
 
 asUppercase
 	"Answer a <readableString> which is a copy of the receiver but with the contents converted
 	to uppercase."
 
-	#todo.	"Provide a more efficient implementation"
-	^self asUtf16String asUppercase asUtf8String!
+	| utf16 |
+	utf16 := self asUtf16String.
+	UserLibrary default charUpperBuffW: utf16 cchLength: utf16 size.
+	^utf16 asUtf8String!
 
 asUtf8String
 	"Answer a UTF-8 encoded string representation of the receiver."
@@ -94,6 +98,7 @@ hash
 	The primitive should not fail."
 
 	<primitive: 106>
+	#todo. "The hash algorithm needs revising as although it is reasonably good for Ascii text, it is poor for UTF-8  in general."
 	^VMLibrary default hashBytes: self count: self size!
 
 maxEncoding

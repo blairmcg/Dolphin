@@ -149,63 +149,7 @@ skipEncodingMarkerFrom: aPositionableStream
 				basicNext: anInteger
 				into: preamble
 				startingAt: 1.
-			preamble = bom ifFalse: [aPositionableStream position: 0]]!
-
-with: element1
-	"Answer a new instance of the receiver containing the single <Character> element, element1."
-
-	^(self writeStream: 4)
-		nextPut: element1;
-		contents!
-
-with: element1 with: element2
-	"Answer an instance of the receiver containing the <Character> arguments as its elements"
-
-	^(self writeStream: 2)
-		nextPut: element1;
-		nextPut: element2;
-		contents!
-
-with: element1 with: element2 with: element3
-	"Answer an instance of the receiver containing the <Character> arguments as its elements"
-
-	^(self writeStream: 3)
-		nextPut: element1;
-		nextPut: element2;
-		nextPut: element3;
-		contents!
-
-with: element1 with: element2 with: element3 with: element4
-	"Answer an instance of the receiver containing the <Character> arguments as its elements"
-
-	^(self writeStream: 4)
-		nextPut: element1;
-		nextPut: element2;
-		nextPut: element3;
-		nextPut: element4;
-		contents!
-
-with: element1 with: element2 with: element3 with: element4 with: element5
-	"Answer an instance of the receiver containing the <Character> arguments as its elements.
-	N.B. This is not an ANSI standard method (up to 4 elements are supported by <Array factory>
-	#with:&c messages, for more one must use #withAll:)."
-
-	^(self writeStream: 5)
-		nextPut: element1;
-		nextPut: element2;
-		nextPut: element3;
-		nextPut: element4;
-		nextPut: element5;
-		contents!
-
-withAll: newElements
-	"Answer a new instance of the receiver containing all of the <Character> elements of the
-	<collection> newElements."
-
-	| stream |
-	stream := self writeStream: 10.
-	newElements do: [:each | stream nextPut: each].
-	^stream contents! !
+			preamble = bom ifFalse: [aPositionableStream position: 0]]! !
 !UtfEncodedString class categoriesFor: #bom!accessing!private! !
 !UtfEncodedString class categoriesFor: #codePage!constants!public! !
 !UtfEncodedString class categoriesFor: #decodeFrom:upTo:!encode/decode!public! !
@@ -215,10 +159,4 @@ withAll: newElements
 !UtfEncodedString class categoriesFor: #encodeOn:next:putAll:startingAt:!encode/decode!public! !
 !UtfEncodedString class categoriesFor: #new:withAll:!instance creation!public! !
 !UtfEncodedString class categoriesFor: #skipEncodingMarkerFrom:!encode/decode!public! !
-!UtfEncodedString class categoriesFor: #with:!instance creation!public! !
-!UtfEncodedString class categoriesFor: #with:with:!instance creation!public! !
-!UtfEncodedString class categoriesFor: #with:with:with:!instance creation!public! !
-!UtfEncodedString class categoriesFor: #with:with:with:with:!instance creation!public! !
-!UtfEncodedString class categoriesFor: #with:with:with:with:with:!instance creation!public! !
-!UtfEncodedString class categoriesFor: #withAll:!instance creation!public! !
 

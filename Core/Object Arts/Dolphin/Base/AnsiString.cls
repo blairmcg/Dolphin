@@ -33,7 +33,7 @@ asLowercase
 	"Implementation Note: The Win32 function converts in place, so we must first create a copy."
 
 	| copy |
-	copy := self mutableCopy.
+	copy := self copy.
 	UserLibrary default charLowerBuffA: copy cchLength: copy size.
 	^copy!
 
@@ -45,7 +45,7 @@ asUppercase
 	first."
 
 	| copy |
-	copy := self mutableCopy.
+	copy := self copy.
 	UserLibrary default charUpperBuffA: copy cchLength: copy size.
 	^copy!
 
@@ -101,6 +101,16 @@ nextIndexOf: anElement from: start to: stop
 	<primitive: 52>
 	^self nextIdentityIndexOf: anElement from: start to: stop!
 
+reverse
+	"Answer a copy of the receiver but with its elements in reverse order.
+	Our Strings are null-terminated, so we can use the CRTLibrary (_strrev()
+	works in place, so we must get a copy)."
+
+	| copy |
+	copy := self copy.
+	CRTLibrary default _strrev: copy.
+	^copy!
+
 strlen
 	"Answer the length of the receiver (in characters) up to the first null terminator. This may
 	be less than its size if it contains embedded nulls. It can never be greater than the
@@ -123,6 +133,7 @@ trimNulls
 !AnsiString categoriesFor: #first:!copying!public! !
 !AnsiString categoriesFor: #includes:!public!searching! !
 !AnsiString categoriesFor: #nextIndexOf:from:to:!public!searching! !
+!AnsiString categoriesFor: #reverse!copying!public! !
 !AnsiString categoriesFor: #strlen!accessing!private! !
 !AnsiString categoriesFor: #trimNulls!copying!public! !
 
@@ -173,7 +184,51 @@ skipEncodingMarkerFrom: aGettableStream
 
 	"Nothing to do for ANSI strings"
 
-	! !
+	!
+
+with: element1
+	^(self new: 1)
+		at: 1 put: element1;
+		yourself!
+
+with: element1 with: element2
+	^(self new: 2)
+		at: 1 put: element1;
+		at: 2 put: element2;
+		yourself!
+
+with: element1 with: element2 with: element3
+	^(self new: 3)
+		at: 1 put: element1;
+		at: 2 put: element2;
+		at: 3 put: element3;
+		yourself!
+
+with: element1 with: element2 with: element3 with: element4
+	^(self new: 4)
+		at: 1 put: element1;
+		at: 2 put: element2;
+		at: 3 put: element3;
+		at: 4 put: element4;
+		yourself!
+
+with: element1 with: element2 with: element3 with: element4 with: element5
+	^(self new: 5)
+		at: 1 put: element1;
+		at: 2 put: element2;
+		at: 3 put: element3;
+		at: 4 put: element4;
+		at: 5 put: element5;
+		yourself!
+
+withAll: newElements
+	"Answer a new instance of the receiver containing all of the 
+	elements of the <collection> newElements."
+
+	| answer |
+	answer := self new: newElements size.
+	newElements inject: 1 into: [:i :elem | answer at: i put: elem. i + 1].
+	^answer! !
 !AnsiString class categoriesFor: #decode:!encode/decode!public! !
 !AnsiString class categoriesFor: #decodeNextFrom:!encode/decode!public! !
 !AnsiString class categoriesFor: #elementSize!constants!public! !
@@ -182,4 +237,10 @@ skipEncodingMarkerFrom: aGettableStream
 !AnsiString class categoriesFor: #fromString:!instance creation!public! !
 !AnsiString class categoriesFor: #initialize!class initialization!development!public! !
 !AnsiString class categoriesFor: #skipEncodingMarkerFrom:!encode/decode!public! !
+!AnsiString class categoriesFor: #with:!instance creation!public! !
+!AnsiString class categoriesFor: #with:with:!instance creation!public! !
+!AnsiString class categoriesFor: #with:with:with:!instance creation!public! !
+!AnsiString class categoriesFor: #with:with:with:with:!instance creation!public! !
+!AnsiString class categoriesFor: #with:with:with:with:with:!instance creation!public! !
+!AnsiString class categoriesFor: #withAll:!instance creation!public! !
 

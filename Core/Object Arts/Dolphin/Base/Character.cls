@@ -500,7 +500,14 @@ byteCharacterSet
 codePoint: integer
 	"Answer an instance of the receiver with the <integer> encoding, integer."
 
-	^self value: integer!
+	^integer < 16r80
+		ifTrue: [CharacterSet at: integer + 1]
+		ifFalse: 
+			[(AnsiCharacters lookup: integer)
+				ifNil: 
+					[(self isValidCodePoint: integer)
+						ifTrue: [(self newCode: (Utf32Mask bitOr: integer)) isImmutable: true]
+						ifFalse: [self error: 'Invalid code point ' , integer hex]]]!
 
 cr
 	"Answer the carriage return control <Character>."
@@ -665,14 +672,7 @@ utf8Value: anInteger
 value: anInteger
 	"Answer a <Character> representing the specified <integer> Unicode code point."
 
-	^anInteger < 16r80
-		ifTrue: [CharacterSet at: anInteger + 1]
-		ifFalse: 
-			[(AnsiCharacters lookup: anInteger)
-				ifNil: 
-					[(self isValidCodePoint: anInteger)
-						ifTrue: [(self newCode: (Utf32Mask bitOr: anInteger)) isImmutable: true]
-						ifFalse: [self error: 'Invalid code point ' , anInteger hex]]]! !
+	^self codePoint: anInteger! !
 !Character class categoriesFor: #ansiValue:!instance creation!public! !
 !Character class categoriesFor: #asciiValue:!instance creation!public! !
 !Character class categoriesFor: #backspace!constants!public! !

@@ -665,7 +665,7 @@ match: aString
 
 	^self match: aString ignoreCase: true!
 
-match: aString ignoreCase: aBoolean 
+match: aString ignoreCase: aBoolean
 	"Answer whether the receiver (which may contain wildcard characters) matches the 
 	<readableString> argument, aString, ignoring or respecting case differences depending
 	on the <Boolean> argument, aBoolean.
@@ -673,54 +673,54 @@ match: aString ignoreCase: aBoolean
 	and # matching any single character. The latter differs from the usual ? for historical
 	reasons."
 
-	^self 
-		matchPatternFrom: 1
-		in: aString
-		from: 1
-		ignoreCase: aBoolean!
+	^aBoolean
+		ifTrue: 
+			[self asUppercase
+				matchPatternFrom: 1
+				in: aString asUppercase
+				from: 1]
+		ifFalse: 
+			[self
+				matchPatternFrom: 1
+				in: aString
+				from: 1]!
 
-matchPatternFrom: patternStart in: aString from: sourceStart ignoreCase: aBoolean 
+matchPatternFrom: patternStart in: aString from: sourceStart
 	"Private - Answer whether the receiver matches aString (starting
 	at patternStart in the receiver and sourceStart in source).
 	The receiver may contain wildcards. Any differences in case between individual
 	characters are ignored if the <boolean> argument is true."
 
-	| p sourceSize |
-	sourceSize := aString size.
-	patternStart > self size 
+	| p |
+	patternStart > self size
 		ifTrue: 
 			["We've processed the whole pattern.
 		If there is no more source, then we have a successful match,
 		otherwise the match has failed."
-			^sourceStart > sourceSize].
+			^sourceStart > aString size].
 
 	"Get the next character from the pattern."
-	p := self at: patternStart.
-	p == $* 
+	(p := self at: patternStart) == $*
 		ifTrue: 
 			["Handle the $* in the pattern."
-			sourceStart to: sourceSize + 1
+			sourceStart to: aString size + 1
 				do: 
-					[:s | 
-					(self 
+					[:s |
+					(self
 						matchPatternFrom: patternStart + 1
 						in: aString
-						from: s
-						ignoreCase: aBoolean) ifTrue: [^true]].
+						from: s) ifTrue: [^true]].
 			^false].
-	sourceStart > sourceSize 
+	sourceStart > aString size
 		ifTrue: 
 			["We've run out of source to be matched by the pattern."
 			^false].
-	(p == $# or: 
-			[p == (aString at: sourceStart) 
-				or: [aBoolean and: [p asUppercase == (aString at: sourceStart) asUppercase]]]) 
+	(p == $# or: [p = (aString at: sourceStart)])
 		ifTrue: 
-			[^self 
+			[^self
 				matchPatternFrom: patternStart + 1
 				in: aString
-				from: sourceStart + 1
-				ignoreCase: aBoolean].
+				from: sourceStart + 1].
 	"A character has been matched exactly, or matched by a $#."
 	^false!
 
@@ -834,14 +834,9 @@ replaceFrom: startInteger to: stopInteger with: aReadableString startingAt: star
 		startingAt: startAtInteger!
 
 reverse
-	"Answer a copy of the receiver but with its elements in reverse order.
-	Our Strings are null-terminated, so we can use the CRTLibrary (_strrev()
-	works in place, so we must get a copy)."
+	"Answer a copy of the receiver but with its elements in reverse order."
 
-	| copy |
-	copy := self mutableCopy.
-	CRTLibrary default _strrev: copy.
-	^copy!
+	^self subclassResponsibility!
 
 rightString: anInteger
 	"Answer a new string comprising the rightmost anInteger characters of the receiver."
@@ -1192,7 +1187,7 @@ withNormalizedLineDelimiters
 !String categoriesFor: #lookup:!accessing!public! !
 !String categoriesFor: #match:!public!searching! !
 !String categoriesFor: #match:ignoreCase:!public!searching! !
-!String categoriesFor: #matchPatternFrom:in:from:ignoreCase:!private!searching! !
+!String categoriesFor: #matchPatternFrom:in:from:!private!searching! !
 !String categoriesFor: #max:!comparing!public! !
 !String categoriesFor: #midString:from:!copying!public! !
 !String categoriesFor: #min:!comparing!public! !
@@ -1564,7 +1559,63 @@ utf16Class
 utf8Class
 	"Answer the class of String to use for UTF8-encoded strings."
 
-	^Utf16String! !
+	^Utf16String!
+
+with: element1
+	"Answer a new instance of the receiver containing the single <Character> element, element1."
+
+	^(self writeStream: 4)
+		nextPut: element1;
+		contents!
+
+with: element1 with: element2
+	"Answer an instance of the receiver containing the <Character> arguments as its elements"
+
+	^(self writeStream: 2)
+		nextPut: element1;
+		nextPut: element2;
+		contents!
+
+with: element1 with: element2 with: element3
+	"Answer an instance of the receiver containing the <Character> arguments as its elements"
+
+	^(self writeStream: 3)
+		nextPut: element1;
+		nextPut: element2;
+		nextPut: element3;
+		contents!
+
+with: element1 with: element2 with: element3 with: element4
+	"Answer an instance of the receiver containing the <Character> arguments as its elements"
+
+	^(self writeStream: 4)
+		nextPut: element1;
+		nextPut: element2;
+		nextPut: element3;
+		nextPut: element4;
+		contents!
+
+with: element1 with: element2 with: element3 with: element4 with: element5
+	"Answer an instance of the receiver containing the <Character> arguments as its elements.
+	N.B. This is not an ANSI standard method (up to 4 elements are supported by <Array factory>
+	#with:&c messages, for more one must use #withAll:)."
+
+	^(self writeStream: 5)
+		nextPut: element1;
+		nextPut: element2;
+		nextPut: element3;
+		nextPut: element4;
+		nextPut: element5;
+		contents!
+
+withAll: newElements
+	"Answer a new instance of the receiver containing all of the <Character> elements of the
+	<collection> newElements."
+
+	| stream |
+	stream := self writeStream: 10.
+	newElements do: [:each | stream nextPut: each].
+	^stream contents! !
 !String class categoriesFor: #ansiClass!constants!public! !
 !String class categoriesFor: #basicEncoding!accessing!public! !
 !String class categoriesFor: #codePage!constants!public! !
@@ -1606,6 +1657,12 @@ utf8Class
 !String class categoriesFor: #tab!instance creation!public! !
 !String class categoriesFor: #utf16Class!constants!public! !
 !String class categoriesFor: #utf8Class!constants!public! !
+!String class categoriesFor: #with:!instance creation!public! !
+!String class categoriesFor: #with:with:!instance creation!public! !
+!String class categoriesFor: #with:with:with:!instance creation!public! !
+!String class categoriesFor: #with:with:with:with:!instance creation!public! !
+!String class categoriesFor: #with:with:with:with:with:!instance creation!public! !
+!String class categoriesFor: #withAll:!instance creation!public! !
 
 String class methodProtocol: #'String factory' attributes: #(#ansi #readOnly) selectors: #(#new #new: #with: #with:with: #with:with:with: #with:with:with:with: #withAll:)!
 

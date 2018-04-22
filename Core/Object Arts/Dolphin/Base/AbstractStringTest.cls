@@ -36,7 +36,7 @@ newNumericArray: anInteger
 	^self newCollection: ((1 to: anInteger) collect: [:each | Character digitValue: each])!
 
 reverseTestCases
-	^#(#('abc' 'cba') #('oña' 'año'))!
+	^#(#('' '') #('a' 'a') #('ab' 'ba') #('abc' 'cba') #('oña' 'año'))!
 
 testAsByteArray
 	super testAsByteArray.
