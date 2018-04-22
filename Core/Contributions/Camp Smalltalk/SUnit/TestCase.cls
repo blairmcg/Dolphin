@@ -1,4 +1,4 @@
-"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #TestCase
 	instanceVariableNames: 'testSelector'
@@ -35,7 +35,7 @@ assert: actualObject equals: expectedObject
 		ifFalse: [self fail: (self comparingStringBetween: expectedObject and: actualObject)]!
 
 comparingStringBetween: expectedObject and: actualObject
-	^(Utf8String writeStream: 100)
+	^(String writeStream: 100)
 		nextPutAll: 'Expected: ';
 		print: expectedObject;
 		nextPutAll: ' Actual: ';
