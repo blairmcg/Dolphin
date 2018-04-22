@@ -429,8 +429,8 @@ on: aCollection file: aFile
 	file := aFile.
 	self beFinalizable.
 	flags := 0.
-	pageSize := collection size.
-	sizeShift := PageSize / pageSize >> 1.
+	elemsPerPage := collection size.
+	sizeShift := PageSize / elemsPerPage >> 1.
 	offset := 0!
 
 ownsFile
