@@ -432,7 +432,7 @@ definition
 	receiver."
 
 	| strm |
-	strm := Utf8String writeStream: 256.
+	strm := String writeStream: 256.
 	self printDefinitionOn: strm.
 	^strm contents!
 
