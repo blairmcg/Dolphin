@@ -439,7 +439,7 @@ attach: anExternalHandle toFd: fdInteger mode: modeSymbol type: aSymbol
 	argument identifies the manner in which the file is opened, #read for a read-only stream
 	(e.g. stdin), or any other mode integer for a writable stream."
 
-	^self basicNew
+	^(self classForEncoding: aSymbol) basicNew
 		attach: anExternalHandle
 		toFd: fdInteger
 		mode: (self attachMode: modeSymbol)
