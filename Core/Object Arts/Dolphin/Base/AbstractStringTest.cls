@@ -30,7 +30,7 @@ caseConversionCases
 		{AnsiString fromByteArray: #[97 0 98]. AnsiString fromByteArray: #[65 0 66]}}!
 
 equalityTestCases
-	^#('' 'a' 'abc' '' 'tükörfúrógép')!
+	^#('' 'a' 'abc' '' 'tükörfúrógép' 'Ḽơᶉëᶆ ȋṕšᶙṁ ḍỡḽǭᵳ ʂǐť ӓṁệẗ, ĉṓɲṩḙċťᶒțûɾ ấɖḯƥĭṩčįɳġ ḝłįʈ, șếᶑ ᶁⱺ ẽḭŭŝḿꝋď ṫĕᶆᶈṓɍ ỉñḉīḑȋᵭṵńť ṷŧ ḹẩḇőꝛế éȶ đꝍꞎôꝛȇ ᵯáꞡᶇā ąⱡîɋṹẵ' 'a🐬' 'a £=1.2€')!
 
 newNumericArray: anInteger 
 	^self newCollection: ((1 to: anInteger) collect: [:each | Character digitValue: each])!
@@ -104,13 +104,13 @@ testClassReadFrom
 				expected := self assimilateString: each second.
 				stream := each first readStream.
 				actual := self collectionClass readFrom: stream.
-				self assert: actual class sameAs: self collectionClass.
+				self assert: actual class identicalTo: self collectionClass.
 				self assert: actual equals: expected.
 				remainder := stream upToEnd.
 				self assert: remainder equals: each last]!
 
 testEmpty
-	self assert: self collectionClass empty class sameAs: self collectionClass!
+	self assert: self collectionClass empty class identicalTo: self collectionClass!
 
 testEquals
 	| abc |
@@ -341,7 +341,7 @@ testMutableCopy
 			| subject actual |
 			subject := self assimilateString: each first.
 			actual := subject mutableCopy.
-			self deny: actual sameAs: subject.
+			self deny: actual identicalTo: subject.
 			self assert: actual isKindOf: subject species.
 			self assert: (actual _cmp: subject) equals: 0]!
 
