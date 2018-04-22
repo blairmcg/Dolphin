@@ -187,7 +187,7 @@ compileStub: selector into: behavior
 	selector, into the <ClassDescription>, behavior."
 
 	| target args sig |
-	target  := Utf8String writeStream: 128.
+	target  := String writeStream: 128.
 	args := selector argumentCount.
 	args == 0
 		ifTrue: [target nextPutAll: selector]

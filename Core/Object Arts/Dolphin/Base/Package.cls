@@ -1679,7 +1679,7 @@ savePAXChunkOn: aSourceFiler
 	is included. None of the code, including the package scripts, is evaluated."
 
 	| stream |
-	stream := Utf8String writeStream: 1024.
+	stream := String writeStream: 1024.
 	self
 		savePAXPackageOn: stream;
 		savePAXPackageVersionOn: stream;

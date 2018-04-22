@@ -331,7 +331,7 @@ basicPrintString
 	Should not be overridden by subclasses"
 
 	| aStream |
-	aStream := Utf8String writeStream: 16.
+	aStream := String writeStream: 16.
 	self basicPrintOn: aStream.
 	^aStream contents!
 
@@ -583,7 +583,7 @@ displayString
 	representation."
 
 	| stream |
-	stream := Utf8String writeStream: 32.
+	stream := String writeStream: 32.
 	self displayOn: stream.
 	^stream contents
 !
@@ -1124,7 +1124,7 @@ printString
 	as a developer would want to see it."
 
 	| stream |
-	stream := Utf8String writeStream: 32.
+	stream := String writeStream: 32.
 	self printOn: stream.
 	^stream contents!
 
@@ -1344,7 +1344,7 @@ storeString
 	an object similar to the receiver."
 
 	| stream |
-	stream := Utf8String writeStream: 32.
+	stream := String writeStream: 32.
 	self storeOn: stream.
 	^stream contents!
 

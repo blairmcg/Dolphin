@@ -196,7 +196,7 @@ valueTextOnly
 	containing name=value. We retain the latter for compatibility and introduce this method."
 
 	| aStream |
-	aStream := Utf8String writeStream: 40.
+	aStream := String writeStream: 40.
 	[self aspectDescriptor displayAspectValueOf: self subject on: aStream] on: Error
 		do: [:ex | aStream basicPrint: ex].
 	^aStream contents!

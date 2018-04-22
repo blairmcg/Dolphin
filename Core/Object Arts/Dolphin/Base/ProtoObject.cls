@@ -65,7 +65,7 @@ basicPrintString
 	Should not be overridden by subclasses"
 
 	| aStream |
-	aStream := Utf8String writeStream: 16.
+	aStream := String writeStream: 16.
 	self basicPrintOn: aStream.
 	^aStream contents!
 
