@@ -58,7 +58,7 @@ explorerName
 
 	| vol |
 	vol := self label.
-	^(Utf8String writeStream: 40)
+	^(String writeStream: 40)
 		nextPutAll: (vol isEmpty ifTrue: ['Local Disk'] ifFalse: [vol]);
 		nextPutAll: ' (';
 		nextPutAll: self driveLetter;

@@ -610,7 +610,7 @@ compileGetMethod: aSymbol forField: anExternalField
 
 	| methodText |
 	anExternalField canGenerateAccessor ifFalse: [^self].
-	methodText := Utf8String writeStream: 256.
+	methodText := String writeStream: 256.
 	anExternalField printAccessor: aSymbol on: methodText.
 	self formatAndCompile: methodText contents categories: anExternalField autoGenCategories!
 
@@ -620,7 +620,7 @@ compileSetMethod: aSelector forField: anExternalField
 
 	| methodText |
 	anExternalField canGenerateMutator ifFalse: [^self].
-	methodText := Utf8String writeStream: 256.
+	methodText := String writeStream: 256.
 	anExternalField printMutator: aSelector on: methodText.
 	self formatAndCompile: methodText contents categories: anExternalField autoGenCategories!
 
