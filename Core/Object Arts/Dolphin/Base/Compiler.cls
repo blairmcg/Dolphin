@@ -293,7 +293,7 @@ identifierFrom: aString
 	letters are made lowercase."
 
 	| identifier startNewWord first |
-	identifier := Utf8String writeStream: aString size.
+	identifier := String writeStream: aString size.
 	startNewWord := false.
 	first := true.
 	aString do: 
