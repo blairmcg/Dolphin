@@ -1321,7 +1321,7 @@ Win32Structure subclass: #SYSTEMTIME
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Win32Structure subclass: #TIME_ZONE_INFORMATION
-	instanceVariableNames: ''
+	instanceVariableNames: 'zoneId'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
