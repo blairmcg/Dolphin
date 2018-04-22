@@ -2014,7 +2014,7 @@ trace: trace prerequisite: aPackage from: from to: to type: type
 	to trace."
 
 	aPackage == self ifTrue: [^self].
-	(trace at: (aPackage ifNil: [_Uncommitted]) ifAbsentPut: [OrderedCollection new: 16])
+	(trace at: (aPackage ?? _Uncommitted) ifAbsentPut: [OrderedCollection new: 16])
 		addLast: {from. to. type}!
 
 tracePrerequisiteGlobals: trace packagedGlobals: globalLookup
