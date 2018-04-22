@@ -353,11 +353,12 @@ floor: aFloat
 
 fopen: nameString mode: modeString
 	<cdecl: handle fopen lpstr lpstr>
-	#deprecated.	"Insecure - use fopen_s"
+	#deprecated.	"Insecure"
 	^self invalidCall!
 
 fopen_s: pFile filename: nameString mode: modeString
 	<cdecl: sdword fopen_s handle* lpstr lpstr>
+	#deprecated.	"No longer used"
 	^self invalidCall!
 
 fread: buffer size: size count: count stream: aFILE
