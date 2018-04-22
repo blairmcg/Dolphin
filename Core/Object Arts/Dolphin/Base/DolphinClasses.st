@@ -645,11 +645,6 @@ String variableByteSubclass: #AnsiString
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-String variableByteSubclass: #Utf32String
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
 String variableByteSubclass: #UtfEncodedString
 	instanceVariableNames: ''
 	classVariableNames: ''
