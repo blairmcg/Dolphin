@@ -7,7 +7,6 @@ SmalltalkToolShell subclass: #Debugger
 	classInstanceVariableNames: ''!
 Debugger guid: (GUID fromString: '{87b4c6bd-026e-11d3-9fd7-00a0cc3e4a32}')!
 Debugger addClassConstant: 'AnimateMask' value: 16!
-Debugger addClassConstant: 'AnimatePause' value: 200!
 Debugger addClassConstant: 'DisassemblyMask' value: 4!
 Debugger addClassConstant: 'MainMask' value: 1!
 Debugger addClassConstant: 'ResumableMask' value: 8!
@@ -2074,7 +2073,7 @@ initialize
 	self addClassConstant: 'DisassemblyMask' value: 16r4.
 	self addClassConstant: 'ResumableMask' value: 16r8.
 	self addClassConstant: 'AnimateMask' value: 16r10.
-	self addClassConstant: 'AnimatePause' value: 200.
+	self addClassVariable: 'AnimatePause' value: 200.
 	self restartOnMethodSave: true.
 	self enableDynamicMenus: true.
 	self showWalkbacks: true.
