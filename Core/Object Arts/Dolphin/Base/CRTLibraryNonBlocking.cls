@@ -34,14 +34,6 @@ fgetws: buf n: bufsize stream: aFILE
 	<overlap cdecl: intptr fgetws lpwstr sdword handle>
 	^self invalidCall!
 
-fputs: str stream: aFILE
-	<overlap cdecl: sdword fputs lpstr handle>
-	^self invalidCall!
-
-fputws: str stream: aFILE
-	<overlap cdecl: sdword fputws lpwstr handle>
-	^self invalidCall!
-
 fread_s: buffer bufferSize: bufsizeInteger elementSize: elemSizeInteger count: countInteger stream: aFILE
 	<overlap cdecl: sdword fread_s lpvoid intptr intptr intptr handle>
 	^self invalidCall! !
@@ -51,7 +43,5 @@ fread_s: buffer bufferSize: bufsizeInteger elementSize: elemSizeInteger count: c
 !CRTLibraryNonBlocking categoriesFor: #fgets:n:stream:!CRT functions-stream I/O!public! !
 !CRTLibraryNonBlocking categoriesFor: #fgetwc:!CRT functions-stream I/O!public! !
 !CRTLibraryNonBlocking categoriesFor: #fgetws:n:stream:!CRT functions-stream I/O!public! !
-!CRTLibraryNonBlocking categoriesFor: #fputs:stream:!CRT functions-stream I/O!public! !
-!CRTLibraryNonBlocking categoriesFor: #fputws:stream:!CRT functions-stream I/O!public! !
 !CRTLibraryNonBlocking categoriesFor: #fread_s:bufferSize:elementSize:count:stream:!CRT functions-stream I/O!public! !
 
