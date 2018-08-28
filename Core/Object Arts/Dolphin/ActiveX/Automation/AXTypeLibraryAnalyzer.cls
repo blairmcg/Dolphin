@@ -300,6 +300,11 @@ initializeAliasMap
 				at: 'GUID' put: #GUID;
 				at: 'PROPVARIANT' put: #VARIANT;
 				at: 'RemotableHandle' put: #ExternalHandle;
+				at: 'RECT' put: #RECT;
+				at: 'RECTL' put: #RECT;
+				at: 'SIZE' put: #SIZE;
+				at: 'SIZEL' put: #SIZE;
+				at: 'FILETIME' put: #FILETIME;
 				yourself	"A lot of libraries pull in GUID it seems - this avoid a guid clash warning"!
 
 interfaces

@@ -2117,9 +2117,9 @@ printClassCommentPreambleOn: target
 	| lib |
 	lib := self typeLib.
 	target
-		nextPut: $<;
+		nextPut: $`;
 		nextPutAll: self globalName;
-		nextPutAll: '> is an <ExternalStructure> class to wrap the ';
+		nextPutAll: '` is an `ExternalStructure` class to wrap the ';
 		nextPutAll: self idlKeyword;
 		space;
 		print: self fullyQualifiedName;
@@ -2295,7 +2295,7 @@ autoGenCategoryName
 	^'**auto generated**'!
 
 autoGenClassCommentMarker
-	^'** This comment was automatically generated from a type library. Delete this line to prevent any manual edits from being overwritten if the wrapper class is regenerated. **'!
+	^'_This comment was automatically generated from a type library. Delete this line to prevent any manual edits from being overwritten if the wrapper class is regenerated._'!
 
 autoGenMethodComment
 	"Private - Answer a suitable piece of comment to warn the user that a
@@ -2505,8 +2505,13 @@ generateClassComment
 				cr;
 				nextPutAll: 'IDL definition follows:';
 				cr;
+				cr;
+				nextPutAll: '```';
 				cr.
-			self printIDLOn: stm].
+			self printIDLOn: stm.
+			stm
+				cr;
+				nextPutAll: '```'].
 	flags := self generationFlags.
 	(flags anyMask: Trace) ifTrue: [Notification signal: stm contents].
 	self isTraceOnly ifTrue: [^self].
@@ -6027,9 +6032,9 @@ printClassCommentPreambleOn: target
 	| lib |
 	lib := self typeLib.
 	target
-		nextPut: $<;
+		nextPut: $`;
 		nextPutAll: self globalName;
-		nextPutAll: '> is a wrapper class generated for the dispatch interface ';
+		nextPutAll: '` is a wrapper class generated for the dispatch interface ';
 		print: self fullyQualifiedName;
 		nextPutAll: ' from type information in the ''';
 		nextPutAll: lib helpstring;
@@ -6708,9 +6713,9 @@ printClassCommentPreambleOn: target
 	| lib |
 	lib := self typeLib.
 	target
-		nextPut: $<;
+		nextPut: $`;
 		nextPutAll: self globalName;
-		nextPutAll: '> is a wrapper class for the COM interface ';
+		nextPutAll: '` is a wrapper class for the COM interface ';
 		print: self fullyQualifiedName;
 		nextPutAll: ' generated from type information in the ''';
 		nextPutAll: lib helpstring;
@@ -7125,7 +7130,7 @@ printClassCommentPreambleOn: target
 	lib := self typeLib.
 	target
 		nextPutAll: self globalName;
-		nextPutAll: ' is the <ExternalLibrary> class to represent the dynamic link library, ';
+		nextPutAll: ' is the `ExternalLibrary` class to represent the dynamic link library, ';
 		print: (self dllNameIfNone: ['(anon)']);
 		nextPut: $.;
 		nextPutAll: 'It was generated generated from type information in the ';
