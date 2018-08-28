@@ -1,0 +1,342 @@
+﻿| package |
+package := Package name: 'DirectWrite'.
+package paxVersion: 1;
+	basicComment: 'Dolphin Smalltalk DirectWrite package
+
+A nascent wrapper for the Windows DirectWrite API.
+
+The contents of this package are highly likely to change.'.
+
+
+package classNames
+	add: #DirectWriteLibrary;
+	add: #DWRITE_CLUSTER_METRICS;
+	add: #DWRITE_FONT_FEATURE;
+	add: #DWRITE_FONT_METRICS;
+	add: #DWRITE_GLYPH_METRICS;
+	add: #DWRITE_GLYPH_OFFSET;
+	add: #DWRITE_GLYPH_RUN;
+	add: #DWRITE_GLYPH_RUN_DESCRIPTION;
+	add: #DWRITE_HIT_TEST_METRICS;
+	add: #DWRITE_INLINE_OBJECT_METRICS;
+	add: #DWRITE_LINE_BREAKPOINT;
+	add: #DWRITE_LINE_METRICS;
+	add: #DWRITE_MATRIX;
+	add: #DWRITE_OVERHANG_METRICS;
+	add: #DWRITE_SCRIPT_ANALYSIS;
+	add: #DWRITE_SHAPING_GLYPH_PROPERTIES;
+	add: #DWRITE_SHAPING_TEXT_PROPERTIES;
+	add: #DWRITE_STRIKETHROUGH;
+	add: #DWRITE_TEXT_METRICS;
+	add: #DWRITE_TEXT_RANGE;
+	add: #DWRITE_TRIMMING;
+	add: #DWRITE_TYPOGRAPHIC_FEATURES;
+	add: #DWRITE_UNDERLINE;
+	add: #IDWriteBitmapRenderTarget;
+	add: #IDWriteFactory;
+	add: #IDWriteFont;
+	add: #IDWriteFontCollection;
+	add: #IDWriteFontCollectionLoader;
+	add: #IDWriteFontFace;
+	add: #IDWriteFontFamily;
+	add: #IDWriteFontFile;
+	add: #IDWriteFontFileEnumerator;
+	add: #IDWriteFontFileLoader;
+	add: #IDWriteFontFileStream;
+	add: #IDWriteFontList;
+	add: #IDWriteGdiInterop;
+	add: #IDWriteGlyphRunAnalysis;
+	add: #IDWriteInlineObject;
+	add: #IDWriteLocalFontFileLoader;
+	add: #IDWriteLocalizedStrings;
+	add: #IDWriteNumberSubstitution;
+	add: #IDWritePixelSnapping;
+	add: #IDWriteRenderingParams;
+	add: #IDWriteTextAnalysisSink;
+	add: #IDWriteTextAnalysisSource;
+	add: #IDWriteTextAnalyzer;
+	add: #IDWriteTextFormat;
+	add: #IDWriteTextLayout;
+	add: #IDWriteTextRenderer;
+	add: #IDWriteTypography;
+	yourself.
+
+package globalNames
+	add: #DirectWriteConstants;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: (IdentitySet new
+	add: '..\..\..\Base\Dolphin';
+	add: '..\..\..\MVP\Base\Dolphin Basic Geometry';
+	add: '..\..\..\MVP\Base\Dolphin MVP Base';
+	add: '..\..\COM\OLE COM';
+	yourself).
+
+package!
+
+"Class Definitions"!
+
+ExternalLibrary subclass: #DirectWriteLibrary
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_CLUSTER_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_FONT_FEATURE
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_FONT_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_GLYPH_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_GLYPH_OFFSET
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_GLYPH_RUN
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_GLYPH_RUN_DESCRIPTION
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_HIT_TEST_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_INLINE_OBJECT_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_LINE_BREAKPOINT
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_LINE_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_MATRIX
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_OVERHANG_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_SCRIPT_ANALYSIS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_SHAPING_GLYPH_PROPERTIES
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_SHAPING_TEXT_PROPERTIES
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_STRIKETHROUGH
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_TEXT_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_TEXT_RANGE
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_TRIMMING
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_TYPOGRAPHIC_FEATURES
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ExternalStructure subclass: #DWRITE_UNDERLINE
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteBitmapRenderTarget
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteFactory
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteFont
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteFontCollection
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteFontCollectionLoader
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteFontFace
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteFontFile
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteFontFileEnumerator
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteFontFileLoader
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteFontFileStream
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteFontList
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteGdiInterop
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteGlyphRunAnalysis
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteInlineObject
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteLocalizedStrings
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteNumberSubstitution
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWritePixelSnapping
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteRenderingParams
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteTextAnalysisSink
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteTextAnalysisSource
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteTextAnalyzer
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteTextFormat
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IUnknown subclass: #IDWriteTypography
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IDWriteFontFileLoader subclass: #IDWriteLocalFontFileLoader
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IDWriteFontList subclass: #IDWriteFontFamily
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IDWritePixelSnapping subclass: #IDWriteTextRenderer
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+IDWriteTextFormat subclass: #IDWriteTextLayout
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+"End of package definition"!
+
