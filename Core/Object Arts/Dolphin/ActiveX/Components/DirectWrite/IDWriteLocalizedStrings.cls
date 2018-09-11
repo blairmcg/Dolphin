@@ -3,7 +3,7 @@
 IUnknown subclass: #IDWriteLocalizedStrings
 	instanceVariableNames: ''
 	classVariableNames: ''
-	poolDictionaries: 'DirectWriteConstants'
+	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 IDWriteLocalizedStrings guid: (IID fromString: '{08256209-099A-4B34-B86D-C22B110E7771}')!
 IDWriteLocalizedStrings comment: '`IDWriteLocalizedStrings` is a wrapper class for the COM interface ''DirectWrite.IDWriteLocalizedStrings'' generated from type information in the ''Windows DirectWrite API'' library. It contains methods to invoke the member functions exposed by that interface.
@@ -54,19 +54,24 @@ interface IDWriteLocalizedStrings : IUnknown
 !IDWriteLocalizedStrings categoriesForClass!COM-Interfaces!Direct2d-Interfaces! !
 !IDWriteLocalizedStrings methodsFor!
 
-findLocaleName: localeName
-	"Invoke the FindLocaleName() method of the COM object."
+at: aString
+	^self at: aString ifAbsent: [self errorNotFound: aString]!
 
-	| answer |
-	answer := (Array new: 2)
-				basicAt: 1 put: (DWORD new);
-				basicAt: 2 put: (BOOL new);
-				yourself.
+at: aString ifAbsent: absentBlock
+	| index name size cch localeName |
+	index := self findLocaleName: aString.
+	index < 1 ifTrue: [^absentBlock value].
+	^self stringAt: index!
+
+findLocaleName: localeName
+	| index exists |
+	index := DWORD new.
+	exists := BOOL new.
 	self
 		FindLocaleName: localeName
-		index: (answer basicAt: 1)
-		exists: (answer basicAt: 2).
-	^answer collect: [:each | each asObject]
+		index: index
+		exists: exists.
+	^exists value ifTrue: [index value + 1] ifFalse: [0]
 !
 
 FindLocaleName: localeName index: index exists: exists
@@ -77,14 +82,8 @@ FindLocaleName: localeName index: index exists: exists
 			[out]unsigned int* index,
 			[out]BOOL* exists);"
 
-	<virtual stdcall: hresult 5 word* dword* bool*>
+	<virtual stdcall: hresult 5 lpwstr dword* bool*>
 	^self invalidCall!
-
-getCount
-	"Answer the <DWORD> result of invoking the GetCount() method of the COM object."
-
-	^self GetCount
-!
 
 GetCount
 	"Private - Invoke the GetCount() method of the COM object.
@@ -105,29 +104,6 @@ GetLocaleName: index localeName: localeName size: size
 	<virtual stdcall: hresult 7 dword word* dword>
 	^self invalidCall!
 
-getLocaleName: index size: size
-	"Answer the <WORD> result of invoking the GetLocaleName() method of the COM object."
-
-	| answer |
-	answer := (WORD new).
-	self
-		GetLocaleName: index
-		localeName: answer
-		size: size.
-	^answer asObject
-!
-
-getLocaleNameLength: index
-	"Answer the <DWORD> result of invoking the GetLocaleNameLength() method of the COM object."
-
-	| answer |
-	answer := (DWORD new).
-	self
-		GetLocaleNameLength: index
-		length: answer.
-	^answer asObject
-!
-
 GetLocaleNameLength: index length: length
 	"Private - Invoke the GetLocaleNameLength() method of the COM object.
 
@@ -137,18 +113,6 @@ GetLocaleNameLength: index length: length
 
 	<virtual stdcall: hresult 6 dword dword*>
 	^self invalidCall!
-
-getString: index size: size
-	"Answer the <WORD> result of invoking the GetString() method of the COM object."
-
-	| answer |
-	answer := (WORD new).
-	self
-		GetString: index
-		stringBuffer: answer
-		size: size.
-	^answer asObject
-!
 
 GetString: index stringBuffer: stringBuffer size: size
 	"Private - Invoke the GetString() method of the COM object.
@@ -161,17 +125,6 @@ GetString: index stringBuffer: stringBuffer size: size
 	<virtual stdcall: hresult 9 dword word* dword>
 	^self invalidCall!
 
-getStringLength: index
-	"Answer the <DWORD> result of invoking the GetStringLength() method of the COM object."
-
-	| answer |
-	answer := (DWORD new).
-	self
-		GetStringLength: index
-		length: answer.
-	^answer asObject
-!
-
 GetStringLength: index length: length
 	"Private - Invoke the GetStringLength() method of the COM object.
 
@@ -180,19 +133,50 @@ GetStringLength: index length: length
 			[out]unsigned int* length);"
 
 	<virtual stdcall: hresult 8 dword dword*>
-	^self invalidCall! !
+	^self invalidCall!
+
+localeAt: anInteger
+	| index name size cch localeName |
+	index := anInteger - 1.
+	size := DWORD new.
+	self GetLocaleNameLength: index length: size.
+	size := size asInteger.
+	localeName := Utf16String newFixed: size.
+	self
+		GetLocaleName: index
+		localeName: localeName
+		size: size + 1.
+	^localeName!
+
+size
+	"Answer the <DWORD> result of invoking the GetCount() method of the COM object."
+
+	^self GetCount!
+
+stringAt: anInteger
+	| index string size |
+	index := anInteger - 1.
+	size := DWORD new.
+	self GetStringLength: index length: size.
+	size := size asInteger.
+	string := Utf16String newFixed: size.
+	self
+		GetString: index
+		stringBuffer: string
+		size: size + 1.
+	^string! !
+!IDWriteLocalizedStrings categoriesFor: #at:!accessing!public! !
+!IDWriteLocalizedStrings categoriesFor: #at:ifAbsent:!accessing!public! !
 !IDWriteLocalizedStrings categoriesFor: #findLocaleName:!**auto generated**!methods!public! !
 !IDWriteLocalizedStrings categoriesFor: #FindLocaleName:index:exists:!**auto generated**!COM Interfaces-IDWriteLocalizedStrings!private! !
-!IDWriteLocalizedStrings categoriesFor: #getCount!**auto generated**!methods!public! !
 !IDWriteLocalizedStrings categoriesFor: #GetCount!**auto generated**!COM Interfaces-IDWriteLocalizedStrings!private! !
 !IDWriteLocalizedStrings categoriesFor: #GetLocaleName:localeName:size:!**auto generated**!COM Interfaces-IDWriteLocalizedStrings!private! !
-!IDWriteLocalizedStrings categoriesFor: #getLocaleName:size:!**auto generated**!methods!public! !
-!IDWriteLocalizedStrings categoriesFor: #getLocaleNameLength:!**auto generated**!methods!public! !
 !IDWriteLocalizedStrings categoriesFor: #GetLocaleNameLength:length:!**auto generated**!COM Interfaces-IDWriteLocalizedStrings!private! !
-!IDWriteLocalizedStrings categoriesFor: #getString:size:!**auto generated**!methods!public! !
 !IDWriteLocalizedStrings categoriesFor: #GetString:stringBuffer:size:!**auto generated**!COM Interfaces-IDWriteLocalizedStrings!private! !
-!IDWriteLocalizedStrings categoriesFor: #getStringLength:!**auto generated**!methods!public! !
 !IDWriteLocalizedStrings categoriesFor: #GetStringLength:length:!**auto generated**!COM Interfaces-IDWriteLocalizedStrings!private! !
+!IDWriteLocalizedStrings categoriesFor: #localeAt:!accessing!private! !
+!IDWriteLocalizedStrings categoriesFor: #size!accessing!public! !
+!IDWriteLocalizedStrings categoriesFor: #stringAt:!accessing!private! !
 
 !IDWriteLocalizedStrings class methodsFor!
 

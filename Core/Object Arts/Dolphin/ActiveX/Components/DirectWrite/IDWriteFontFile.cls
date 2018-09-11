@@ -72,15 +72,6 @@ Analyze: isSupportedFontType fontFileType: fontFileType fontFaceType: fontFaceTy
 	<virtual stdcall: hresult 6 bool* sdword* sdword* dword*>
 	^self invalidCall!
 
-getLoader
-	"Answer the <IDWriteFontFileLoader> result of invoking the GetLoader() method of the COM object."
-
-	| answer |
-	answer := IDWriteFontFileLoader newPointer.
-	self GetLoader: answer.
-	^answer asObject
-!
-
 GetLoader: fontFileLoader
 	"Private - Invoke the GetLoader() method of the COM object.
 
@@ -90,20 +81,6 @@ GetLoader: fontFileLoader
 	<virtual stdcall: hresult 5 IDWriteFontFileLoader**>
 	^self invalidCall!
 
-getReferenceKey
-	"Invoke the GetReferenceKey() method of the COM object."
-
-	| answer |
-	answer := (Array new: 2)
-				basicAt: 1 put: (VOID newBufferClass: COMTaskMemory);
-				basicAt: 2 put: (DWORD new);
-				yourself.
-	self
-		GetReferenceKey: (answer basicAt: 1)
-		fontFileReferenceKeySize: (answer basicAt: 2).
-	^answer collect: [:each | each asObject]
-!
-
 GetReferenceKey: fontFileReferenceKey fontFileReferenceKeySize: fontFileReferenceKeySize
 	"Private - Invoke the GetReferenceKey() method of the COM object.
 
@@ -112,13 +89,30 @@ GetReferenceKey: fontFileReferenceKey fontFileReferenceKeySize: fontFileReferenc
 			[out]unsigned int* fontFileReferenceKeySize);"
 
 	<virtual stdcall: hresult 4 void** dword*>
-	^self invalidCall! !
+	^self invalidCall!
+
+loader
+	"Answer the <IDWriteFontFileLoader> result of invoking the GetLoader() method of the COM object."
+
+	| answer |
+	answer := IDWriteFontFileLoader newPointer.
+	self GetLoader: answer.
+	^answer asObject!
+
+referenceKey
+	"Invoke the GetReferenceKey() method of the COM object."
+
+	| pkey size |
+	pkey := ExternalAddress new.
+	size := DWORD new.
+	self GetReferenceKey: pkey fontFileReferenceKeySize: size.
+	^pkey copyFrom: 1 to: size value! !
 !IDWriteFontFile categoriesFor: #analyze!**auto generated**!methods!public! !
 !IDWriteFontFile categoriesFor: #Analyze:fontFileType:fontFaceType:numberOfFaces:!**auto generated**!COM Interfaces-IDWriteFontFile!private! !
-!IDWriteFontFile categoriesFor: #getLoader!**auto generated**!methods!public! !
 !IDWriteFontFile categoriesFor: #GetLoader:!**auto generated**!COM Interfaces-IDWriteFontFile!private! !
-!IDWriteFontFile categoriesFor: #getReferenceKey!**auto generated**!methods!public! !
 !IDWriteFontFile categoriesFor: #GetReferenceKey:fontFileReferenceKeySize:!**auto generated**!COM Interfaces-IDWriteFontFile!private! !
+!IDWriteFontFile categoriesFor: #loader!methods!public! !
+!IDWriteFontFile categoriesFor: #referenceKey!accessing!methods!public! !
 
 !IDWriteFontFile class methodsFor!
 

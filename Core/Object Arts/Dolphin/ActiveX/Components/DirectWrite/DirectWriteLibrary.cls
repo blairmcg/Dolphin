@@ -2,7 +2,7 @@
 
 ExternalLibrary subclass: #DirectWriteLibrary
 	instanceVariableNames: ''
-	classVariableNames: ''
+	classVariableNames: 'Factory'
 	poolDictionaries: 'DirectWriteConstants'
 	classInstanceVariableNames: ''!
 DirectWriteLibrary guid: (GUID fromString: '{d8d5e1fe-d0ba-42cb-b292-581a0c72a988}')!
@@ -31,10 +31,21 @@ dWriteCreateFactory: factoryType iid: iid factory: factory
 
 !DirectWriteLibrary class methodsFor!
 
+factory
+	Factory isNull ifTrue: [
+		Factory := IDWriteFactory newPointer.
+		self default dWriteCreateFactory: DWRITE_FACTORY_TYPE_SHARED iid: IDWriteFactory iid factory: Factory].
+	^Factory!
+
 fileName
 	"Answer the host system file name for the library."
 
 	^'dwrite'
-! !
+!
+
+gdiInterop
+	^self factory gdiInterop! !
+!DirectWriteLibrary class categoriesFor: #factory!accessing!public! !
 !DirectWriteLibrary class categoriesFor: #fileName!**auto generated**!constants!public! !
+!DirectWriteLibrary class categoriesFor: #gdiInterop!accessing!public! !
 

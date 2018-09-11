@@ -44,14 +44,13 @@ interface IDWriteFontFamily : IDWriteFontList
 !IDWriteFontFamily categoriesForClass!COM-Interfaces!Direct2d-Interfaces! !
 !IDWriteFontFamily methodsFor!
 
-getFamilyNames
+familyNames
 	"Answer the <IDWriteLocalizedStrings> result of invoking the GetFamilyNames() method of the COM object."
 
 	| answer |
 	answer := IDWriteLocalizedStrings newPointer.
 	self GetFamilyNames: answer.
-	^answer asObject
-!
+	^answer asObject!
 
 GetFamilyNames: names
 	"Private - Invoke the GetFamilyNames() method of the COM object.
@@ -110,13 +109,24 @@ GetMatchingFonts: weight stretch: stretch style: style matchingFonts: matchingFo
 			[out]IDWriteFontList** matchingFonts);"
 
 	<virtual stdcall: hresult 9 sdword sdword sdword IDWriteFontList**>
-	^self invalidCall! !
-!IDWriteFontFamily categoriesFor: #getFamilyNames!**auto generated**!methods!public! !
+	^self invalidCall!
+
+name
+	"Answer the US English font family name."
+
+	^self familyNames at: 'en-us'!
+
+printOn: aStream
+	aStream basicPrint: self.
+	aStream nextPut: $(; print: self name; nextPut: $)! !
+!IDWriteFontFamily categoriesFor: #familyNames!accessing!public! !
 !IDWriteFontFamily categoriesFor: #GetFamilyNames:!**auto generated**!COM Interfaces-IDWriteFontFamily!private! !
 !IDWriteFontFamily categoriesFor: #getFirstMatchingFont:stretch:style:!**auto generated**!methods!public! !
 !IDWriteFontFamily categoriesFor: #GetFirstMatchingFont:stretch:style:matchingFont:!**auto generated**!COM Interfaces-IDWriteFontFamily!private! !
 !IDWriteFontFamily categoriesFor: #getMatchingFonts:stretch:style:!**auto generated**!methods!public! !
 !IDWriteFontFamily categoriesFor: #GetMatchingFonts:stretch:style:matchingFonts:!**auto generated**!COM Interfaces-IDWriteFontFamily!private! !
+!IDWriteFontFamily categoriesFor: #name!accessing!public! !
+!IDWriteFontFamily categoriesFor: #printOn:!printing!public! !
 
 !IDWriteFontFamily class methodsFor!
 

@@ -614,6 +614,32 @@ defineFunctions
 			returnType: 'dword';
 		defineFunction: #GetLocaleName:nameSize:
 			argumentTypes: 'word* dword'
-! !
+!
+
+newFontFamily: fontFamilyName collection: fontCollection weight: fontWeight style: fontStyle stretch: fontStretch size: fontSize localeName: localeName
+	| instance |
+	instance := self newPointer.
+	DirectWriteLibrary factory
+		CreateTextFormat: fontFamilyName
+		fontCollection: fontCollection
+		fontWeight: fontWeight
+		fontStyle: fontStyle
+		fontStretch: fontStretch
+		fontSize: fontSize
+		localeName: localeName
+		textFormat: instance.
+	^instance!
+
+newFontFamily: fontFamilyName weight: fontWeight style: fontStyle stretch: fontStretch size: fontSize localeName: localeName
+	^self
+		newFontFamily: fontFamilyName
+		collection: nil
+		weight: fontWeight
+		style: fontStyle
+		stretch: fontStretch
+		size: fontSize
+		localeName: localeName! !
 !IDWriteTextFormat class categoriesFor: #defineFunctions!**auto generated**!initializing!public! !
+!IDWriteTextFormat class categoriesFor: #newFontFamily:collection:weight:style:stretch:size:localeName:!instance creation!public! !
+!IDWriteTextFormat class categoriesFor: #newFontFamily:weight:style:stretch:size:localeName:!instance creation!public! !
 

@@ -1,9 +1,9 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
-IUnknown subclass: #IDWriteFontList
+DirectWriteCollection subclass: #IDWriteFontList
 	instanceVariableNames: ''
 	classVariableNames: ''
-	poolDictionaries: 'DirectWriteConstants'
+	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 IDWriteFontList guid: (IID fromString: '{1A0D8438-1D97-4EC1-AEF9-A2FB86ED6ACB}')!
 IDWriteFontList comment: '`IDWriteFontList` is a wrapper class for the COM interface ''DirectWrite.IDWriteFontList'' generated from type information in the ''Windows DirectWrite API'' library. It contains methods to invoke the member functions exposed by that interface.
@@ -38,16 +38,13 @@ interface IDWriteFontList : IUnknown
 !IDWriteFontList categoriesForClass!COM-Interfaces!Direct2d-Interfaces! !
 !IDWriteFontList methodsFor!
 
-getFont: index
-	"Answer the <IDWriteFont> result of invoking the GetFont() method of the COM object."
+at: index
+	"Answer an <IDWriteFont> from the collection."
 
 	| answer |
 	answer := IDWriteFont newPointer.
-	self
-		GetFont: index
-		font: answer.
-	^answer asObject
-!
+	self GetFont: index - 1 font: answer.
+	^answer asObject!
 
 GetFont: index font: font
 	"Private - Invoke the GetFont() method of the COM object.
@@ -77,25 +74,24 @@ GetFontCollection: fontCollection
 	<virtual stdcall: hresult 4 IDWriteFontCollection**>
 	^self invalidCall!
 
-getFontCount
-	"Answer the <DWORD> result of invoking the GetFontCount() method of the COM object."
-
-	^self GetFontCount
-!
-
 GetFontCount
 	"Private - Invoke the GetFontCount() method of the COM object.
 
 		unsigned int __stdcall GetFontCount();"
 
 	<virtual stdcall: dword 5>
-	^self invalidCall! !
-!IDWriteFontList categoriesFor: #getFont:!**auto generated**!methods!public! !
+	^self invalidCall!
+
+size
+	"Answer the number of fonts in the collection."
+
+	^self GetFontCount! !
+!IDWriteFontList categoriesFor: #at:!accessing!public! !
 !IDWriteFontList categoriesFor: #GetFont:font:!**auto generated**!COM Interfaces-IDWriteFontList!private! !
 !IDWriteFontList categoriesFor: #getFontCollection!**auto generated**!methods!public! !
 !IDWriteFontList categoriesFor: #GetFontCollection:!**auto generated**!COM Interfaces-IDWriteFontList!private! !
-!IDWriteFontList categoriesFor: #getFontCount!**auto generated**!methods!public! !
 !IDWriteFontList categoriesFor: #GetFontCount!**auto generated**!COM Interfaces-IDWriteFontList!private! !
+!IDWriteFontList categoriesFor: #size!accessing!public! !
 
 !IDWriteFontList class methodsFor!
 

@@ -413,6 +413,13 @@ defineFunctions
 			argumentTypes: 'word* word* DWRITE_SHAPING_TEXT_PROPERTIES* dword word* DWRITE_SHAPING_GLYPH_PROPERTIES* dword IDWriteFontFace* float bool bool DWRITE_SCRIPT_ANALYSIS* word* DWRITE_TYPOGRAPHIC_FEATURES** dword* dword float* DWRITE_GLYPH_OFFSET*';
 		defineFunction: #GetGdiCompatibleGlyphPlacements:clusterMap:textProps:textLength:glyphIndices:glyphProps:glyphCount:fontFace:fontEmSize:pixelsPerDip:transform:useGdiNatural:isSideways:isRightToLeft:scriptAnalysis:localeName:features:featureRangeLengths:featureRanges:glyphAdvances:glyphOffsets:
 			argumentTypes: 'word* word* DWRITE_SHAPING_TEXT_PROPERTIES* dword word* DWRITE_SHAPING_GLYPH_PROPERTIES* dword IDWriteFontFace* float float DWRITE_MATRIX* bool bool bool DWRITE_SCRIPT_ANALYSIS* word* DWRITE_TYPOGRAPHIC_FEATURES** dword* dword float* DWRITE_GLYPH_OFFSET*'
-! !
+!
+
+new
+	| instance |
+	instance := self newPointer.
+	DirectWriteLibrary factory CreateTextAnalyzer: instance.
+	^instance! !
 !IDWriteTextAnalyzer class categoriesFor: #defineFunctions!**auto generated**!initializing!public! !
+!IDWriteTextAnalyzer class categoriesFor: #new!instance creation!public! !
 

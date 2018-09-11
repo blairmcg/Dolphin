@@ -1,6 +1,6 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
-ExternalStructure subclass: #DWRITE_TRIMMING
+DirectWriteStructure subclass: #DWRITE_TRIMMING
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

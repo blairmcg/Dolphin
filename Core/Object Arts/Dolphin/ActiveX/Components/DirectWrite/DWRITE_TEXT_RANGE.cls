@@ -1,6 +1,6 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
-ExternalStructure subclass: #DWRITE_TEXT_RANGE
+DirectWriteStructure subclass: #DWRITE_TEXT_RANGE
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

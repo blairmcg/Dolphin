@@ -27,3 +27,16 @@ interface IDWriteNumberSubstitution : IUnknown
 
 ```'!
 !IDWriteNumberSubstitution categoriesForClass!COM-Interfaces!Direct2d-Interfaces! !
+!IDWriteNumberSubstitution class methodsFor!
+
+new: substitutionMethod localeName: localeName ignoreUserOverride: ignoreUserOverride
+	| answer |
+	answer := self newPointer.
+	DirectWriteLibrary factory
+		CreateNumberSubstitution: substitutionMethod
+		localeName: localeName
+		ignoreUserOverride: ignoreUserOverride
+		numberSubstitution: answer.
+	^answer! !
+!IDWriteNumberSubstitution class categoriesFor: #new:localeName:ignoreUserOverride:!public! !
+

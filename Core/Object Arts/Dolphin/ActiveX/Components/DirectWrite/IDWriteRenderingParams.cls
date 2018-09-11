@@ -136,6 +136,15 @@ defineFunctions
 			returnType: 'sdword';
 		defineFunction: #GetRenderingMode
 			returnType: 'sdword'
-! !
+!
+
+new
+	"Answer a new instance of the receiver."
+
+	| instance |
+	instance := self newPointer.
+	DirectWriteLibrary factory CreateRenderingParams: instance.
+	^instance! !
 !IDWriteRenderingParams class categoriesFor: #defineFunctions!**auto generated**!initializing!public! !
+!IDWriteRenderingParams class categoriesFor: #new!instance creation!public! !
 

@@ -1236,6 +1236,37 @@ defineFunctions
 			argumentTypes: 'dword bool float* float* DWRITE_HIT_TEST_METRICS*';
 		defineFunction: #HitTestTextRange:textLength:originX:originY:hitTestMetrics:maxHitTestMetricsCount:actualHitTestMetricsCount:
 			argumentTypes: 'dword dword float float DWRITE_HIT_TEST_METRICS* dword dword*'
-! !
+!
+
+new: aString format: anIDWriteTextFormat extent: aPointF
+	| string instance |
+	string := aString asUtf16String.
+	instance := self newPointer.
+	DirectWriteLibrary factory
+		CreateTextLayout: string
+		stringLength: string size
+		textFormat: anIDWriteTextFormat
+		maxWidth: aPointF x
+		maxHeight: aPointF y
+		textLayout: instance.
+	^instance!
+
+newGdi: aString format: anIDWriteTextFormat extent: aPointF pixelsPerDip: pixelsPerDip transform: transform useGdiNatural: useGdiNatural
+	| string answer |
+	string := aString asUtf16String.
+	answer := self newPointer.
+	DirectWriteLibrary factory
+		CreateGdiCompatibleTextLayout: string
+		stringLength: string size
+		textFormat: anIDWriteTextFormat
+		layoutWidth: aPointF x
+		layoutHeight: aPointF y
+		pixelsPerDip: pixelsPerDip
+		transform: transform
+		useGdiNatural: useGdiNatural
+		textLayout: answer.
+	^answer! !
 !IDWriteTextLayout class categoriesFor: #defineFunctions!**auto generated**!initializing!public! !
+!IDWriteTextLayout class categoriesFor: #new:format:extent:!instance creation!public! !
+!IDWriteTextLayout class categoriesFor: #newGdi:format:extent:pixelsPerDip:transform:useGdiNatural:!instance creation!public! !
 

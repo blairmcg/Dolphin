@@ -1,9 +1,9 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
-IUnknown subclass: #IDWriteFontCollection
+DirectWriteCollection subclass: #IDWriteFontCollection
 	instanceVariableNames: ''
 	classVariableNames: ''
-	poolDictionaries: 'DirectWriteConstants'
+	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 IDWriteFontCollection guid: (IID fromString: '{A84CEE02-3EEA-4EEE-A827-87C1A02A0FCC}')!
 IDWriteFontCollection comment: '`IDWriteFontCollection` is a wrapper class for the COM interface ''DirectWrite.IDWriteFontCollection'' generated from type information in the ''Windows DirectWrite API'' library. It contains methods to invoke the member functions exposed by that interface.
@@ -44,20 +44,13 @@ interface IDWriteFontCollection : IUnknown
 !IDWriteFontCollection categoriesForClass!COM-Interfaces!Direct2d-Interfaces! !
 !IDWriteFontCollection methodsFor!
 
-findFamilyName: familyName
-	"Invoke the FindFamilyName() method of the COM object."
+at: index
+	"Answer an <IDWriteFontFamily> from the collection."
 
 	| answer |
-	answer := (Array new: 2)
-				basicAt: 1 put: (DWORD new);
-				basicAt: 2 put: (BOOL new);
-				yourself.
-	self
-		FindFamilyName: familyName
-		index: (answer basicAt: 1)
-		exists: (answer basicAt: 2).
-	^answer collect: [:each | each asObject]
-!
+	answer := IDWriteFontFamily newPointer.
+	self GetFontFamily: index - 1 fontFamily: answer.
+	^answer asObject!
 
 FindFamilyName: familyName index: index exists: exists
 	"Private - Invoke the FindFamilyName() method of the COM object.
@@ -70,17 +63,6 @@ FindFamilyName: familyName index: index exists: exists
 	<virtual stdcall: hresult 6 word* dword* bool*>
 	^self invalidCall!
 
-getFontFamily: index
-	"Answer the <IDWriteFontFamily> result of invoking the GetFontFamily() method of the COM object."
-
-	| answer |
-	answer := IDWriteFontFamily newPointer.
-	self
-		GetFontFamily: index
-		fontFamily: answer.
-	^answer asObject
-!
-
 GetFontFamily: index fontFamily: fontFamily
 	"Private - Invoke the GetFontFamily() method of the COM object.
 
@@ -91,12 +73,6 @@ GetFontFamily: index fontFamily: fontFamily
 	<virtual stdcall: hresult 5 dword IDWriteFontFamily**>
 	^self invalidCall!
 
-getFontFamilyCount
-	"Answer the <DWORD> result of invoking the GetFontFamilyCount() method of the COM object."
-
-	^self GetFontFamilyCount
-!
-
 GetFontFamilyCount
 	"Private - Invoke the GetFontFamilyCount() method of the COM object.
 
@@ -104,17 +80,6 @@ GetFontFamilyCount
 
 	<virtual stdcall: dword 4>
 	^self invalidCall!
-
-getFontFromFontFace: fontFace
-	"Answer the <IDWriteFont> result of invoking the GetFontFromFontFace() method of the COM object."
-
-	| answer |
-	answer := IDWriteFont newPointer.
-	self
-		GetFontFromFontFace: fontFace
-		font: answer.
-	^answer asObject
-!
 
 GetFontFromFontFace: fontFace font: font
 	"Private - Invoke the GetFontFromFontFace() method of the COM object.
@@ -124,15 +89,19 @@ GetFontFromFontFace: fontFace font: font
 			[out]IDWriteFont** font);"
 
 	<virtual stdcall: hresult 7 IDWriteFontFace* IDWriteFont**>
-	^self invalidCall! !
-!IDWriteFontCollection categoriesFor: #findFamilyName:!**auto generated**!methods!public! !
+	^self invalidCall!
+
+size
+	"Answer the number of font families in the collection."
+
+	^self GetFontFamilyCount
+! !
+!IDWriteFontCollection categoriesFor: #at:!public! !
 !IDWriteFontCollection categoriesFor: #FindFamilyName:index:exists:!**auto generated**!COM Interfaces-IDWriteFontCollection!private! !
-!IDWriteFontCollection categoriesFor: #getFontFamily:!**auto generated**!methods!public! !
 !IDWriteFontCollection categoriesFor: #GetFontFamily:fontFamily:!**auto generated**!COM Interfaces-IDWriteFontCollection!private! !
-!IDWriteFontCollection categoriesFor: #getFontFamilyCount!**auto generated**!methods!public! !
 !IDWriteFontCollection categoriesFor: #GetFontFamilyCount!**auto generated**!COM Interfaces-IDWriteFontCollection!private! !
-!IDWriteFontCollection categoriesFor: #getFontFromFontFace:!**auto generated**!methods!public! !
 !IDWriteFontCollection categoriesFor: #GetFontFromFontFace:font:!**auto generated**!COM Interfaces-IDWriteFontCollection!private! !
+!IDWriteFontCollection categoriesFor: #size!accessing!public! !
 
 !IDWriteFontCollection class methodsFor!
 

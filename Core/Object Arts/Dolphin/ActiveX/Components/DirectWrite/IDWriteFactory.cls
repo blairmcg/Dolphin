@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 IUnknown subclass: #IDWriteFactory
-	instanceVariableNames: ''
+	instanceVariableNames: 'gdiInterop systemFontCollection'
 	classVariableNames: ''
 	poolDictionaries: 'DirectWriteConstants'
 	classInstanceVariableNames: ''!
@@ -295,24 +295,6 @@ CreateFontFileReference: filePath lastWriteTime: lastWriteTime fontFile: fontFil
 	<virtual stdcall: hresult 8 word* FILETIME* IDWriteFontFile**>
 	^self invalidCall!
 
-createGdiCompatibleTextLayout: string stringLength: stringLength textFormat: textFormat layoutWidth: layoutWidth layoutHeight: layoutHeight pixelsPerDip: pixelsPerDip transform: transform useGdiNatural: useGdiNatural
-	"Answer the <IDWriteTextLayout> result of invoking the CreateGdiCompatibleTextLayout() method of the COM object."
-
-	| answer |
-	answer := IDWriteTextLayout newPointer.
-	self
-		CreateGdiCompatibleTextLayout: string
-		stringLength: stringLength
-		textFormat: textFormat
-		layoutWidth: layoutWidth
-		layoutHeight: layoutHeight
-		pixelsPerDip: pixelsPerDip
-		transform: transform
-		useGdiNatural: useGdiNatural
-		textLayout: answer.
-	^answer asObject
-!
-
 CreateGdiCompatibleTextLayout: string stringLength: stringLength textFormat: textFormat layoutWidth: layoutWidth layoutHeight: layoutHeight pixelsPerDip: pixelsPerDip transform: transform useGdiNatural: useGdiNatural textLayout: textLayout
 	"Private - Invoke the CreateGdiCompatibleTextLayout() method of the COM object.
 
@@ -384,19 +366,6 @@ CreateMonitorRenderingParams: monitor renderingParams: renderingParams
 	<virtual stdcall: hresult 12 handle* IDWriteRenderingParams**>
 	^self invalidCall!
 
-createNumberSubstitution: substitutionMethod localeName: localeName ignoreUserOverride: ignoreUserOverride
-	"Answer the <IDWriteNumberSubstitution> result of invoking the CreateNumberSubstitution() method of the COM object."
-
-	| answer |
-	answer := IDWriteNumberSubstitution newPointer.
-	self
-		CreateNumberSubstitution: substitutionMethod
-		localeName: localeName
-		ignoreUserOverride: ignoreUserOverride
-		numberSubstitution: answer.
-	^answer asObject
-!
-
 CreateNumberSubstitution: substitutionMethod localeName: localeName ignoreUserOverride: ignoreUserOverride numberSubstitution: numberSubstitution
 	"Private - Invoke the CreateNumberSubstitution() method of the COM object.
 
@@ -409,15 +378,6 @@ CreateNumberSubstitution: substitutionMethod localeName: localeName ignoreUserOv
 	<virtual stdcall: hresult 23 sdword word* bool IDWriteNumberSubstitution**>
 	^self invalidCall!
 
-createRenderingParams
-	"Answer the <IDWriteRenderingParams> result of invoking the CreateRenderingParams() method of the COM object."
-
-	| answer |
-	answer := IDWriteRenderingParams newPointer.
-	self CreateRenderingParams: answer.
-	^answer asObject
-!
-
 CreateRenderingParams: renderingParams
 	"Private - Invoke the CreateRenderingParams() method of the COM object.
 
@@ -427,15 +387,6 @@ CreateRenderingParams: renderingParams
 	<virtual stdcall: hresult 11 IDWriteRenderingParams**>
 	^self invalidCall!
 
-createTextAnalyzer
-	"Answer the <IDWriteTextAnalyzer> result of invoking the CreateTextAnalyzer() method of the COM object."
-
-	| answer |
-	answer := IDWriteTextAnalyzer newPointer.
-	self CreateTextAnalyzer: answer.
-	^answer asObject
-!
-
 CreateTextAnalyzer: textAnalyzer
 	"Private - Invoke the CreateTextAnalyzer() method of the COM object.
 
@@ -444,23 +395,6 @@ CreateTextAnalyzer: textAnalyzer
 
 	<virtual stdcall: hresult 22 IDWriteTextAnalyzer**>
 	^self invalidCall!
-
-createTextFormat: fontFamilyName fontCollection: fontCollection fontWeight: fontWeight fontStyle: fontStyle fontStretch: fontStretch fontSize: fontSize localeName: localeName
-	"Answer the <IDWriteTextFormat> result of invoking the CreateTextFormat() method of the COM object."
-
-	| answer |
-	answer := IDWriteTextFormat newPointer.
-	self
-		CreateTextFormat: fontFamilyName
-		fontCollection: fontCollection
-		fontWeight: fontWeight
-		fontStyle: fontStyle
-		fontStretch: fontStretch
-		fontSize: fontSize
-		localeName: localeName
-		textFormat: answer.
-	^answer asObject
-!
 
 CreateTextFormat: fontFamilyName fontCollection: fontCollection fontWeight: fontWeight fontStyle: fontStyle fontStretch: fontStretch fontSize: fontSize localeName: localeName textFormat: textFormat
 	"Private - Invoke the CreateTextFormat() method of the COM object.
@@ -478,21 +412,6 @@ CreateTextFormat: fontFamilyName fontCollection: fontCollection fontWeight: font
 	<virtual stdcall: hresult 16 word* IDWriteFontCollection* sdword sdword sdword float word* IDWriteTextFormat**>
 	^self invalidCall!
 
-createTextLayout: string stringLength: stringLength textFormat: textFormat maxWidth: maxWidth maxHeight: maxHeight
-	"Answer the <IDWriteTextLayout> result of invoking the CreateTextLayout() method of the COM object."
-
-	| answer |
-	answer := IDWriteTextLayout newPointer.
-	self
-		CreateTextLayout: string
-		stringLength: stringLength
-		textFormat: textFormat
-		maxWidth: maxWidth
-		maxHeight: maxHeight
-		textLayout: answer.
-	^answer asObject
-!
-
 CreateTextLayout: string stringLength: stringLength textFormat: textFormat maxWidth: maxWidth maxHeight: maxHeight textLayout: textLayout
 	"Private - Invoke the CreateTextLayout() method of the COM object.
 
@@ -507,15 +426,6 @@ CreateTextLayout: string stringLength: stringLength textFormat: textFormat maxWi
 	<virtual stdcall: hresult 19 word* dword IDWriteTextFormat* float float IDWriteTextLayout**>
 	^self invalidCall!
 
-createTypography
-	"Answer the <IDWriteTypography> result of invoking the CreateTypography() method of the COM object."
-
-	| answer |
-	answer := IDWriteTypography newPointer.
-	self CreateTypography: answer.
-	^answer asObject
-!
-
 CreateTypography: typography
 	"Private - Invoke the CreateTypography() method of the COM object.
 
@@ -525,14 +435,12 @@ CreateTypography: typography
 	<virtual stdcall: hresult 17 IDWriteTypography**>
 	^self invalidCall!
 
-getGdiInterop
-	"Answer the <IDWriteGdiInterop> result of invoking the GetGdiInterop() method of the COM object."
-
-	| answer |
-	answer := IDWriteGdiInterop newPointer.
-	self GetGdiInterop: answer.
-	^answer asObject
-!
+gdiInterop
+	gdiInterop isNull
+		ifTrue: 
+			[gdiInterop := IDWriteGdiInterop newPointer.
+			self GetGdiInterop: gdiInterop].
+	^gdiInterop!
 
 GetGdiInterop: gdiInterop
 	"Private - Invoke the GetGdiInterop() method of the COM object.
@@ -542,17 +450,6 @@ GetGdiInterop: gdiInterop
 
 	<virtual stdcall: hresult 18 IDWriteGdiInterop**>
 	^self invalidCall!
-
-getSystemFontCollection: checkForUpdates
-	"Answer the <IDWriteFontCollection> result of invoking the GetSystemFontCollection() method of the COM object."
-
-	| answer |
-	answer := IDWriteFontCollection newPointer.
-	self
-		GetSystemFontCollection: answer
-		checkForUpdates: checkForUpdates.
-	^answer asObject
-!
 
 GetSystemFontCollection: fontCollection checkForUpdates: checkForUpdates
 	"Private - Invoke the GetSystemFontCollection() method of the COM object.
@@ -564,12 +461,6 @@ GetSystemFontCollection: fontCollection checkForUpdates: checkForUpdates
 	<virtual stdcall: hresult 4 IDWriteFontCollection** bool>
 	^self invalidCall!
 
-registerFontCollectionLoader: fontCollectionLoader
-	"Invoke the RegisterFontCollectionLoader() method of the COM object."
-
-	^self RegisterFontCollectionLoader: fontCollectionLoader
-!
-
 RegisterFontCollectionLoader: fontCollectionLoader
 	"Private - Invoke the RegisterFontCollectionLoader() method of the COM object.
 
@@ -578,12 +469,6 @@ RegisterFontCollectionLoader: fontCollectionLoader
 
 	<virtual stdcall: hresult 6 IDWriteFontCollectionLoader*>
 	^self invalidCall!
-
-registerFontFileLoader: fontFileLoader
-	"Invoke the RegisterFontFileLoader() method of the COM object."
-
-	^self RegisterFontFileLoader: fontFileLoader
-!
 
 RegisterFontFileLoader: fontFileLoader
 	"Private - Invoke the RegisterFontFileLoader() method of the COM object.
@@ -594,11 +479,12 @@ RegisterFontFileLoader: fontFileLoader
 	<virtual stdcall: hresult 14 IDWriteFontFileLoader*>
 	^self invalidCall!
 
-unregisterFontCollectionLoader: fontCollectionLoader
-	"Invoke the UnregisterFontCollectionLoader() method of the COM object."
-
-	^self UnregisterFontCollectionLoader: fontCollectionLoader
-!
+systemFontCollection
+	systemFontCollection isNull
+		ifTrue: 
+			[systemFontCollection := IDWriteFontCollection newPointer.
+			self GetSystemFontCollection: systemFontCollection checkForUpdates: true].
+	^systemFontCollection!
 
 UnregisterFontCollectionLoader: fontCollectionLoader
 	"Private - Invoke the UnregisterFontCollectionLoader() method of the COM object.
@@ -608,12 +494,6 @@ UnregisterFontCollectionLoader: fontCollectionLoader
 
 	<virtual stdcall: hresult 7 IDWriteFontCollectionLoader*>
 	^self invalidCall!
-
-unregisterFontFileLoader: fontFileLoader
-	"Invoke the UnregisterFontFileLoader() method of the COM object."
-
-	^self UnregisterFontFileLoader: fontFileLoader
-!
 
 UnregisterFontFileLoader: fontFileLoader
 	"Private - Invoke the UnregisterFontFileLoader() method of the COM object.
@@ -635,35 +515,24 @@ UnregisterFontFileLoader: fontFileLoader
 !IDWriteFactory categoriesFor: #CreateFontFace:numberOfFiles:fontFiles:faceIndex:fontFaceSimulationFlags:fontFace:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
 !IDWriteFactory categoriesFor: #createFontFileReference:lastWriteTime:!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #CreateFontFileReference:lastWriteTime:fontFile:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #createGdiCompatibleTextLayout:stringLength:textFormat:layoutWidth:layoutHeight:pixelsPerDip:transform:useGdiNatural:!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #CreateGdiCompatibleTextLayout:stringLength:textFormat:layoutWidth:layoutHeight:pixelsPerDip:transform:useGdiNatural:textLayout:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
 !IDWriteFactory categoriesFor: #createGlyphRunAnalysis:pixelsPerDip:transform:renderingMode:measuringMode:baselineOriginX:baselineOriginY:!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #CreateGlyphRunAnalysis:pixelsPerDip:transform:renderingMode:measuringMode:baselineOriginX:baselineOriginY:glyphRunAnalysis:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
 !IDWriteFactory categoriesFor: #createMonitorRenderingParams:!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #CreateMonitorRenderingParams:renderingParams:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #createNumberSubstitution:localeName:ignoreUserOverride:!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #CreateNumberSubstitution:localeName:ignoreUserOverride:numberSubstitution:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #createRenderingParams!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #CreateRenderingParams:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #createTextAnalyzer!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #CreateTextAnalyzer:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #createTextFormat:fontCollection:fontWeight:fontStyle:fontStretch:fontSize:localeName:!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #CreateTextFormat:fontCollection:fontWeight:fontStyle:fontStretch:fontSize:localeName:textFormat:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #createTextLayout:stringLength:textFormat:maxWidth:maxHeight:!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #CreateTextLayout:stringLength:textFormat:maxWidth:maxHeight:textLayout:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #createTypography!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #CreateTypography:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #getGdiInterop!**auto generated**!methods!public! !
+!IDWriteFactory categoriesFor: #gdiInterop!accessing!public! !
 !IDWriteFactory categoriesFor: #GetGdiInterop:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #getSystemFontCollection:!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #GetSystemFontCollection:checkForUpdates:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #registerFontCollectionLoader:!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #RegisterFontCollectionLoader:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #registerFontFileLoader:!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #RegisterFontFileLoader:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #unregisterFontCollectionLoader:!**auto generated**!methods!public! !
+!IDWriteFactory categoriesFor: #systemFontCollection!accessing!public! !
 !IDWriteFactory categoriesFor: #UnregisterFontCollectionLoader:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
-!IDWriteFactory categoriesFor: #unregisterFontFileLoader:!**auto generated**!methods!public! !
 !IDWriteFactory categoriesFor: #UnregisterFontFileLoader:!**auto generated**!COM Interfaces-IDWriteFactory!private! !
 
 !IDWriteFactory class methodsFor!

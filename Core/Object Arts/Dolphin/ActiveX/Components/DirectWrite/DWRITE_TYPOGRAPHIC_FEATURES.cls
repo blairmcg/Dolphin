@@ -1,6 +1,6 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
-ExternalStructure subclass: #DWRITE_TYPOGRAPHIC_FEATURES
+DirectWriteStructure subclass: #DWRITE_TYPOGRAPHIC_FEATURES
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

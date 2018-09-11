@@ -78,14 +78,21 @@ CreateFontFace: fontFace
 	<virtual stdcall: hresult 14 IDWriteFontFace**>
 	^self invalidCall!
 
-getFaceNames
+faceNames
 	"Answer the <IDWriteLocalizedStrings> result of invoking the GetFaceNames() method of the COM object."
 
 	| answer |
 	answer := IDWriteLocalizedStrings newPointer.
 	self GetFaceNames: answer.
-	^answer asObject
-!
+	^answer asObject!
+
+fontFamily
+	"Answer the <IDWriteFontFamily> result of invoking the GetFontFamily() method of the COM object."
+
+	| answer |
+	answer := IDWriteFontFamily newPointer.
+	self GetFontFamily: answer.
+	^answer asObject!
 
 GetFaceNames: names
 	"Private - Invoke the GetFaceNames() method of the COM object.
@@ -95,15 +102,6 @@ GetFaceNames: names
 
 	<virtual stdcall: hresult 9 IDWriteLocalizedStrings**>
 	^self invalidCall!
-
-getFontFamily
-	"Answer the <IDWriteFontFamily> result of invoking the GetFontFamily() method of the COM object."
-
-	| answer |
-	answer := IDWriteFontFamily newPointer.
-	self GetFontFamily: answer.
-	^answer asObject
-!
 
 GetFontFamily: fontFamily
 	"Private - Invoke the GetFontFamily() method of the COM object.
@@ -158,12 +156,6 @@ GetMetrics: fontMetrics
 	<virtual stdcall: void 12 DWRITE_FONT_METRICS*>
 	^self invalidCall!
 
-getSimulations
-	"Answer the <SDWORD> result of invoking the GetSimulations() method of the COM object."
-
-	^self GetSimulations
-!
-
 GetSimulations
 	"Private - Invoke the GetSimulations() method of the COM object.
 
@@ -171,12 +163,6 @@ GetSimulations
 
 	<virtual stdcall: sdword 11>
 	^self invalidCall!
-
-getStretch
-	"Answer the <SDWORD> result of invoking the GetStretch() method of the COM object."
-
-	^self GetStretch
-!
 
 GetStretch
 	"Private - Invoke the GetStretch() method of the COM object.
@@ -186,12 +172,6 @@ GetStretch
 	<virtual stdcall: sdword 6>
 	^self invalidCall!
 
-getStyle
-	"Answer the <SDWORD> result of invoking the GetStyle() method of the COM object."
-
-	^self GetStyle
-!
-
 GetStyle
 	"Private - Invoke the GetStyle() method of the COM object.
 
@@ -199,12 +179,6 @@ GetStyle
 
 	<virtual stdcall: sdword 7>
 	^self invalidCall!
-
-getWeight
-	"Answer the <SDWORD> result of invoking the GetWeight() method of the COM object."
-
-	^self GetWeight
-!
 
 GetWeight
 	"Private - Invoke the GetWeight() method of the COM object.
@@ -235,41 +209,57 @@ HasCharacter: unicodeValue exists: exists
 	<virtual stdcall: hresult 13 dword bool*>
 	^self invalidCall!
 
-isSymbolFont
-	"Answer the <BOOL> result of invoking the IsSymbolFont() method of the COM object."
-
-	^self IsSymbolFont
-!
-
 IsSymbolFont
 	"Private - Invoke the IsSymbolFont() method of the COM object.
 
 		BOOL __stdcall IsSymbolFont();"
 
 	<virtual stdcall: bool 8>
-	^self invalidCall! !
+	^self invalidCall!
+
+logFont
+	| answer isSystemFont |
+	answer := LOGFONTW new.
+	isSystemFont := BOOL new.
+	DirectWriteLibrary gdiInterop
+		ConvertFontToLOGFONT: self
+		logFont: answer
+		isSystemFont: isSystemFont.
+	^answer!
+
+name
+	"Answer the US English font face name."
+
+	^self faceNames at: 'en-us'!
+
+printOn: aStream
+	aStream basicPrint: self.
+	aStream
+		nextPut: $(;
+		display: self fontFamily name;
+		space;
+		display: self name;
+		nextPut: $)! !
 !IDWriteFont categoriesFor: #createFontFace!**auto generated**!methods!public! !
 !IDWriteFont categoriesFor: #CreateFontFace:!**auto generated**!COM Interfaces-IDWriteFont!private! !
-!IDWriteFont categoriesFor: #getFaceNames!**auto generated**!methods!public! !
+!IDWriteFont categoriesFor: #faceNames!accessing!public! !
+!IDWriteFont categoriesFor: #fontFamily!accessing!public! !
 !IDWriteFont categoriesFor: #GetFaceNames:!**auto generated**!COM Interfaces-IDWriteFont!private! !
-!IDWriteFont categoriesFor: #getFontFamily!**auto generated**!methods!public! !
 !IDWriteFont categoriesFor: #GetFontFamily:!**auto generated**!COM Interfaces-IDWriteFont!private! !
 !IDWriteFont categoriesFor: #getInformationalStrings:!**auto generated**!methods!public! !
 !IDWriteFont categoriesFor: #GetInformationalStrings:informationalStrings:exists:!**auto generated**!COM Interfaces-IDWriteFont!private! !
 !IDWriteFont categoriesFor: #getMetrics!**auto generated**!methods!public! !
 !IDWriteFont categoriesFor: #GetMetrics:!**auto generated**!COM Interfaces-IDWriteFont!private! !
-!IDWriteFont categoriesFor: #getSimulations!**auto generated**!methods!public! !
 !IDWriteFont categoriesFor: #GetSimulations!**auto generated**!COM Interfaces-IDWriteFont!private! !
-!IDWriteFont categoriesFor: #getStretch!**auto generated**!methods!public! !
 !IDWriteFont categoriesFor: #GetStretch!**auto generated**!COM Interfaces-IDWriteFont!private! !
-!IDWriteFont categoriesFor: #getStyle!**auto generated**!methods!public! !
 !IDWriteFont categoriesFor: #GetStyle!**auto generated**!COM Interfaces-IDWriteFont!private! !
-!IDWriteFont categoriesFor: #getWeight!**auto generated**!methods!public! !
 !IDWriteFont categoriesFor: #GetWeight!**auto generated**!COM Interfaces-IDWriteFont!private! !
 !IDWriteFont categoriesFor: #hasCharacter:!**auto generated**!methods!public! !
 !IDWriteFont categoriesFor: #HasCharacter:exists:!**auto generated**!COM Interfaces-IDWriteFont!private! !
-!IDWriteFont categoriesFor: #isSymbolFont!**auto generated**!methods!public! !
 !IDWriteFont categoriesFor: #IsSymbolFont!**auto generated**!COM Interfaces-IDWriteFont!private! !
+!IDWriteFont categoriesFor: #logFont!accessing!public! !
+!IDWriteFont categoriesFor: #name!accessing!public! !
+!IDWriteFont categoriesFor: #printOn:!printing!public! !
 
 !IDWriteFont class methodsFor!
 
@@ -301,6 +291,13 @@ defineFunctions
 			argumentTypes: 'dword bool*';
 		defineFunction: #CreateFontFace:
 			argumentTypes: 'IDWriteFontFace**'
-! !
+!
+
+fromLogFont: aLOGFONT
+	| instance |
+	instance := self newPointer.
+	DirectWriteLibrary gdiInterop CreateFontFromLOGFONT: aLOGFONT font: instance.
+	^instance! !
 !IDWriteFont class categoriesFor: #defineFunctions!**auto generated**!initializing!public! !
+!IDWriteFont class categoriesFor: #fromLogFont:!instance creation!public! !
 

@@ -58,21 +58,10 @@ interface IDWriteBitmapRenderTarget : IUnknown
 !IDWriteBitmapRenderTarget categoriesForClass!COM-Interfaces!Direct2d-Interfaces! !
 !IDWriteBitmapRenderTarget methodsFor!
 
-drawGlyphRun: baselineOriginX baselineOriginY: baselineOriginY measuringMode: measuringMode glyphRun: glyphRun renderingParams: renderingParams textColor: textColor
-	"Answer the <RECT> result of invoking the DrawGlyphRun() method of the COM object."
+canvas
+	"Answer a <Canvas> onto the receiver's bitmap."
 
-	| answer |
-	answer := (RECT new).
-	self
-		DrawGlyphRun: baselineOriginX
-		baselineOriginY: baselineOriginY
-		measuringMode: measuringMode
-		glyphRun: glyphRun
-		renderingParams: renderingParams
-		textColor: textColor
-		blackBoxRect: answer.
-	^answer asObject
-!
+	^Canvas withNonOwnedDC: self GetMemoryDC!
 
 DrawGlyphRun: baselineOriginX baselineOriginY: baselineOriginY measuringMode: measuringMode glyphRun: glyphRun renderingParams: renderingParams textColor: textColor blackBoxRect: blackBoxRect
 	"Private - Invoke the DrawGlyphRun() method of the COM object.
@@ -89,14 +78,28 @@ DrawGlyphRun: baselineOriginX baselineOriginY: baselineOriginY measuringMode: me
 	<virtual stdcall: hresult 4 float float sdword DWRITE_GLYPH_RUN* IDWriteRenderingParams* dword RECT*>
 	^self invalidCall!
 
-getCurrentTransform
-	"Answer the <DWRITE_MATRIX> result of invoking the GetCurrentTransform() method of the COM object."
+drawGlyphRunAt: aPointF measuringMode: measuringMode glyphRun: glyphRun renderingParams: renderingParams textColor: textColor
+	"Answer the <RECT> result of invoking the DrawGlyphRun() method of the COM object."
 
 	| answer |
-	answer := (DWRITE_MATRIX new).
-	self GetCurrentTransform: answer.
-	^answer asObject
-!
+	answer := RECT new.
+	self
+		DrawGlyphRun: aPointF x
+		baselineOriginY: aPointF y
+		measuringMode: measuringMode
+		glyphRun: glyphRun
+		renderingParams: renderingParams
+		textColor: textColor
+		blackBoxRect: answer.
+	^answer asObject!
+
+extent
+	"Answer a <Point> representing the width and height of the receiver."
+
+	| size |
+	size := SIZE new.
+	self GetSize: size.
+	^size asObject!
 
 GetCurrentTransform: transform
 	"Private - Invoke the GetCurrentTransform() method of the COM object.
@@ -107,12 +110,6 @@ GetCurrentTransform: transform
 	<virtual stdcall: hresult 8 DWRITE_MATRIX*>
 	^self invalidCall!
 
-getMemoryDC
-	"Answer the <ExternalHandle> result of invoking the GetMemoryDC() method of the COM object."
-
-	^self GetMemoryDC
-!
-
 GetMemoryDC
 	"Private - Invoke the GetMemoryDC() method of the COM object.
 
@@ -121,12 +118,6 @@ GetMemoryDC
 	<virtual stdcall: handle 5>
 	^self invalidCall!
 
-getPixelsPerDip
-	"Answer the <FLOAT> result of invoking the GetPixelsPerDip() method of the COM object."
-
-	^self GetPixelsPerDip
-!
-
 GetPixelsPerDip
 	"Private - Invoke the GetPixelsPerDip() method of the COM object.
 
@@ -134,15 +125,6 @@ GetPixelsPerDip
 
 	<virtual stdcall: float 6>
 	^self invalidCall!
-
-getSize
-	"Answer the <SIZE> result of invoking the GetSize() method of the COM object."
-
-	| answer |
-	answer := (SIZE new).
-	self GetSize: answer.
-	^answer asObject
-!
 
 GetSize: size
 	"Private - Invoke the GetSize() method of the COM object.
@@ -153,12 +135,23 @@ GetSize: size
 	<virtual stdcall: hresult 10 SIZE*>
 	^self invalidCall!
 
-resize: width height: height
-	"Invoke the Resize() method of the COM object."
+pixelsPerDip
+	"Answer a <Float> which is the number of bitmap pixels per device indepdent pixel in the receiver."
+
+	^self GetPixelsPerDip
+!
+
+pixelsPerDip: pixelsPerDip
+	"Invoke the SetPixelsPerDip() method of the COM object."
+
+	^self SetPixelsPerDip: pixelsPerDip!
+
+resize: aPoint
+	"Resize the receiver to the specified extent."
 
 	^self
-		Resize: width
-		height: height
+		Resize: aPoint x
+		height: aPoint y
 !
 
 Resize: width height: height
@@ -171,12 +164,6 @@ Resize: width height: height
 	<virtual stdcall: hresult 11 dword dword>
 	^self invalidCall!
 
-setCurrentTransform: transform
-	"Invoke the SetCurrentTransform() method of the COM object."
-
-	^self SetCurrentTransform: transform
-!
-
 SetCurrentTransform: transform
 	"Private - Invoke the SetCurrentTransform() method of the COM object.
 
@@ -186,12 +173,6 @@ SetCurrentTransform: transform
 	<virtual stdcall: hresult 9 DWRITE_MATRIX*>
 	^self invalidCall!
 
-setPixelsPerDip: pixelsPerDip
-	"Invoke the SetPixelsPerDip() method of the COM object."
-
-	^self SetPixelsPerDip: pixelsPerDip
-!
-
 SetPixelsPerDip: pixelsPerDip
 	"Private - Invoke the SetPixelsPerDip() method of the COM object.
 
@@ -199,25 +180,49 @@ SetPixelsPerDip: pixelsPerDip
 			float pixelsPerDip);"
 
 	<virtual stdcall: hresult 7 float>
-	^self invalidCall! !
-!IDWriteBitmapRenderTarget categoriesFor: #drawGlyphRun:baselineOriginY:measuringMode:glyphRun:renderingParams:textColor:!**auto generated**!methods!public! !
+	^self invalidCall!
+
+transform
+	"Answer a <DWRITE_MATRIX> representing the current transform applied to text drawing operations into the receiver."
+
+	| answer |
+	answer := DWRITE_MATRIX new.
+	self GetCurrentTransform: answer.
+	^answer!
+
+transform: aDWRITE_MATRIX
+	^self SetCurrentTransform: aDWRITE_MATRIX
+! !
+!IDWriteBitmapRenderTarget categoriesFor: #canvas!accessing!public! !
 !IDWriteBitmapRenderTarget categoriesFor: #DrawGlyphRun:baselineOriginY:measuringMode:glyphRun:renderingParams:textColor:blackBoxRect:!**auto generated**!COM Interfaces-IDWriteBitmapRenderTarget!private! !
-!IDWriteBitmapRenderTarget categoriesFor: #getCurrentTransform!**auto generated**!methods!public! !
+!IDWriteBitmapRenderTarget categoriesFor: #drawGlyphRunAt:measuringMode:glyphRun:renderingParams:textColor:!methods!public! !
+!IDWriteBitmapRenderTarget categoriesFor: #extent!accessing!public! !
 !IDWriteBitmapRenderTarget categoriesFor: #GetCurrentTransform:!**auto generated**!COM Interfaces-IDWriteBitmapRenderTarget!private! !
-!IDWriteBitmapRenderTarget categoriesFor: #getMemoryDC!**auto generated**!methods!public! !
 !IDWriteBitmapRenderTarget categoriesFor: #GetMemoryDC!**auto generated**!COM Interfaces-IDWriteBitmapRenderTarget!private! !
-!IDWriteBitmapRenderTarget categoriesFor: #getPixelsPerDip!**auto generated**!methods!public! !
 !IDWriteBitmapRenderTarget categoriesFor: #GetPixelsPerDip!**auto generated**!COM Interfaces-IDWriteBitmapRenderTarget!private! !
-!IDWriteBitmapRenderTarget categoriesFor: #getSize!**auto generated**!methods!public! !
 !IDWriteBitmapRenderTarget categoriesFor: #GetSize:!**auto generated**!COM Interfaces-IDWriteBitmapRenderTarget!private! !
-!IDWriteBitmapRenderTarget categoriesFor: #resize:height:!**auto generated**!methods!public! !
+!IDWriteBitmapRenderTarget categoriesFor: #pixelsPerDip!accessing!public! !
+!IDWriteBitmapRenderTarget categoriesFor: #pixelsPerDip:!accessing!public! !
+!IDWriteBitmapRenderTarget categoriesFor: #resize:!methods!public! !
 !IDWriteBitmapRenderTarget categoriesFor: #Resize:height:!**auto generated**!COM Interfaces-IDWriteBitmapRenderTarget!private! !
-!IDWriteBitmapRenderTarget categoriesFor: #setCurrentTransform:!**auto generated**!methods!public! !
 !IDWriteBitmapRenderTarget categoriesFor: #SetCurrentTransform:!**auto generated**!COM Interfaces-IDWriteBitmapRenderTarget!private! !
-!IDWriteBitmapRenderTarget categoriesFor: #setPixelsPerDip:!**auto generated**!methods!public! !
 !IDWriteBitmapRenderTarget categoriesFor: #SetPixelsPerDip:!**auto generated**!COM Interfaces-IDWriteBitmapRenderTarget!private! !
+!IDWriteBitmapRenderTarget categoriesFor: #transform!accessing!public! !
+!IDWriteBitmapRenderTarget categoriesFor: #transform:!accessing!public! !
 
 !IDWriteBitmapRenderTarget class methodsFor!
+
+compatible: aCanvas width: width height: height
+	"Answer a new instance of the receiver over a bitmpa with the specified dimensions and compatible with aCanvas."
+
+	| instance |
+	instance := self newPointer.
+	DirectWriteLibrary gdiInterop
+		CreateBitmapRenderTarget: aCanvas asParameter
+		width: width
+		height: height
+		renderTarget: instance.
+	^instance!
 
 defineFunctions
 	"Declare the virtual function table for the COM interface 'DirectWrite.IDWriteBitmapRenderTarget'
@@ -241,5 +246,6 @@ defineFunctions
 		defineFunction: #Resize:height:
 			argumentTypes: 'dword dword'
 ! !
+!IDWriteBitmapRenderTarget class categoriesFor: #compatible:width:height:!instance creation!public! !
 !IDWriteBitmapRenderTarget class categoriesFor: #defineFunctions!**auto generated**!initializing!public! !
 

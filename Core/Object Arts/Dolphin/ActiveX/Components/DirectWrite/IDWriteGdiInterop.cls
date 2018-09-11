@@ -52,17 +52,6 @@ interface IDWriteGdiInterop : IUnknown
 !IDWriteGdiInterop categoriesForClass!COM-Interfaces!Direct2d-Interfaces! !
 !IDWriteGdiInterop methodsFor!
 
-convertFontFaceToLOGFONT: font
-	"Answer the <LOGFONTW> result of invoking the ConvertFontFaceToLOGFONT() method of the COM object."
-
-	| answer |
-	answer := (LOGFONTW new).
-	self
-		ConvertFontFaceToLOGFONT: font
-		logFont: answer.
-	^answer asObject
-!
-
 ConvertFontFaceToLOGFONT: font logFont: logFont
 	"Private - Invoke the ConvertFontFaceToLOGFONT() method of the COM object.
 
@@ -72,21 +61,6 @@ ConvertFontFaceToLOGFONT: font logFont: logFont
 
 	<virtual stdcall: hresult 6 IDWriteFontFace* LOGFONTW*>
 	^self invalidCall!
-
-convertFontToLOGFONT: font
-	"Invoke the ConvertFontToLOGFONT() method of the COM object."
-
-	| answer |
-	answer := (Array new: 2)
-				basicAt: 1 put: (LOGFONTW new);
-				basicAt: 2 put: (BOOL new);
-				yourself.
-	self
-		ConvertFontToLOGFONT: font
-		logFont: (answer basicAt: 1)
-		isSystemFont: (answer basicAt: 2).
-	^answer collect: [:each | each asObject]
-!
 
 ConvertFontToLOGFONT: font logFont: logFont isSystemFont: isSystemFont
 	"Private - Invoke the ConvertFontToLOGFONT() method of the COM object.
@@ -98,19 +72,6 @@ ConvertFontToLOGFONT: font logFont: logFont isSystemFont: isSystemFont
 
 	<virtual stdcall: hresult 5 IDWriteFont* LOGFONTW* bool*>
 	^self invalidCall!
-
-createBitmapRenderTarget: hdc width: width height: height
-	"Answer the <IDWriteBitmapRenderTarget> result of invoking the CreateBitmapRenderTarget() method of the COM object."
-
-	| answer |
-	answer := IDWriteBitmapRenderTarget newPointer.
-	self
-		CreateBitmapRenderTarget: hdc
-		width: width
-		height: height
-		renderTarget: answer.
-	^answer asObject
-!
 
 CreateBitmapRenderTarget: hdc width: width height: height renderTarget: renderTarget
 	"Private - Invoke the CreateBitmapRenderTarget() method of the COM object.
@@ -124,17 +85,6 @@ CreateBitmapRenderTarget: hdc width: width height: height renderTarget: renderTa
 	<virtual stdcall: hresult 8 handle dword dword IDWriteBitmapRenderTarget**>
 	^self invalidCall!
 
-createFontFaceFromHdc: hdc
-	"Answer the <IDWriteFontFace> result of invoking the CreateFontFaceFromHdc() method of the COM object."
-
-	| answer |
-	answer := IDWriteFontFace newPointer.
-	self
-		CreateFontFaceFromHdc: hdc
-		fontFace: answer.
-	^answer asObject
-!
-
 CreateFontFaceFromHdc: hdc fontFace: fontFace
 	"Private - Invoke the CreateFontFaceFromHdc() method of the COM object.
 
@@ -145,17 +95,6 @@ CreateFontFaceFromHdc: hdc fontFace: fontFace
 	<virtual stdcall: hresult 7 handle IDWriteFontFace**>
 	^self invalidCall!
 
-createFontFromLOGFONT: logFont
-	"Answer the <IDWriteFont> result of invoking the CreateFontFromLOGFONT() method of the COM object."
-
-	| answer |
-	answer := IDWriteFont newPointer.
-	self
-		CreateFontFromLOGFONT: logFont
-		font: answer.
-	^answer asObject
-!
-
 CreateFontFromLOGFONT: logFont font: font
 	"Private - Invoke the CreateFontFromLOGFONT() method of the COM object.
 
@@ -165,15 +104,10 @@ CreateFontFromLOGFONT: logFont font: font
 
 	<virtual stdcall: hresult 4 LOGFONTW* IDWriteFont**>
 	^self invalidCall! !
-!IDWriteGdiInterop categoriesFor: #convertFontFaceToLOGFONT:!**auto generated**!methods!public! !
 !IDWriteGdiInterop categoriesFor: #ConvertFontFaceToLOGFONT:logFont:!**auto generated**!COM Interfaces-IDWriteGdiInterop!private! !
-!IDWriteGdiInterop categoriesFor: #convertFontToLOGFONT:!**auto generated**!methods!public! !
 !IDWriteGdiInterop categoriesFor: #ConvertFontToLOGFONT:logFont:isSystemFont:!**auto generated**!COM Interfaces-IDWriteGdiInterop!private! !
-!IDWriteGdiInterop categoriesFor: #createBitmapRenderTarget:width:height:!**auto generated**!methods!public! !
 !IDWriteGdiInterop categoriesFor: #CreateBitmapRenderTarget:width:height:renderTarget:!**auto generated**!COM Interfaces-IDWriteGdiInterop!private! !
-!IDWriteGdiInterop categoriesFor: #createFontFaceFromHdc:!**auto generated**!methods!public! !
 !IDWriteGdiInterop categoriesFor: #CreateFontFaceFromHdc:fontFace:!**auto generated**!COM Interfaces-IDWriteGdiInterop!private! !
-!IDWriteGdiInterop categoriesFor: #createFontFromLOGFONT:!**auto generated**!methods!public! !
 !IDWriteGdiInterop categoriesFor: #CreateFontFromLOGFONT:font:!**auto generated**!COM Interfaces-IDWriteGdiInterop!private! !
 
 !IDWriteGdiInterop class methodsFor!

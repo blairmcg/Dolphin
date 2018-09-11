@@ -1,6 +1,6 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
-ExternalStructure subclass: #DWRITE_GLYPH_RUN_DESCRIPTION
+DirectWriteStructure subclass: #DWRITE_GLYPH_RUN_DESCRIPTION
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

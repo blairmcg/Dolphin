@@ -9,7 +9,9 @@ The contents of this package are highly likely to change.'.
 
 
 package classNames
+	add: #DirectWriteCollection;
 	add: #DirectWriteLibrary;
+	add: #DirectWriteStructure;
 	add: #DWRITE_CLUSTER_METRICS;
 	add: #DWRITE_FONT_FEATURE;
 	add: #DWRITE_FONT_METRICS;
@@ -84,115 +86,15 @@ package!
 
 ExternalLibrary subclass: #DirectWriteLibrary
 	instanceVariableNames: ''
-	classVariableNames: ''
+	classVariableNames: 'Factory'
 	poolDictionaries: 'DirectWriteConstants'
 	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_CLUSTER_METRICS
+ExternalStructure subclass: #DirectWriteStructure
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_FONT_FEATURE
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_FONT_METRICS
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_GLYPH_METRICS
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_GLYPH_OFFSET
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_GLYPH_RUN
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_GLYPH_RUN_DESCRIPTION
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_HIT_TEST_METRICS
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_INLINE_OBJECT_METRICS
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_LINE_BREAKPOINT
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_LINE_METRICS
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_MATRIX
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_OVERHANG_METRICS
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_SCRIPT_ANALYSIS
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_SHAPING_GLYPH_PROPERTIES
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_SHAPING_TEXT_PROPERTIES
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_STRIKETHROUGH
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_TEXT_METRICS
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_TEXT_RANGE
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_TRIMMING
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_TYPOGRAPHIC_FEATURES
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-ExternalStructure subclass: #DWRITE_UNDERLINE
+IUnknown subclass: #DirectWriteCollection
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -203,16 +105,11 @@ IUnknown subclass: #IDWriteBitmapRenderTarget
 	poolDictionaries: 'DirectWriteConstants'
 	classInstanceVariableNames: ''!
 IUnknown subclass: #IDWriteFactory
-	instanceVariableNames: ''
+	instanceVariableNames: 'gdiInterop systemFontCollection'
 	classVariableNames: ''
 	poolDictionaries: 'DirectWriteConstants'
 	classInstanceVariableNames: ''!
 IUnknown subclass: #IDWriteFont
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: 'DirectWriteConstants'
-	classInstanceVariableNames: ''!
-IUnknown subclass: #IDWriteFontCollection
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: 'DirectWriteConstants'
@@ -224,7 +121,7 @@ IUnknown subclass: #IDWriteFontCollectionLoader
 	classInstanceVariableNames: ''!
 IUnknown subclass: #IDWriteFontFace
 	instanceVariableNames: ''
-	classVariableNames: ''
+	classVariableNames: 'Simulations Types'
 	poolDictionaries: 'DirectWriteConstants'
 	classInstanceVariableNames: ''!
 IUnknown subclass: #IDWriteFontFile
@@ -247,11 +144,6 @@ IUnknown subclass: #IDWriteFontFileStream
 	classVariableNames: ''
 	poolDictionaries: 'DirectWriteConstants'
 	classInstanceVariableNames: ''!
-IUnknown subclass: #IDWriteFontList
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: 'DirectWriteConstants'
-	classInstanceVariableNames: ''!
 IUnknown subclass: #IDWriteGdiInterop
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -270,7 +162,7 @@ IUnknown subclass: #IDWriteInlineObject
 IUnknown subclass: #IDWriteLocalizedStrings
 	instanceVariableNames: ''
 	classVariableNames: ''
-	poolDictionaries: 'DirectWriteConstants'
+	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 IUnknown subclass: #IDWriteNumberSubstitution
 	instanceVariableNames: ''
@@ -312,12 +204,22 @@ IUnknown subclass: #IDWriteTypography
 	classVariableNames: ''
 	poolDictionaries: 'DirectWriteConstants'
 	classInstanceVariableNames: ''!
-IDWriteFontFileLoader subclass: #IDWriteLocalFontFileLoader
+DirectWriteCollection subclass: #IDWriteFontCollection
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteCollection subclass: #IDWriteFontList
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IDWriteFontList subclass: #IDWriteFontFamily
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: 'DirectWriteConstants'
 	classInstanceVariableNames: ''!
-IDWriteFontList subclass: #IDWriteFontFamily
+IDWriteFontFileLoader subclass: #IDWriteLocalFontFileLoader
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: 'DirectWriteConstants'
@@ -331,6 +233,116 @@ IDWriteTextFormat subclass: #IDWriteTextLayout
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: 'DirectWriteConstants'
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_CLUSTER_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_FONT_FEATURE
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_FONT_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_GLYPH_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_GLYPH_OFFSET
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_GLYPH_RUN
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_GLYPH_RUN_DESCRIPTION
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_HIT_TEST_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_INLINE_OBJECT_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_LINE_BREAKPOINT
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_LINE_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_MATRIX
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_OVERHANG_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_SCRIPT_ANALYSIS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_SHAPING_GLYPH_PROPERTIES
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_SHAPING_TEXT_PROPERTIES
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_STRIKETHROUGH
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_TEXT_METRICS
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_TEXT_RANGE
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_TRIMMING
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_TYPOGRAPHIC_FEATURES
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DirectWriteStructure subclass: #DWRITE_UNDERLINE
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
 "Global Aliases"!

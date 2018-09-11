@@ -107,6 +107,13 @@ defineFunctions
 			returnType: 'dword';
 		defineFunction: #GetFontFeature:fontFeature:
 			argumentTypes: 'dword DWRITE_FONT_FEATURE*'
-! !
+!
+
+new
+	| instance |
+	instance := self newPointer.
+	DirectWriteLibrary factory CreateTypography: instance.
+	^instance! !
 !IDWriteTypography class categoriesFor: #defineFunctions!**auto generated**!initializing!public! !
+!IDWriteTypography class categoriesFor: #new!public! !
 

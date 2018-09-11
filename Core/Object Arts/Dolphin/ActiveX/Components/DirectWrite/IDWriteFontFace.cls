@@ -2,10 +2,12 @@
 
 IUnknown subclass: #IDWriteFontFace
 	instanceVariableNames: ''
-	classVariableNames: ''
+	classVariableNames: 'Simulations Types'
 	poolDictionaries: 'DirectWriteConstants'
 	classInstanceVariableNames: ''!
 IDWriteFontFace guid: (IID fromString: '{5F49804D-7024-4D43-BFA9-D25984F53849}')!
+IDWriteFontFace addClassConstant: 'Simulations' value: #(#none #bold #oblique)!
+IDWriteFontFace addClassConstant: 'Types' value: #(#cff #trueType #openType #type1 #vector #bitmap #unknown #rawCff)!
 IDWriteFontFace comment: '`IDWriteFontFace` is a wrapper class for the COM interface ''DirectWrite.IDWriteFontFace'' generated from type information in the ''Windows DirectWrite API'' library. It contains methods to invoke the member functions exposed by that interface.
 
 The type library contains the following helpstring for this interface
@@ -100,6 +102,16 @@ interface IDWriteFontFace : IUnknown
 !IDWriteFontFace categoriesForClass!COM-Interfaces!Direct2d-Interfaces! !
 !IDWriteFontFace methodsFor!
 
+files
+	"Invoke the GetFiles() method of the COM object."
+
+	| numberOfFiles files |
+	numberOfFiles := DWORD new.
+	self GetFiles: numberOfFiles fontFiles: nil.
+	files := UINT_PTRArray new: numberOfFiles value.
+	self GetFiles: numberOfFiles fontFiles: files.
+	^files collect: [:each | IDWriteFontFile attach: each]!
+
 GetDesignGlyphMetrics: glyphIndices glyphCount: glyphCount glyphMetrics: glyphMetrics isSideways: isSideways
 	"Private - Invoke the GetDesignGlyphMetrics() method of the COM object.
 
@@ -112,32 +124,20 @@ GetDesignGlyphMetrics: glyphIndices glyphCount: glyphCount glyphMetrics: glyphMe
 	<virtual stdcall: hresult 11 word* dword DWRITE_GLYPH_METRICS* bool>
 	^self invalidCall!
 
-getDesignGlyphMetrics: glyphIndices glyphCount: glyphCount isSideways: isSideways
+getDesignGlyphMetrics: aSequencedReadableCollection isSideways: isSideways
 	"Answer the <DWRITE_GLYPH_METRICS> result of invoking the GetDesignGlyphMetrics() method of the COM object."
 
-	| answer |
-	answer := (DWRITE_GLYPH_METRICS new).
+	| answer glyphIndices glyphCount |
+	glyphCount := aSequencedReadableCollection size.
+	glyphIndices := WORDArray new: glyphCount.
+	1 to: glyphCount do: [:each | glyphIndices at: each put: (aSequencedReadableCollection at: each)].
+	answer := StructureArray length: glyphCount elementClass: DWRITE_GLYPH_METRICS.
 	self
 		GetDesignGlyphMetrics: glyphIndices
 		glyphCount: glyphCount
 		glyphMetrics: answer
 		isSideways: isSideways.
-	^answer asObject
-!
-
-getFiles: numberOfFiles
-	"Invoke the GetFiles() method of the COM object."
-
-	| answer |
-	answer := (Array new: 2)
-				basicAt: 1 put: (DWORD new value: numberOfFiles; yourself);
-				basicAt: 2 put: IDWriteFontFile newPointer;
-				yourself.
-	self
-		GetFiles: (answer basicAt: 1)
-		fontFiles: (answer basicAt: 2).
-	^answer collect: [:each | each asObject]
-!
+	^answer!
 
 GetFiles: numberOfFiles fontFiles: fontFiles
 	"Private - Invoke the GetFiles() method of the COM object.
@@ -169,7 +169,7 @@ getGdiCompatibleGlyphMetrics: emSize pixelsPerDip: pixelsPerDip transform: trans
 	"Answer the <DWRITE_GLYPH_METRICS> result of invoking the GetGdiCompatibleGlyphMetrics() method of the COM object."
 
 	| answer |
-	answer := (DWRITE_GLYPH_METRICS new).
+	answer := StructureArray length: glyphCount elementClass: DWRITE_GLYPH_METRICS.
 	self
 		GetGdiCompatibleGlyphMetrics: emSize
 		pixelsPerDip: pixelsPerDip
@@ -179,8 +179,7 @@ getGdiCompatibleGlyphMetrics: emSize pixelsPerDip: pixelsPerDip transform: trans
 		glyphCount: glyphCount
 		glyphMetrics: answer
 		isSideways: isSideways.
-	^answer asObject
-!
+	^answer asObject!
 
 getGdiCompatibleMetrics: emSize pixelsPerDip: pixelsPerDip transform: transform
 	"Answer the <DWRITE_FONT_METRICS> result of invoking the GetGdiCompatibleMetrics() method of the COM object."
@@ -207,12 +206,6 @@ GetGdiCompatibleMetrics: emSize pixelsPerDip: pixelsPerDip transform: transform 
 	<virtual stdcall: hresult 17 float float DWRITE_MATRIX* DWRITE_FONT_METRICS*>
 	^self invalidCall!
 
-getGlyphCount
-	"Answer the <WORD> result of invoking the GetGlyphCount() method of the COM object."
-
-	^self GetGlyphCount
-!
-
 GetGlyphCount
 	"Private - Invoke the GetGlyphCount() method of the COM object.
 
@@ -221,16 +214,19 @@ GetGlyphCount
 	<virtual stdcall: word 10>
 	^self invalidCall!
 
-getGlyphIndices: codePoints codePointCount: codePointCount
-	"Answer the <WORD> result of invoking the GetGlyphIndices() method of the COM object."
+getGlyphIndices: aSequencedReadableCollection
+	"Returns the nominal mapping of UCS4 Unicode code points to glyph indices as defined by the font 'CMAP' table."
 
-	| answer |
-	answer := (WORD new).
+	| glyphIndices codePoints codePointCount |
+	codePointCount := aSequencedReadableCollection size.
+	codePoints := DWORDArray new: codePointCount.
+	1 to: codePointCount do: [:i | codePoints at: i put: (aSequencedReadableCollection at: i) asInteger].
+	glyphIndices := WORDArray new: codePointCount.
 	self
 		GetGlyphIndices: codePoints
 		codePointCount: codePointCount
-		glyphIndices: answer.
-	^answer asObject
+		glyphIndices: glyphIndices.
+	^glyphIndices
 !
 
 GetGlyphIndices: codePoints codePointCount: codePointCount glyphIndices: glyphIndices
@@ -243,20 +239,6 @@ GetGlyphIndices: codePoints codePointCount: codePointCount glyphIndices: glyphIn
 
 	<virtual stdcall: hresult 12 dword* dword word*>
 	^self invalidCall!
-
-getGlyphRunOutline: emSize glyphIndices: glyphIndices glyphAdvances: glyphAdvances glyphOffsets: glyphOffsets glyphCount: glyphCount isSideways: isSideways isRightToLeft: isRightToLeft geometrySink: geometrySink
-	"Invoke the GetGlyphRunOutline() method of the COM object."
-
-	^self
-		GetGlyphRunOutline: emSize
-		glyphIndices: glyphIndices
-		glyphAdvances: glyphAdvances
-		glyphOffsets: glyphOffsets
-		glyphCount: glyphCount
-		isSideways: isSideways
-		isRightToLeft: isRightToLeft
-		geometrySink: geometrySink
-!
 
 GetGlyphRunOutline: emSize glyphIndices: glyphIndices glyphAdvances: glyphAdvances glyphOffsets: glyphOffsets glyphCount: glyphCount isSideways: isSideways isRightToLeft: isRightToLeft geometrySink: geometrySink
 	"Private - Invoke the GetGlyphRunOutline() method of the COM object.
@@ -274,12 +256,6 @@ GetGlyphRunOutline: emSize glyphIndices: glyphIndices glyphAdvances: glyphAdvanc
 	<virtual stdcall: hresult 15 float word* float* DWRITE_GLYPH_OFFSET* dword bool bool IUnknown*>
 	^self invalidCall!
 
-getIndex
-	"Answer the <DWORD> result of invoking the GetIndex() method of the COM object."
-
-	^self GetIndex
-!
-
 GetIndex
 	"Private - Invoke the GetIndex() method of the COM object.
 
@@ -287,15 +263,6 @@ GetIndex
 
 	<virtual stdcall: dword 6>
 	^self invalidCall!
-
-getMetrics
-	"Answer the <DWRITE_FONT_METRICS> result of invoking the GetMetrics() method of the COM object."
-
-	| answer |
-	answer := (DWRITE_FONT_METRICS new).
-	self GetMetrics: answer.
-	^answer asObject
-!
 
 GetMetrics: fontFaceMetrics
 	"Private - Invoke the GetMetrics() method of the COM object.
@@ -333,12 +300,6 @@ GetRecommendedRenderingMode: emSize pixelsPerDip: pixelsPerDip measuringMode: me
 	<virtual stdcall: hresult 16 float float sdword IDWriteRenderingParams* sdword*>
 	^self invalidCall!
 
-getSimulations
-	"Answer the <SDWORD> result of invoking the GetSimulations() method of the COM object."
-
-	^self GetSimulations
-!
-
 GetSimulations
 	"Private - Invoke the GetSimulations() method of the COM object.
 
@@ -346,12 +307,6 @@ GetSimulations
 
 	<virtual stdcall: sdword 7>
 	^self invalidCall!
-
-getType
-	"Answer the <SDWORD> result of invoking the GetType() method of the COM object."
-
-	^self GetType
-!
 
 GetType
 	"Private - Invoke the GetType() method of the COM object.
@@ -361,12 +316,6 @@ GetType
 	<virtual stdcall: sdword 4>
 	^self invalidCall!
 
-isSymbolFont
-	"Answer the <BOOL> result of invoking the IsSymbolFont() method of the COM object."
-
-	^self IsSymbolFont
-!
-
 IsSymbolFont
 	"Private - Invoke the IsSymbolFont() method of the COM object.
 
@@ -375,11 +324,19 @@ IsSymbolFont
 	<virtual stdcall: bool 8>
 	^self invalidCall!
 
-releaseFontTable: tableContext
-	"Answer the <VOID> result of invoking the ReleaseFontTable() method of the COM object."
+logFont
+	| answer |
+	answer := LOGFONTW new.
+	DirectWriteLibrary gdiInterop ConvertFontFaceToLOGFONT: self logFont: answer.
+	^answer!
 
-	self ReleaseFontTable: tableContext
-!
+metrics
+	"Answer a <DWRITE_FONT_METRICS> describing the receiver."
+
+	| answer |
+	answer := DWRITE_FONT_METRICS new.
+	self GetMetrics: answer.
+	^answer!
 
 ReleaseFontTable: tableContext
 	"Private - Invoke the ReleaseFontTable() method of the COM object.
@@ -389,6 +346,9 @@ ReleaseFontTable: tableContext
 
 	<virtual stdcall: void 14 void*>
 	^self invalidCall!
+
+simulations
+	^Simulations at: self GetSimulations + 1!
 
 tryGetFontTable: openTypeTableTag
 	"Invoke the TryGetFontTable() method of the COM object."
@@ -420,37 +380,36 @@ TryGetFontTable: openTypeTableTag tableData: tableData tableSize: tableSize tabl
 			[out]BOOL* exists);"
 
 	<virtual stdcall: hresult 13 dword void** dword* void** bool*>
-	^self invalidCall! !
+	^self invalidCall!
+
+type
+	^Types at: self GetType + 1! !
+!IDWriteFontFace categoriesFor: #files!methods!public! !
 !IDWriteFontFace categoriesFor: #GetDesignGlyphMetrics:glyphCount:glyphMetrics:isSideways:!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
-!IDWriteFontFace categoriesFor: #getDesignGlyphMetrics:glyphCount:isSideways:!**auto generated**!methods!public! !
-!IDWriteFontFace categoriesFor: #getFiles:!**auto generated**!methods!public! !
+!IDWriteFontFace categoriesFor: #getDesignGlyphMetrics:isSideways:!methods!public! !
 !IDWriteFontFace categoriesFor: #GetFiles:fontFiles:!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
 !IDWriteFontFace categoriesFor: #GetGdiCompatibleGlyphMetrics:pixelsPerDip:transform:useGdiNatural:glyphIndices:glyphCount:glyphMetrics:isSideways:!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
-!IDWriteFontFace categoriesFor: #getGdiCompatibleGlyphMetrics:pixelsPerDip:transform:useGdiNatural:glyphIndices:glyphCount:isSideways:!**auto generated**!methods!public! !
+!IDWriteFontFace categoriesFor: #getGdiCompatibleGlyphMetrics:pixelsPerDip:transform:useGdiNatural:glyphIndices:glyphCount:isSideways:!methods!public! !
 !IDWriteFontFace categoriesFor: #getGdiCompatibleMetrics:pixelsPerDip:transform:!**auto generated**!methods!public! !
 !IDWriteFontFace categoriesFor: #GetGdiCompatibleMetrics:pixelsPerDip:transform:fontFaceMetrics:!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
-!IDWriteFontFace categoriesFor: #getGlyphCount!**auto generated**!methods!public! !
 !IDWriteFontFace categoriesFor: #GetGlyphCount!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
-!IDWriteFontFace categoriesFor: #getGlyphIndices:codePointCount:!**auto generated**!methods!public! !
+!IDWriteFontFace categoriesFor: #getGlyphIndices:!methods!public! !
 !IDWriteFontFace categoriesFor: #GetGlyphIndices:codePointCount:glyphIndices:!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
-!IDWriteFontFace categoriesFor: #getGlyphRunOutline:glyphIndices:glyphAdvances:glyphOffsets:glyphCount:isSideways:isRightToLeft:geometrySink:!**auto generated**!methods!public! !
 !IDWriteFontFace categoriesFor: #GetGlyphRunOutline:glyphIndices:glyphAdvances:glyphOffsets:glyphCount:isSideways:isRightToLeft:geometrySink:!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
-!IDWriteFontFace categoriesFor: #getIndex!**auto generated**!methods!public! !
 !IDWriteFontFace categoriesFor: #GetIndex!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
-!IDWriteFontFace categoriesFor: #getMetrics!**auto generated**!methods!public! !
 !IDWriteFontFace categoriesFor: #GetMetrics:!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
 !IDWriteFontFace categoriesFor: #getRecommendedRenderingMode:pixelsPerDip:measuringMode:renderingParams:!**auto generated**!methods!public! !
 !IDWriteFontFace categoriesFor: #GetRecommendedRenderingMode:pixelsPerDip:measuringMode:renderingParams:renderingMode:!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
-!IDWriteFontFace categoriesFor: #getSimulations!**auto generated**!methods!public! !
 !IDWriteFontFace categoriesFor: #GetSimulations!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
-!IDWriteFontFace categoriesFor: #getType!**auto generated**!methods!public! !
 !IDWriteFontFace categoriesFor: #GetType!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
-!IDWriteFontFace categoriesFor: #isSymbolFont!**auto generated**!methods!public! !
 !IDWriteFontFace categoriesFor: #IsSymbolFont!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
-!IDWriteFontFace categoriesFor: #releaseFontTable:!**auto generated**!methods!public! !
+!IDWriteFontFace categoriesFor: #logFont!accessing!public! !
+!IDWriteFontFace categoriesFor: #metrics!accessing!public! !
 !IDWriteFontFace categoriesFor: #ReleaseFontTable:!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
+!IDWriteFontFace categoriesFor: #simulations!accessing!public! !
 !IDWriteFontFace categoriesFor: #tryGetFontTable:!**auto generated**!methods!public! !
 !IDWriteFontFace categoriesFor: #TryGetFontTable:tableData:tableSize:tableContext:exists:!**auto generated**!COM Interfaces-IDWriteFontFace!private! !
+!IDWriteFontFace categoriesFor: #type!accessing!public! !
 
 !IDWriteFontFace class methodsFor!
 
@@ -491,6 +450,36 @@ defineFunctions
 			argumentTypes: 'float float DWRITE_MATRIX* DWRITE_FONT_METRICS*';
 		defineFunction: #GetGdiCompatibleGlyphMetrics:pixelsPerDip:transform:useGdiNatural:glyphIndices:glyphCount:glyphMetrics:isSideways:
 			argumentTypes: 'float float DWRITE_MATRIX* bool word* dword DWRITE_GLYPH_METRICS* bool'
-! !
+!
+
+fromCanvas: aCanvas
+	| instance |
+	instance := self newPointer.
+	DirectWriteLibrary gdiInterop CreateFontFaceFromHdc: aCanvas asParameter fontFace: instance.
+	^instance!
+
+initialize
+	| types simulations |
+	types := (Array new: DWRITE_FONT_FACE_TYPE_RAW_CFF + 1)
+				at: DWRITE_FONT_FACE_TYPE_CFF + 1 put: #cff;
+				at: DWRITE_FONT_FACE_TYPE_TRUETYPE + 1 put: #trueType;
+				at: DWRITE_FONT_FACE_TYPE_OPENTYPE_COLLECTION + 1 put: #openType;
+				at: DWRITE_FONT_FACE_TYPE_TYPE1 + 1 put: #type1;
+				at: DWRITE_FONT_FACE_TYPE_VECTOR + 1 put: #vector;
+				at: DWRITE_FONT_FACE_TYPE_BITMAP + 1 put: #bitmap;
+				at: DWRITE_FONT_FACE_TYPE_UNKNOWN + 1 put: #unknown;
+				at: DWRITE_FONT_FACE_TYPE_RAW_CFF + 1 put: #rawCff;
+				isImmutable: true;
+				yourself.
+	self addClassConstant: 'Types' value: types.
+	simulations := (Array new: DWRITE_FONT_SIMULATIONS_OBLIQUE + 1)
+				at: DWRITE_FONT_SIMULATIONS_NONE + 1 put: #none;
+				at: DWRITE_FONT_SIMULATIONS_BOLD + 1 put: #bold;
+				at: DWRITE_FONT_SIMULATIONS_OBLIQUE + 1 put: #oblique;
+				isImmutable: true;
+				yourself.
+	self addClassConstant: 'Simulations' value: simulations! !
 !IDWriteFontFace class categoriesFor: #defineFunctions!**auto generated**!initializing!public! !
+!IDWriteFontFace class categoriesFor: #fromCanvas:!instance creation!public! !
+!IDWriteFontFace class categoriesFor: #initialize!public! !
 

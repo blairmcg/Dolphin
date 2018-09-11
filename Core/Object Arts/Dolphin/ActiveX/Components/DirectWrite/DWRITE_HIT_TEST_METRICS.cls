@@ -1,6 +1,6 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
-ExternalStructure subclass: #DWRITE_HIT_TEST_METRICS
+DirectWriteStructure subclass: #DWRITE_HIT_TEST_METRICS
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
