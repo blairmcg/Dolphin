@@ -32,20 +32,6 @@ getValidFields
 isValid
 	^(self flags allMask: 1)!
 
-printFieldsOn: aStream limit: anInteger
-	self isNull
-		ifTrue: 
-			[aStream nextPutAll: 'NULL'.
-			^self].
-	self isValid
-		ifTrue: 
-			[aStream
-				display: #format;
-				nextPut: $=;
-				print: self formatName
-			"Don't attempt to display the value as often this may result in overflow/underflow exceptions"]
-		ifFalse: [aStream nextPutAll: '<invalid>']!
-
 value
 	"Answer the <Number> value stored in the receiver, of nil if the receiver is not a valid value
 	or is of an unsupported format."
@@ -73,7 +59,6 @@ value
 !_FPIEEE_VALUE categoriesFor: #formatName!accessing!public! !
 !_FPIEEE_VALUE categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !_FPIEEE_VALUE categoriesFor: #isValid!public!testing! !
-!_FPIEEE_VALUE categoriesFor: #printFieldsOn:limit:!printing!private! !
 !_FPIEEE_VALUE categoriesFor: #value!accessing!public! !
 
 !_FPIEEE_VALUE class methodsFor!

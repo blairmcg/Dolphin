@@ -23,17 +23,6 @@ elementClass: anObject
 getValidFields
 	^#(#value)!
 
-printOn: aStream
-	"Print a string representation of self on aStream."
-
-	aStream
-		basicPrint: self;
-		nextPut: $(.
-	self isNull 
-		ifTrue: [aStream nextPutAll: 'NULL']
-		ifFalse: [aStream print: self value].
-	aStream nextPut: $).!
-
 value
 	"Answer the receiver's value field as a Smalltalk object."
 
@@ -41,7 +30,6 @@ value
 !StructurePointer categoriesFor: #elementClass!accessing!private! !
 !StructurePointer categoriesFor: #elementClass:!accessing!private! !
 !StructurePointer categoriesFor: #getValidFields!constants!private! !
-!StructurePointer categoriesFor: #printOn:!printing!public! !
 !StructurePointer categoriesFor: #value!accessing!public! !
 
 !StructurePointer class methodsFor!

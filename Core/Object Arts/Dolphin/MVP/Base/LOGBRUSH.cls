@@ -71,17 +71,6 @@ lbStyle: anInteger
 
 	bytes dwordAtOffset: 0 put: anInteger!
 
-printFieldsOn: aStream limit: anInteger 
-	aStream
-		display: 'style=';
-		print: self style;
-		space;
-		display: 'color=';
-		print: self color;
-		space;
-		display: 'hatch=';
-		print: self hatch!
-
 style
 	^self lbStyle!
 
@@ -98,7 +87,6 @@ style: anInteger
 !LOGBRUSH categoriesFor: #lbHatch:!**compiled accessors**!public! !
 !LOGBRUSH categoriesFor: #lbStyle!**compiled accessors**!public! !
 !LOGBRUSH categoriesFor: #lbStyle:!**compiled accessors**!public! !
-!LOGBRUSH categoriesFor: #printFieldsOn:limit:!printing!private! !
 !LOGBRUSH categoriesFor: #style!accessing!public! !
 !LOGBRUSH categoriesFor: #style:!accessing!public! !
 

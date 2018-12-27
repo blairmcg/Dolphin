@@ -56,17 +56,6 @@ lopnStyle: anInteger
 
 	bytes dwordAtOffset: 0 put: anInteger!
 
-printFieldsOn: aStream limit: anInteger 
-	aStream
-		display: 'style=';
-		print: self style;
-		space;
-		display: 'width=';
-		print: self width;
-		space;
-		display: 'color=';
-		print: self color!
-
 style
 	^self lopnStyle!
 
@@ -89,7 +78,6 @@ width: anInteger
 !LOGPEN categoriesFor: #lopnColor:!**compiled accessors**!public! !
 !LOGPEN categoriesFor: #lopnStyle!**compiled accessors**!public! !
 !LOGPEN categoriesFor: #lopnStyle:!**compiled accessors**!public! !
-!LOGPEN categoriesFor: #printFieldsOn:limit:!printing!private! !
 !LOGPEN categoriesFor: #style!accessing!public! !
 !LOGPEN categoriesFor: #style:!accessing!public! !
 !LOGPEN categoriesFor: #width!accessing!public! !

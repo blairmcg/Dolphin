@@ -37,13 +37,6 @@ asUIntPtr
 getValidFields
 	^#(#x #y)!
 
-printOn: aStream
-	"Append a short textual description of the receiver to aStream."
-
-	aStream
-		basicPrint: self;
-		nextPut: $(; print: self asPoint; nextPut: $)!
-
 value
 	"Answer the receiver's value field as an equivalent Smalltalk object (a <Point>)."
 
@@ -72,7 +65,6 @@ y: anObject
 !ExternalPoint categoriesFor: #asPoint!converting!public! !
 !ExternalPoint categoriesFor: #asUIntPtr!converting!public! !
 !ExternalPoint categoriesFor: #getValidFields!constants!private! !
-!ExternalPoint categoriesFor: #printOn:!printing!public! !
 !ExternalPoint categoriesFor: #value!accessing!public! !
 !ExternalPoint categoriesFor: #value:!accessing!public! !
 !ExternalPoint categoriesFor: #x!**compiled accessors**!public! !
