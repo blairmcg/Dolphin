@@ -17,23 +17,27 @@ Member variables:
 !LICINFO categoriesForClass!External-Data-Structured-COM! !
 !LICINFO methodsFor!
 
-dwSize: anObject 
-	"Set the receiver's dwSize field to the value of anObject."
+dwSize: anInteger
+	"Set the receiver's 'dwSize' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject!
+	bytes dwordAtOffset: 0 put: anInteger!
 
 fLicVerified
-	"Answer the receiver's fLicVerified field as a Smalltalk object."
+	"Answer the <Boolean> value of the receiver's 'fLicVerified' field."
 
 	^(bytes dwordAtOffset: ##(self offsetOf: #fLicVerified)) asBoolean!
 
 fRuntimeKeyAvail
-	"Answer the receiver's fRuntimeKeyAvail field as a Smalltalk object."
+	"Answer the <Boolean> value of the receiver's 'fRuntimeKeyAvail' field."
 
-	^(bytes dwordAtOffset: ##(self offsetOf: #fRuntimeKeyAvail)) asBoolean! !
+	^(bytes dwordAtOffset: ##(self offsetOf: #fRuntimeKeyAvail)) asBoolean!
+
+getValidFields
+	^#(#dwSize #fRuntimeKeyAvail #fLicVerified)! !
 !LICINFO categoriesFor: #dwSize:!**compiled accessors**!public! !
 !LICINFO categoriesFor: #fLicVerified!**compiled accessors**!public! !
 !LICINFO categoriesFor: #fRuntimeKeyAvail!**compiled accessors**!public! !
+!LICINFO categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 
 !LICINFO class methodsFor!
 

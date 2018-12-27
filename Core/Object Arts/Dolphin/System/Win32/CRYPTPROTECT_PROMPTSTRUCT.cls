@@ -36,6 +36,9 @@ dwSize: anInteger
 
 	bytes dwordAtOffset: 0 put: anInteger!
 
+getValidFields
+	^#(#dwSize #dwPromptFlags #hwndApp #szPrompt)!
+
 hwndApp
 	"Answer the <ExternalHandle> value of the receiver's 'hwndApp' field."
 
@@ -58,6 +61,7 @@ szPrompt: anUtf16String
 !CRYPTPROTECT_PROMPTSTRUCT categoriesFor: #dwPromptFlags!**compiled accessors**!public! !
 !CRYPTPROTECT_PROMPTSTRUCT categoriesFor: #dwPromptFlags:!**compiled accessors**!public! !
 !CRYPTPROTECT_PROMPTSTRUCT categoriesFor: #dwSize:!**compiled accessors**!public! !
+!CRYPTPROTECT_PROMPTSTRUCT categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !CRYPTPROTECT_PROMPTSTRUCT categoriesFor: #hwndApp!**compiled accessors**!public! !
 !CRYPTPROTECT_PROMPTSTRUCT categoriesFor: #hwndApp:!**compiled accessors**!public! !
 !CRYPTPROTECT_PROMPTSTRUCT categoriesFor: #szPrompt!**compiled accessors**!public! !

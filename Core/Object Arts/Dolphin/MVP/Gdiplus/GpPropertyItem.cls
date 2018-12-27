@@ -25,25 +25,28 @@ struct tagGpPropertyItem {
 !GpPropertyItem categoriesForClass!Unclassified! !
 !GpPropertyItem methodsFor!
 
+getValidFields
+	^#(#id #length #Type #Value)!
+
 id
-	"Answer the receiver's id field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'id' field."
 
-	^(bytes dwordAtOffset: 0)!
+	^bytes dwordAtOffset: 0!
 
-id: anObject
-	"Set the receiver's id field to the value of anObject."
+id: anInteger
+	"Set the receiver's 'id' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject!
+	bytes dwordAtOffset: 0 put: anInteger!
 
 length
-	"Answer the receiver's length field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'length' field."
 
-	^(bytes dwordAtOffset: 4)!
+	^bytes dwordAtOffset: ##(self offsetOf: #length)!
 
-length: anObject
-	"Set the receiver's length field to the value of anObject."
+length: anInteger
+	"Set the receiver's 'length' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 4 put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #length) put: anInteger!
 
 name
 	"Answer the receiver's id (property tag) as a string.  If unknown, answer the receiver's id as a hex string."
@@ -55,14 +58,14 @@ name
 		ifNone: [self id hex]!
 
 Type
-	"Answer the receiver's Type field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Type' field."
 
-	^(bytes wordAtOffset: 8)!
+	^bytes wordAtOffset: ##(self offsetOf: #Type)!
 
-Type: anObject 
-	"Set the receiver's Type field to the value of anObject."
+Type: anInteger
+	"Set the receiver's 'Type' field to the value of the argument, anInteger"
 
-	bytes wordAtOffset: 8 put: anObject!
+	bytes wordAtOffset: ##(self offsetOf: #Type) put: anInteger!
 
 typeName
 	"Answer the receiver's type (property tag type) as a string."
@@ -71,14 +74,14 @@ typeName
 		detect: [:e | (e beginsWith: 'PropertyTagType') and: [self Type = (GdiplusConstants at: e)]]!
 
 Value
-	"Answer the receiver's Value field as a Smalltalk object."
+	"Answer the <ExternalAddress> value of the receiver's 'Value' field."
 
-	^(bytes dwordAtOffset: 12) asExternalAddress!
+	^(bytes uintPtrAtOffset: ##(self offsetOf: #Value)) asExternalAddress!
 
-Value: anObject
-	"Set the receiver's Value field to the value of anObject."
+Value: anExternalAddress
+	"Set the receiver's 'Value' field to the value of the argument, anExternalAddress"
 
-	bytes dwordAtOffset: 12 put: anObject!
+	bytes uintPtrAtOffset: ##(self offsetOf: #Value) put: anExternalAddress!
 
 valueArray
 	"Answer the array pointed at by the receiver's Value. The receiver's type gives a hint at
@@ -99,6 +102,7 @@ valueArray
 	"Next line won't work with an arary returned, i.e., if length > 8."
 	type == 10 ifTrue: [^(address sdwordAtOffset: 0) / (address sdwordAtOffset: 4)].
 	self error: 'unrecognised type'! !
+!GpPropertyItem categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !GpPropertyItem categoriesFor: #id!**compiled accessors**!public! !
 !GpPropertyItem categoriesFor: #id:!**compiled accessors**!public! !
 !GpPropertyItem categoriesFor: #length!**compiled accessors**!public! !

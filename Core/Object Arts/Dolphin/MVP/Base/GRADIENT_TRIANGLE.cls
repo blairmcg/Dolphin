@@ -25,35 +25,39 @@ struct tagGRADIENT_TRIANGLE {
 !GRADIENT_TRIANGLE categoriesForClass!Win32-Structs! !
 !GRADIENT_TRIANGLE methodsFor!
 
+getValidFields
+	^#(#Vertex1 #Vertex2 #Vertex3)!
+
 Vertex1
-	"Answer the receiver's Vertex1 field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Vertex1' field."
 
 	^bytes dwordAtOffset: 0!
 
-Vertex1: anObject 
-	"Set the receiver's Vertex1 field to the value of anObject."
+Vertex1: anInteger
+	"Set the receiver's 'Vertex1' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject!
+	bytes dwordAtOffset: 0 put: anInteger!
 
 Vertex2
-	"Answer the receiver's Vertex2 field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Vertex2' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #Vertex2)!
 
-Vertex2: anObject 
-	"Set the receiver's Vertex2 field to the value of anObject."
+Vertex2: anInteger
+	"Set the receiver's 'Vertex2' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #Vertex2) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #Vertex2) put: anInteger!
 
 Vertex3
-	"Answer the receiver's Vertex3 field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Vertex3' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #Vertex3)!
 
-Vertex3: anObject 
-	"Set the receiver's Vertex3 field to the value of anObject."
+Vertex3: anInteger
+	"Set the receiver's 'Vertex3' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #Vertex3) put: anObject! !
+	bytes dwordAtOffset: ##(self offsetOf: #Vertex3) put: anInteger! !
+!GRADIENT_TRIANGLE categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !GRADIENT_TRIANGLE categoriesFor: #Vertex1!**compiled accessors**!public! !
 !GRADIENT_TRIANGLE categoriesFor: #Vertex1:!**compiled accessors**!public! !
 !GRADIENT_TRIANGLE categoriesFor: #Vertex2!**compiled accessors**!public! !

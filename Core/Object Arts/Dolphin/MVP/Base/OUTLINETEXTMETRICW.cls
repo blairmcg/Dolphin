@@ -30,6 +30,9 @@ fullName
 	
 	^Utf16String fromAddress: bytes yourAddress + self otmpFullName!
 
+getValidFields
+	^#(#dwSize #otmTextMetrics #otmPanoseNumber #otmfsSelection #otmfsType #otmsCharSlopeRise #otmsCharSlopeRun #otmItalicAngle #otmEMSquare #otmAscent #otmDescent #otmLineGap #otmsCapEmHeight #otmsXHeight #otmrcFontBox #otmMacAscent #otmMacDescent #otmMacLineGap #otmusMinimumPPEM #otmptSubscriptSize #otmptSubscriptOffset #otmptSuperscriptSize #otmptSuperscriptOffset #otmsStrikeoutSize #otmsStrikeoutPosition #otmsUnderscoreSize #otmsUnderscorePosition #otmpFamilyName #otmpFaceName #otmpStyleName #otmpFullName)!
+
 otmAscent
 	"Answer the <Integer> value of the receiver's 'otmAscent' field."
 
@@ -190,6 +193,7 @@ styleName
 !OUTLINETEXTMETRICW categoriesFor: #faceName!accessing!public! !
 !OUTLINETEXTMETRICW categoriesFor: #familyName!accessing!public! !
 !OUTLINETEXTMETRICW categoriesFor: #fullName!accessing!public! !
+!OUTLINETEXTMETRICW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !OUTLINETEXTMETRICW categoriesFor: #otmAscent!**compiled accessors**!public! !
 !OUTLINETEXTMETRICW categoriesFor: #otmDescent!**compiled accessors**!public! !
 !OUTLINETEXTMETRICW categoriesFor: #otmEMSquare!**compiled accessors**!public! !

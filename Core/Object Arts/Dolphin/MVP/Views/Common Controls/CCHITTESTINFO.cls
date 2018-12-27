@@ -12,9 +12,12 @@ CCHITTESTINFO comment: 'CCHITTESTINFO is an ExternalStructure class which implem
 !CCHITTESTINFO methodsFor!
 
 flags
-	"Answer the receiver's flags field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'flags' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #flags)!
+
+getValidFields
+	^#(#pt #flags)!
 
 handle
 	"Private - Answer the item 'handle' associated with the receiver."
@@ -26,15 +29,16 @@ isItemHit
 
 	^self handle notNull!
 
-pt: anObject 
-	"Set the receiver's pt field to the value of anObject."
+pt: aPOINTL
+	"Set the receiver's 'pt' field to the value of the argument, aPOINTL"
 
-	anObject 
+	aPOINTL
 		replaceBytesOf: bytes
 		from: 1
 		to: ##(POINTL basicByteSize)
 		startingAt: 1! !
 !CCHITTESTINFO categoriesFor: #flags!**compiled accessors**!public! !
+!CCHITTESTINFO categoriesFor: #getValidFields!constants!private! !
 !CCHITTESTINFO categoriesFor: #handle!accessing!private! !
 !CCHITTESTINFO categoriesFor: #isItemHit!public!testing! !
 !CCHITTESTINFO categoriesFor: #pt:!**compiled accessors**!public! !

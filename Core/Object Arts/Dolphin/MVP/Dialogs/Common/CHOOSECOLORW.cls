@@ -51,6 +51,9 @@ flags: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #flags) put: anInteger!
 
+getValidFields
+	^#(#dwSize #hwndOwner #hInstance #rgbResult #lpCustColors #flags #lpfnHook)!
+
 hInstance: anExternalHandle
 	"Set the receiver's 'hInstance' field to the value of the argument, anExternalHandle"
 
@@ -99,6 +102,7 @@ rgbResult: anInteger
 !CHOOSECOLORW categoriesFor: #dwSize:!**compiled accessors**!public! !
 !CHOOSECOLORW categoriesFor: #flags!**compiled accessors**!public! !
 !CHOOSECOLORW categoriesFor: #flags:!**compiled accessors**!public! !
+!CHOOSECOLORW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !CHOOSECOLORW categoriesFor: #hInstance:!**compiled accessors**!public! !
 !CHOOSECOLORW categoriesFor: #hookFlag!constants!public! !
 !CHOOSECOLORW categoriesFor: #hwndOwner:!**compiled accessors**!public! !
@@ -114,7 +118,7 @@ rgbResult: anInteger
 defineFields
 	"Define the fields of the CHOOSECOLOR structure.
 
-	CHOOSECOLOR compileDefinition
+	self compileDefinition
 
 		typedef [uuid(87b4c5d1-026e-11d3-9fd7-00a0cc3e4a32), helpstring('CHOOSECOLOR is used in conjunction with <ColorDialog> to pop a common file dialog to select a colour.')]
 		struct tagCHOOSECOLOR {

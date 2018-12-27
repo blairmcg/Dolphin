@@ -11,15 +11,19 @@ PAINTSTRUCT comment: ''!
 !PAINTSTRUCT methodsFor!
 
 fErase
-	"Answer the receiver's fErase field as a Smalltalk object."
+	"Answer the <Boolean> value of the receiver's 'fErase' field."
 
 	^(bytes dwordAtOffset: ##(self offsetOf: #fErase)) asBoolean!
 
+getValidFields
+	^#(#hdc #fErase #rcPaint)!
+
 rcPaint
-	"Answer the receiver's rcPaint field as a Smalltalk object."
+	"Answer the <RECT> value of the receiver's 'rcPaint' field."
 
 	^RECT fromAddress: bytes yourAddress + ##(self offsetOf: #rcPaint)! !
 !PAINTSTRUCT categoriesFor: #fErase!**compiled accessors**!public! !
+!PAINTSTRUCT categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !PAINTSTRUCT categoriesFor: #rcPaint!**compiled accessors**!public! !
 
 !PAINTSTRUCT class methodsFor!

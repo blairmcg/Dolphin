@@ -45,6 +45,9 @@ displayOn: aStream
 		putAll: buf
 		startingAt: 1!
 
+getValidFields
+	^#(#sa_family)!
+
 initialize
 	self sa_family: self class addressFamily!
 
@@ -61,6 +64,7 @@ sa_family: anInteger
 
 	bytes wordAtOffset: 0 put: anInteger! !
 !SOCKADDR categoriesFor: #displayOn:!displaying!public! !
+!SOCKADDR categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !SOCKADDR categoriesFor: #initialize!initializing!private! !
 !SOCKADDR categoriesFor: #printFieldsOn:limit:!development!printing!private! !
 !SOCKADDR categoriesFor: #sa_family!**compiled accessors**!public! !

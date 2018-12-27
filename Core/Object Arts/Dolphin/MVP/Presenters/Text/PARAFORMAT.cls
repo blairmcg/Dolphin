@@ -76,6 +76,9 @@ dxStartIndent: anInteger
 
 	bytes sdwordAtOffset: ##(self offsetOf: #dxStartIndent) put: anInteger!
 
+getValidFields
+	^#(#dwSize #dwMask #wNumbering #wEffects #dxStartIndent #dxRightIndent #dxOffset #wAlignment #cTabCount #rgxTabs)!
+
 maskIn: anInteger
 	"Private - OR in to contents mask member the bit flags represented by anInteger.
 	Answer the receiver."
@@ -162,6 +165,7 @@ wNumbering: anInteger
 !PARAFORMAT categoriesFor: #dxRightIndent:!**compiled accessors**!public! !
 !PARAFORMAT categoriesFor: #dxStartIndent!**compiled accessors**!public! !
 !PARAFORMAT categoriesFor: #dxStartIndent:!**compiled accessors**!public! !
+!PARAFORMAT categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !PARAFORMAT categoriesFor: #maskIn:!accessing!private! !
 !PARAFORMAT categoriesFor: #offset!accessing!public! !
 !PARAFORMAT categoriesFor: #offset:!accessing!public! !

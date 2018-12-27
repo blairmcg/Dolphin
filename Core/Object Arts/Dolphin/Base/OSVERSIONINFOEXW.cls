@@ -77,6 +77,9 @@ dwSize: anInteger
 
 	bytes dwordAtOffset: 0 put: anInteger!
 
+getValidFields
+	^#(#dwSize #dwMajorVersion #dwMinorVersion #dwBuildNumber #dwPlatformId #szCSDVersion #wServicePackMajor #wServicePackMinor #wSuiteMask #wProductType)!
+
 szCSDVersion
 	"Answer the <Utf16String> value of the receiver's 'szCSDVersion' field."
 
@@ -130,6 +133,7 @@ wSuiteMask: anInteger
 !OSVERSIONINFOEXW categoriesFor: #dwPlatformId!**compiled accessors**!public! !
 !OSVERSIONINFOEXW categoriesFor: #dwPlatformId:!**compiled accessors**!public! !
 !OSVERSIONINFOEXW categoriesFor: #dwSize:!**compiled accessors**!public! !
+!OSVERSIONINFOEXW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !OSVERSIONINFOEXW categoriesFor: #szCSDVersion!**compiled accessors**!public! !
 !OSVERSIONINFOEXW categoriesFor: #wProductType!**compiled accessors**!public! !
 !OSVERSIONINFOEXW categoriesFor: #wProductType:!**compiled accessors**!public! !
@@ -175,10 +179,6 @@ defineFields
 		defineField: #wSuiteMask type: WORDField new offset: 280;
 		defineField: #wProductType type: BYTEField new offset: 282;
 		defineField: #wReserved type: BYTEField new beFiller offset: 283.
-	self byteSize: 284!
-
-getFieldList
-	^#(#dwSize #dwMajorVersion #dwMinorVersion #dwBuildNumber #dwPlatformId #szCSDVersion #wServicePackMajor #wServicePackMinor #wSuiteMask #wProductType)! !
+	self byteSize: 284! !
 !OSVERSIONINFOEXW class categoriesFor: #defineFields!**auto generated**!initializing!public! !
-!OSVERSIONINFOEXW class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 

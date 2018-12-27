@@ -41,6 +41,9 @@ flags
 
 	^bytes dwordAtOffset: 0!
 
+getValidFields
+	^#(#flags #cause #enable #status #operand1 #operand2)!
+
 isDivide
 	"Answer whether a division operation was being attemped when the exception occurred."
 
@@ -153,6 +156,7 @@ roundingModeName
 !_FPIEEE_RECORD categoriesFor: #causeNames!accessing!public! !
 !_FPIEEE_RECORD categoriesFor: #enable!**compiled accessors**!public! !
 !_FPIEEE_RECORD categoriesFor: #flags!**compiled accessors**!public! !
+!_FPIEEE_RECORD categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !_FPIEEE_RECORD categoriesFor: #isDivide!public!testing! !
 !_FPIEEE_RECORD categoriesFor: #isOverflow!public!testing! !
 !_FPIEEE_RECORD categoriesFor: #isUnderflow!public!testing! !
@@ -201,9 +205,6 @@ exceptionFlags: anInteger do: aMonadicValuable
 					(anInteger anyMask: mask) ifTrue: [aMonadicValuable value: each].
 					mask << 1]]!
 
-getFieldList
-	^#(#flags #cause #enable #status #operand1 #operand2)!
-
 operationCodes
 	^#(#Add #Subtract #Multiply #Divide #SquareRoot #Remainder #Compare #Convert #Round #Truncate #Floor #Ceil #Acos #Asin #Atan #Atan2 #Cabs #Cos #Cosh #Exp #Fabs #Fmod #Frexp #Hypot #Ldexp #Log #Log10 #Modf #Pow #Sin #Sinh #Tan #Tanh #Y0 #Y1 #Yn #Logb #Nextafter #Negate #Fmin #Fmax #ConvertTrunc #Addps #Addss #Subps #Subss #Mulps #Mulss #Divps #Divss #Sqrtps #Sqrtss #Maxps #Maxss #Minps #Minss #Cmpps #Cmpss #Comiss #UComiss #Cvtpi2ps #Cvtsi2ss #Cvtps2pi #Cvtss2si #Cvttps2pi #Cvttss2si #Addsubps #Haddps #Hsubps #Roundps #Roundss #Dpps #Addpd #Addsd #Subpd #Subsd #Mulpd #Mulsd #Divpd #Divsd #Sqrtpd #Sqrtsd #Maxpd #Maxsd #Minpd #Minsd #Cmppd #Cmpsd #Comisd #UComisd #Cvtpd2pi #Cvtsd2si #Cvttpd2pi #Cvttsd2si #Cvtps2pd #Cvtss2sd #Cvtpd2ps #Cvtsd2ss #Cvtdq2ps #Cvttps2dq #Cvtps2dq #Cvttpd2dq #Cvtpd2dq #Addsubpd #Haddpd #Hsubpd #Roundpd #Roundsd #Dppd #Fma #FmaSingle #FmaDouble #Fms #FmsSingle #FmsDouble #Fnma #FnmaSingle #FnmaDouble #Famin #Famax)!
 
@@ -228,7 +229,6 @@ roundingModes
 !_FPIEEE_RECORD class categoriesFor: #defineFields!initializing!public! !
 !_FPIEEE_RECORD class categoriesFor: #exceptionFlags!constants!public! !
 !_FPIEEE_RECORD class categoriesFor: #exceptionFlags:do:!helpers!private! !
-!_FPIEEE_RECORD class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 !_FPIEEE_RECORD class categoriesFor: #operationCodes!constants!public! !
 !_FPIEEE_RECORD class categoriesFor: #precisionModes!constants!public! !
 !_FPIEEE_RECORD class categoriesFor: #printFlags:on:!helpers!private! !

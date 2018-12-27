@@ -79,6 +79,9 @@ fmt: anInteger
 format: anInteger
 	self fmt: anInteger; maskIn: LVCF_FMT!
 
+getValidFields
+	^#(#mask #fmt #cx #pszText #cchTextMax #iSubItem #iImage #iOrder #cxMin #cxDefault #cxIdeal)!
+
 iImage
 	"Answer the <Integer> value of the receiver's 'iImage' field."
 
@@ -187,6 +190,7 @@ width: pixelWidth
 !LVCOLUMNW categoriesFor: #fmt!**compiled accessors**!public! !
 !LVCOLUMNW categoriesFor: #fmt:!**compiled accessors**!public! !
 !LVCOLUMNW categoriesFor: #format:!accessing!public! !
+!LVCOLUMNW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !LVCOLUMNW categoriesFor: #iImage!**compiled accessors**!public! !
 !LVCOLUMNW categoriesFor: #iImage:!**compiled accessors**!public! !
 !LVCOLUMNW categoriesFor: #image:!accessing!public! !

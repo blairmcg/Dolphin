@@ -10,24 +10,28 @@ LHITTESTINFO comment: ''!
 !LHITTESTINFO categoriesForClass!External-Data-Structured-Win32! !
 !LHITTESTINFO methodsFor!
 
+getValidFields
+	^#(#pt #item)!
+
 item
-	"Answer the receiver's item field as a Smalltalk object."
+	"Answer the <LITEM> value of the receiver's 'item' field."
 
 	^LITEM fromAddress: bytes yourAddress + ##(self offsetOf: #item)!
 
 pt
-	"Answer the receiver's pt field as a Smalltalk object."
+	"Answer the <POINTL> value of the receiver's 'pt' field."
 
 	^POINTL fromAddress: bytes yourAddress!
 
-pt: anObject 
-	"Set the receiver's pt field to the value of anObject."
+pt: aPOINTL
+	"Set the receiver's 'pt' field to the value of the argument, aPOINTL"
 
-	anObject 
+	aPOINTL
 		replaceBytesOf: bytes
 		from: 1
 		to: ##(POINTL basicByteSize)
 		startingAt: 1! !
+!LHITTESTINFO categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !LHITTESTINFO categoriesFor: #item!**compiled accessors**!public! !
 !LHITTESTINFO categoriesFor: #pt!**compiled accessors**!public! !
 !LHITTESTINFO categoriesFor: #pt:!**compiled accessors**!public! !

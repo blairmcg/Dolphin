@@ -22,25 +22,29 @@ struct tagGdiplusStartupOutput {
 !GdiplusStartupOutput categoriesForClass!Unclassified! !
 !GdiplusStartupOutput methodsFor!
 
+getValidFields
+	^#(#NotificationHook #NotificationUnhook)!
+
 NotificationHook
-	"Answer the receiver's NotificationHook field as a Smalltalk object."
+	"Answer the <ExternalAddress> value of the receiver's 'NotificationHook' field."
 
-	^(bytes dwordAtOffset: 0) asExternalAddress!
+	^(bytes uintPtrAtOffset: 0) asExternalAddress!
 
-NotificationHook: anObject
-	"Set the receiver's NotificationHook field to the value of anObject."
+NotificationHook: anExternalAddress
+	"Set the receiver's 'NotificationHook' field to the value of the argument, anExternalAddress"
 
-	bytes dwordAtOffset: 0 put: anObject!
+	bytes uintPtrAtOffset: 0 put: anExternalAddress!
 
 NotificationUnhook
-	"Answer the receiver's NotificationUnhook field as a Smalltalk object."
+	"Answer the <ExternalAddress> value of the receiver's 'NotificationUnhook' field."
 
-	^(bytes dwordAtOffset: 4) asExternalAddress!
+	^(bytes uintPtrAtOffset: ##(self offsetOf: #NotificationUnhook)) asExternalAddress!
 
-NotificationUnhook: anObject
-	"Set the receiver's NotificationUnhook field to the value of anObject."
+NotificationUnhook: anExternalAddress
+	"Set the receiver's 'NotificationUnhook' field to the value of the argument, anExternalAddress"
 
-	bytes dwordAtOffset: 4 put: anObject! !
+	bytes uintPtrAtOffset: ##(self offsetOf: #NotificationUnhook) put: anExternalAddress! !
+!GdiplusStartupOutput categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !GdiplusStartupOutput categoriesFor: #NotificationHook!**compiled accessors**!public! !
 !GdiplusStartupOutput categoriesFor: #NotificationHook:!**compiled accessors**!public! !
 !GdiplusStartupOutput categoriesFor: #NotificationUnhook!**compiled accessors**!public! !

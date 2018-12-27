@@ -17,10 +17,14 @@ Fields:
 !PARAMDESCEX categoriesForClass!External-Data-Structured-COM! !
 !PARAMDESCEX methodsFor!
 
+getValidFields
+	^#(#varDefaultValue)!
+
 varDefaultValue
-	"Answer the receiver's varDefaultValue field as a Smalltalk object."
+	"Answer the <VARIANT> value of the receiver's 'varDefaultValue' field."
 
 	^VARIANT fromAddress: bytes yourAddress + ##(self offsetOf: #varDefaultValue)! !
+!PARAMDESCEX categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !PARAMDESCEX categoriesFor: #varDefaultValue!**compiled accessors**!public! !
 
 !PARAMDESCEX class methodsFor!

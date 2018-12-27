@@ -14,6 +14,9 @@ This Supercedes the TV_HITTESTINFO class present in release 2.1 and earlier.'!
 !TVHITTESTINFO categoriesForClass!External-Data-Structured-Win32! !
 !TVHITTESTINFO methodsFor!
 
+getValidFields
+	^#(#pt #flags #hItem)!
+
 handle
 	"Private - Answer the item 'handle' associated with the receiver.
 	In the case of a TreeView hit-test, this is tree view item handle."
@@ -21,7 +24,7 @@ handle
 	^self hItem!
 
 hItem
-	"Answer the receiver's hItem field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'hItem' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #hItem)!
 
@@ -29,6 +32,7 @@ item
 	"Answer the 'item' which has been hit (in this case the handle of node)."
 
 	^self hItem! !
+!TVHITTESTINFO categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !TVHITTESTINFO categoriesFor: #handle!accessing!private! !
 !TVHITTESTINFO categoriesFor: #hItem!**compiled accessors**!public! !
 !TVHITTESTINFO categoriesFor: #item!accessing!public! !

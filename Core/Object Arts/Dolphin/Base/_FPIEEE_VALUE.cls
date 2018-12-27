@@ -26,6 +26,9 @@ formatName
 
 	^self class formatCodes at: self format + 1 ifAbsent: [#Unknown]!
 
+getValidFields
+	^#(#flags)!
+
 isValid
 	^(self flags allMask: 1)!
 
@@ -68,6 +71,7 @@ value
 !_FPIEEE_VALUE categoriesFor: #flags!**compiled accessors**!public! !
 !_FPIEEE_VALUE categoriesFor: #format!accessing!public! !
 !_FPIEEE_VALUE categoriesFor: #formatName!accessing!public! !
+!_FPIEEE_VALUE categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !_FPIEEE_VALUE categoriesFor: #isValid!public!testing! !
 !_FPIEEE_VALUE categoriesFor: #printFieldsOn:limit:!printing!private! !
 !_FPIEEE_VALUE categoriesFor: #value!accessing!public! !
@@ -86,11 +90,7 @@ defineFields
 		defineField: #filler type: DWORDField filler!
 
 formatCodes
-	^#(#Fp32 #Fp64 #Fp80 #Fp128 #I16 #I32 #I64 #U16 #U32 #U64 #Bcd80 #Compare #String #Fp82)!
-
-getFieldList
-	^#(#flags)! !
+	^#(#Fp32 #Fp64 #Fp80 #Fp128 #I16 #I32 #I64 #U16 #U32 #U64 #Bcd80 #Compare #String #Fp82)! !
 !_FPIEEE_VALUE class categoriesFor: #defineFields!initializing!public! !
 !_FPIEEE_VALUE class categoriesFor: #formatCodes!constants!public! !
-!_FPIEEE_VALUE class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 

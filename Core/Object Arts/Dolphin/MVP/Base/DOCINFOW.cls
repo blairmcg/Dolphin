@@ -26,6 +26,9 @@ fwType: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #fwType) put: anInteger!
 
+getValidFields
+	^#(#dwSize #lpszDocName #lpszOutput #lpszDatatype #fwType)!
+
 lpszDatatype: anUtf16String
 	"Set the receiver's 'lpszDatatype' field to the value of the argument, anUtf16String"
 
@@ -43,6 +46,7 @@ lpszOutput: anUtf16String
 !DOCINFOW categoriesFor: #docName:!accessing!public! !
 !DOCINFOW categoriesFor: #dwSize:!**compiled accessors**!public! !
 !DOCINFOW categoriesFor: #fwType:!**compiled accessors**!public! !
+!DOCINFOW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !DOCINFOW categoriesFor: #lpszDatatype:!**compiled accessors**!public! !
 !DOCINFOW categoriesFor: #lpszDocName:!**compiled accessors**!public! !
 !DOCINFOW categoriesFor: #lpszOutput:!**compiled accessors**!public! !

@@ -25,36 +25,40 @@ struct tagGpPathData {
 !GpPathData methodsFor!
 
 Count
-	"Answer the receiver's Count field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Count' field."
 
-	^(bytes sdwordAtOffset: 0)!
+	^bytes sdwordAtOffset: 0!
 
-Count: anObject
-	"Set the receiver's Count field to the value of anObject."
+Count: anInteger
+	"Set the receiver's 'Count' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: 0 put: anObject!
+	bytes sdwordAtOffset: 0 put: anInteger!
+
+getValidFields
+	^#(#Count #Points #Types)!
 
 Points
-	"Answer the receiver's Points field as a Smalltalk object."
+	"Answer the <POINTF> value of the receiver's 'Points' field."
 
-	^POINTF fromAddress: (bytes sdwordAtOffset: 4)!
+	^POINTF fromAddress: (bytes intPtrAtOffset: ##(self offsetOf: #Points))!
 
-Points: anObject
-	"Set the receiver's Points field to the value of anObject."
+Points: aPOINTF
+	"Set the receiver's 'Points' field to the value of the argument, aPOINTF"
 
-	bytes dwordAtOffset: 4 put: anObject yourAddress!
+	bytes uintPtrAtOffset: ##(self offsetOf: #Points) put: aPOINTF yourAddress!
 
 Types
-	"Answer the receiver's Types field as a Smalltalk object."
+	"Answer the <BYTE> value of the receiver's 'Types' field."
 
-	^BYTE fromAddress: (bytes sdwordAtOffset: 8)!
+	^BYTE fromAddress: (bytes intPtrAtOffset: ##(self offsetOf: #Types))!
 
-Types: anObject
-	"Set the receiver's Types field to the value of anObject."
+Types: aBYTE
+	"Set the receiver's 'Types' field to the value of the argument, aBYTE"
 
-	bytes dwordAtOffset: 8 put: anObject yourAddress! !
+	bytes uintPtrAtOffset: ##(self offsetOf: #Types) put: aBYTE yourAddress! !
 !GpPathData categoriesFor: #Count!**compiled accessors**!public! !
 !GpPathData categoriesFor: #Count:!**compiled accessors**!public! !
+!GpPathData categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !GpPathData categoriesFor: #Points!**compiled accessors**!public! !
 !GpPathData categoriesFor: #Points:!**compiled accessors**!public! !
 !GpPathData categoriesFor: #Types!**compiled accessors**!public! !

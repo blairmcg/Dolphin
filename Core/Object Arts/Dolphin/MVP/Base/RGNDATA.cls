@@ -10,55 +10,59 @@ RGNDATA comment: ''!
 !RGNDATA categoriesForClass!External-Data-Structured-Win32! !
 !RGNDATA methodsFor!
 
-dwSize: anObject 
-	"Set the receiver's dwSize field to the value of anObject."
+dwSize: anInteger
+	"Set the receiver's 'dwSize' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject!
+	bytes dwordAtOffset: 0 put: anInteger!
+
+getValidFields
+	^#(#dwSize #iType #nCount #nRgnSize #rcBound)!
 
 iType
-	"Answer the receiver's iType field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'iType' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #iType)!
 
-iType: anObject 
-	"Set the receiver's iType field to the value of anObject."
+iType: anInteger
+	"Set the receiver's 'iType' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #iType) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #iType) put: anInteger!
 
 nCount
-	"Answer the receiver's nCount field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'nCount' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #nCount)!
 
-nCount: anObject 
-	"Set the receiver's nCount field to the value of anObject."
+nCount: anInteger
+	"Set the receiver's 'nCount' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #nCount) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #nCount) put: anInteger!
 
 nRgnSize
-	"Answer the receiver's nRgnSize field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'nRgnSize' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #nRgnSize)!
 
-nRgnSize: anObject 
-	"Set the receiver's nRgnSize field to the value of anObject."
+nRgnSize: anInteger
+	"Set the receiver's 'nRgnSize' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #nRgnSize) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #nRgnSize) put: anInteger!
 
 rcBound
-	"Answer the receiver's rcBound field as a Smalltalk object."
+	"Answer the <RECT> value of the receiver's 'rcBound' field."
 
 	^RECT fromAddress: bytes yourAddress + ##(self offsetOf: #rcBound)!
 
-rcBound: anObject 
-	"Set the receiver's rcBound field to the value of anObject."
+rcBound: aRECT
+	"Set the receiver's 'rcBound' field to the value of the argument, aRECT"
 
-	anObject 
+	aRECT
 		replaceBytesOf: bytes
 		from: ##((self offsetOf: #rcBound) + 1)
 		to: ##((self offsetOf: #rcBound) + RECT basicByteSize)
 		startingAt: 1! !
 !RGNDATA categoriesFor: #dwSize:!**compiled accessors**!public! !
+!RGNDATA categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !RGNDATA categoriesFor: #iType!**compiled accessors**!public! !
 !RGNDATA categoriesFor: #iType:!**compiled accessors**!public! !
 !RGNDATA categoriesFor: #nCount!**compiled accessors**!public! !

@@ -23,6 +23,9 @@ struct tagNCCALCSIZE_PARAMS {
 !NCCALCSIZE_PARAMS categoriesForClass!Win32-Structs! !
 !NCCALCSIZE_PARAMS methodsFor!
 
+getValidFields
+	^#(#rgrc #lppos)!
+
 lppos
 	"Answer the <WINDOWPOS> value of the receiver's 'lppos' field."
 
@@ -51,6 +54,7 @@ rgrc: aStructureArrayOfRECT
 		from: 1
 		to: size
 		startingAt: 1! !
+!NCCALCSIZE_PARAMS categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NCCALCSIZE_PARAMS categoriesFor: #lppos!**compiled accessors**!public! !
 !NCCALCSIZE_PARAMS categoriesFor: #lppos:!**compiled accessors**!public! !
 !NCCALCSIZE_PARAMS categoriesFor: #rgrc!**compiled accessors**!public! !

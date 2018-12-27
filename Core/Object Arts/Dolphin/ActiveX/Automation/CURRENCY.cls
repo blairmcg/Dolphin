@@ -23,14 +23,17 @@ asVariant
 		yourself!
 
 cy
-	"Answer the receiver's cy field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'cy' field."
 
 	^bytes sqwordAtOffset: 0!
 
-cy: anObject 
-	"Set the receiver's cy field to the value of anObject."
+cy: anInteger
+	"Set the receiver's 'cy' field to the value of the argument, anInteger"
 
-	bytes sqwordAtOffset: 0 put: anObject!
+	bytes sqwordAtOffset: 0 put: anInteger!
+
+getValidFields
+	^#(#cy)!
 
 printOn: aStream
 	"Append a textual representation of the receiver to aStream."
@@ -54,6 +57,7 @@ value: newValue
 !CURRENCY categoriesFor: #asVariant!converting!public! !
 !CURRENCY categoriesFor: #cy!**compiled accessors**!public! !
 !CURRENCY categoriesFor: #cy:!**compiled accessors**!public! !
+!CURRENCY categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !CURRENCY categoriesFor: #printOn:!printing!public! !
 !CURRENCY categoriesFor: #value!accessing!public! !
 !CURRENCY categoriesFor: #value:!accessing!public! !

@@ -41,6 +41,9 @@ struct tagTEXTMETRIC {
 !TEXTMETRICW categoriesForClass!Win32-Structs! !
 !TEXTMETRICW methodsFor!
 
+getValidFields
+	^#(#tmHeight #tmAscent #tmDescent #tmInternalLeading #tmExternalLeading #tmAveCharWidth #tmMaxCharWidth #tmWeight #tmOverhang #tmDigitizedAspectX #tmDigitizedAspectY #tmFirstChar #tmLastChar #tmDefaultChar #tmBreakChar #tmItalic #tmUnderlined #tmStruckOut #tmPitchAndFamily #tmCharSet)!
+
 tmAscent
 	"Answer the <Integer> value of the receiver's 'tmAscent' field."
 
@@ -140,6 +143,7 @@ tmWeight
 	"Answer the <Integer> value of the receiver's 'tmWeight' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #tmWeight)! !
+!TEXTMETRICW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !TEXTMETRICW categoriesFor: #tmAscent!**compiled accessors**!public! !
 !TEXTMETRICW categoriesFor: #tmAveCharWidth!**compiled accessors**!public! !
 !TEXTMETRICW categoriesFor: #tmBreakChar!**compiled accessors**!public! !

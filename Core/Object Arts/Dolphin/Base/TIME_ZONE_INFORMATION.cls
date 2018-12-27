@@ -55,6 +55,9 @@ daylightName
 
 	^Utf16String fromAddress: bytes yourAddress + ##(self offsetOf: #daylightName)!
 
+getValidFields
+	^#(#bias #standardName #standardDate #standardBias #daylightName #daylightDate #daylightBias)!
+
 printableFields
 	| printable |
 	printable := super printableFields.
@@ -88,6 +91,7 @@ zoneId: anInteger
 !TIME_ZONE_INFORMATION categoriesFor: #daylightBias!**compiled accessors**!public! !
 !TIME_ZONE_INFORMATION categoriesFor: #daylightDate!**compiled accessors**!public! !
 !TIME_ZONE_INFORMATION categoriesFor: #daylightName!**compiled accessors**!public! !
+!TIME_ZONE_INFORMATION categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !TIME_ZONE_INFORMATION categoriesFor: #printableFields!development!printing!private! !
 !TIME_ZONE_INFORMATION categoriesFor: #standardBias!**compiled accessors**!public! !
 !TIME_ZONE_INFORMATION categoriesFor: #standardDate!**compiled accessors**!public! !
@@ -122,10 +126,6 @@ defineFields
 		defineField: #daylightName type: (StringField type: Utf16String length: 32) beReadOnly offset: 88;
 		defineField: #daylightDate type: (StructureField type: SYSTEMTIME) beReadOnly offset: 152;
 		defineField: #daylightBias type: SDWORDField new beReadOnly offset: 168.
-	self byteSize: 172!
-
-getFieldList
-	^#(#bias #standardName #standardDate #standardBias #daylightName #daylightDate #daylightBias)! !
+	self byteSize: 172! !
 !TIME_ZONE_INFORMATION class categoriesFor: #defineFields!initializing!public! !
-!TIME_ZONE_INFORMATION class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 

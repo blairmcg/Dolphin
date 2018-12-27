@@ -25,6 +25,9 @@ struct tagLOGPALETTE {
 !LOGPALETTE categoriesForClass!Win32-Structs! !
 !LOGPALETTE methodsFor!
 
+getValidFields
+	^#(#palVersion #palNumEntries #palPalEntry)!
+
 palNumEntries
 	"Answer the <Integer> value of the receiver's 'palNumEntries' field."
 
@@ -52,6 +55,7 @@ palVersion: anInteger
 	"Set the receiver's 'palVersion' field to the value of the argument, anInteger"
 
 	bytes wordAtOffset: 0 put: anInteger! !
+!LOGPALETTE categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !LOGPALETTE categoriesFor: #palNumEntries!**compiled accessors**!public! !
 !LOGPALETTE categoriesFor: #palNumEntries:!**compiled accessors**!public! !
 !LOGPALETTE categoriesFor: #palPalEntry!**compiled accessors**!public! !

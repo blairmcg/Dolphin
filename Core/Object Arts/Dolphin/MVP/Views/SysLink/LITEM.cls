@@ -22,6 +22,9 @@ LITEMs are used in conjunction with the SysLink control, wrapped in Dolphin by <
 !LITEM categoriesForClass!External-Data-Structured-Win32! !
 !LITEM methodsFor!
 
+getValidFields
+	^#(#mask #iLink #state #stateMask #szID #szURL)!
+
 handle
 	"Answer the 'handle' of the item described by the receiver."
 
@@ -42,14 +45,14 @@ id: aString
 		szID: text!
 
 iLink
-	"Answer the receiver's iLink field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'iLink' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #iLink)!
 
-iLink: anObject 
-	"Set the receiver's iLink field to the value of anObject."
+iLink: anInteger
+	"Set the receiver's 'iLink' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: ##(self offsetOf: #iLink) put: anObject!
+	bytes sdwordAtOffset: ##(self offsetOf: #iLink) put: anInteger!
 
 isEnabled
 	^self state allMask: LIS_ENABLED!
@@ -76,14 +79,14 @@ itemIndex: anInteger
 		iLink: anInteger - 1!
 
 mask
-	"Answer the receiver's mask field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'mask' field."
 
 	^bytes dwordAtOffset: 0!
 
-mask: anObject 
-	"Set the receiver's mask field to the value of anObject."
+mask: anInteger
+	"Set the receiver's 'mask' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject!
+	bytes dwordAtOffset: 0 put: anInteger!
 
 maskIn: anInteger
 	"OR in to contents' mask member the bit flags represented by anInteger"
@@ -91,36 +94,36 @@ maskIn: anInteger
 	self mask: (self mask bitOr: anInteger)!
 
 state
-	"Answer the receiver's state field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'state' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #state)!
 
-state: anObject 
-	"Set the receiver's state field to the value of anObject."
+state: anInteger
+	"Set the receiver's 'state' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #state) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #state) put: anInteger!
 
 stateMask
-	"Answer the receiver's stateMask field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'stateMask' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #stateMask)!
 
-stateMask: anObject 
-	"Set the receiver's stateMask field to the value of anObject."
+stateMask: anInteger
+	"Set the receiver's 'stateMask' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #stateMask) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #stateMask) put: anInteger!
 
 szID
-	"Answer the receiver's szID field as a Smalltalk object."
+	"Answer the <Utf16String> value of the receiver's 'szID' field."
 
 	^Utf16String fromAddress: bytes yourAddress + ##(self offsetOf: #szID)!
 
-szID: anObject 
-	"Set the receiver's szID field to the value of anObject."
+szID: anUtf16String
+	"Set the receiver's 'szID' field to the value of the argument, anUtf16String"
 
 	| size |
-	size := anObject byteSize - 2 min: ##(47 * 2).
-	anObject 
+	size := anUtf16String byteSize - 2 min: ##(47 * 2).
+	anUtf16String
 		replaceBytesOf: bytes
 		from: ##((self offsetOf: #szID) + 1)
 		to: ##(self offsetOf: #szID) + size
@@ -128,16 +131,16 @@ szID: anObject
 	bytes wordAtOffset: ##(self offsetOf: #szID) + size put: 0!
 
 szURL
-	"Answer the receiver's szURL field as a Smalltalk object."
+	"Answer the <Utf16String> value of the receiver's 'szURL' field."
 
 	^Utf16String fromAddress: bytes yourAddress + ##(self offsetOf: #szURL)!
 
-szURL: anObject 
-	"Set the receiver's szURL field to the value of anObject."
+szURL: anUtf16String
+	"Set the receiver's 'szURL' field to the value of the argument, anUtf16String"
 
 	| size |
-	size := anObject byteSize - 2 min: ##(2083 * 2).
-	anObject 
+	size := anUtf16String byteSize - 2 min: ##(2083 * 2).
+	anUtf16String
 		replaceBytesOf: bytes
 		from: ##((self offsetOf: #szURL) + 1)
 		to: ##(self offsetOf: #szURL) + size
@@ -157,6 +160,7 @@ url: aString
 	self
 		maskIn: LIF_URL;
 		szURL: text! !
+!LITEM categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !LITEM categoriesFor: #handle!accessing!public! !
 !LITEM categoriesFor: #id!accessing!public! !
 !LITEM categoriesFor: #id:!accessing!public! !

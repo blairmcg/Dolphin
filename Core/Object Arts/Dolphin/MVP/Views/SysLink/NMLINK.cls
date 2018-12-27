@@ -18,10 +18,14 @@ NMLINK accompanies link click notifications that are sent by the SysLink control
 !NMLINK categoriesForClass!External-Data-Structured-Win32! !
 !NMLINK methodsFor!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code #item)!
+
 item
-	"Answer the receiver's item field as a Smalltalk object."
+	"Answer the <LITEM> value of the receiver's 'item' field."
 
 	^LITEM fromAddress: bytes yourAddress + ##(self offsetOf: #item)! !
+!NMLINK categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NMLINK categoriesFor: #item!**compiled accessors**!public! !
 
 !NMLINK class methodsFor!

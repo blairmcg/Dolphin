@@ -39,9 +39,13 @@ Bytes: anExternalArray
 		replaceBytesOf: bytes
 		from: 1
 		to: size
-		startingAt: 1! !
+		startingAt: 1!
+
+getValidFields
+	^#(#Bytes)! !
 !IN6_ADDR categoriesFor: #Bytes!**compiled accessors**!public! !
 !IN6_ADDR categoriesFor: #Bytes:!**compiled accessors**!public! !
+!IN6_ADDR categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 
 !IN6_ADDR class methodsFor!
 

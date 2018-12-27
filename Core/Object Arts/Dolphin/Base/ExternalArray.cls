@@ -233,6 +233,9 @@ from: startInteger to: stopInteger keysAndValuesDo: operation
 		to: stopInteger
 		keysAndValuesDo: operation!
 
+getValidFields
+	^#()!
+
 includes: target
 	"Answer whether the argument, target, is one of the elements of the receiver.
 	Implementation Note: Override superclass to revert to element search."
@@ -424,6 +427,7 @@ uncheckedFrom: startInteger to: stopInteger keysAndValuesDo: operation
 !ExternalArray categoriesFor: #from:do:!enumerating!public! !
 !ExternalArray categoriesFor: #from:keysAndValuesDo:!enumerating!public! !
 !ExternalArray categoriesFor: #from:to:keysAndValuesDo:!enumerating!public! !
+!ExternalArray categoriesFor: #getValidFields!constants!private! !
 !ExternalArray categoriesFor: #includes:!public!searching! !
 !ExternalArray categoriesFor: #includesKey:!public!testing! !
 !ExternalArray categoriesFor: #initializePointer!public! !
@@ -484,9 +488,6 @@ fromAddress: anAddress length: anInteger
 				initializeAtAddress: anAddress;
 				basicLength: anInteger]!
 
-getFieldList
-	^#()!
-
 length: count elementSize: bytes
 	"Private - Answer a new instance of the receiver allocated 
 	with space for count elements of bytes size."
@@ -522,7 +523,6 @@ withAll: newElements
 !ExternalArray class categoriesFor: #elementSize!instance creation!private! !
 !ExternalArray class categoriesFor: #fromAddress:!instance creation!public! !
 !ExternalArray class categoriesFor: #fromAddress:length:!instance creation!public! !
-!ExternalArray class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 !ExternalArray class categoriesFor: #length:elementSize:!instance creation!private! !
 !ExternalArray class categoriesFor: #new:!instance creation!public! !
 !ExternalArray class categoriesFor: #with:!instance creation!public! !

@@ -19,22 +19,26 @@ typedef struct tagfd_set {
 !FD_SET methodsFor!
 
 fd_array
-	"Answer the receiver's fd_array field as a Smalltalk object."
+	"Answer the <DWORDArray> value of the receiver's 'fd_array' field."
 
-	^DWORDArray fromAddress: (bytes yourAddress + 4) length: 64!
+	^DWORDArray fromAddress: bytes yourAddress + ##(self offsetOf: #fd_array) length: 64!
 
 fd_count
-	"Answer the receiver's fd_count field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'fd_count' field."
 
-	^(bytes dwordAtOffset: 0)!
+	^bytes dwordAtOffset: 0!
 
-fd_count: anObject
-	"Set the receiver's fd_count field to the value of anObject."
+fd_count: anInteger
+	"Set the receiver's 'fd_count' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject! !
+	bytes dwordAtOffset: 0 put: anInteger!
+
+getValidFields
+	^#(#fd_count #fd_array)! !
 !FD_SET categoriesFor: #fd_array!**compiled accessors**!public! !
 !FD_SET categoriesFor: #fd_count!**compiled accessors**!public! !
 !FD_SET categoriesFor: #fd_count:!**compiled accessors**!public! !
+!FD_SET categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 
 !FD_SET class methodsFor!
 

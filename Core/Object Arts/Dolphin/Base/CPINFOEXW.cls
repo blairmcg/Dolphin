@@ -58,6 +58,9 @@ defaultCharacter
 		ifTrue: [^KernelLibrary default systemError].
 	^utf16 at: 1!
 
+getValidFields
+	^#(#MaxCharSize #DefaultChar #LeadByte #UnicodeDefaultChar #codepage #CodePageName)!
+
 LeadByte
 	"Answer the <ExternalArray> value of the receiver's 'LeadByte' field."
 
@@ -81,6 +84,7 @@ UnicodeDefaultChar
 !CPINFOEXW categoriesFor: #CodePageName!**compiled accessors**!public! !
 !CPINFOEXW categoriesFor: #DefaultChar!**compiled accessors**!public! !
 !CPINFOEXW categoriesFor: #defaultCharacter!accessing!public! !
+!CPINFOEXW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !CPINFOEXW categoriesFor: #LeadByte!**compiled accessors**!public! !
 !CPINFOEXW categoriesFor: #MaxCharSize!**compiled accessors**!public! !
 !CPINFOEXW categoriesFor: #unicodeDefaultChar!accessing!public! !
@@ -120,11 +124,7 @@ defineFields
 		defineField: #UnicodeDefaultChar type: WORDField new beReadOnly offset: 18;
 		defineField: #codepage type: DWORDField new beReadOnly offset: 20;
 		defineField: #CodePageName type: (StringField type: Utf16String length: 260) beReadOnly offset: 24.
-	self byteSize: 544!
-
-getFieldList
-	^#(#MaxCharSize #DefaultChar #LeadByte #UnicodeDefaultChar #codepage #CodePageName)! !
+	self byteSize: 544! !
 !CPINFOEXW class categoriesFor: #codePage:!instance creation!public! !
 !CPINFOEXW class categoriesFor: #defineFields!**auto generated**!initializing!public! !
-!CPINFOEXW class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 

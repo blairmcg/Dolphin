@@ -29,29 +29,41 @@ byteSize
 	^super byteSize + ((self Count - 1) * GpEncoderParameter byteSize)!
 
 Count
-	"Answer the receiver's Count field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Count' field."
 
-	^(bytes dwordAtOffset: 0)!
+	^bytes dwordAtOffset: 0!
 
-Count: anObject
-	"Set the receiver's Count field to the value of anObject."
+Count: anInteger
+	"Set the receiver's 'Count' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject!
+	bytes dwordAtOffset: 0 put: anInteger!
+
+getValidFields
+	^#(#Count #Parameter)!
 
 Parameter
-	"Answer the receiver's Parameter field as a Smalltalk object."
+	"Answer the <StructureArray> value of the receiver's 'Parameter' field."
 
-	^StructureArray fromAddress: (bytes yourAddress + 4) length: self Count elementClass: GpEncoderParameter!
+	^StructureArray
+		fromAddress: bytes yourAddress + ##(self offsetOf: #Parameter)
+		length: self Count
+		elementClass: GpEncoderParameter!
 
-Parameter: anObject
-	"Set the receiver's Parameter field to the value of anObject."
+Parameter: aStructureArrayOfGpEncoderParameter
+	"Set the receiver's 'Parameter' field to the value of the argument, aStructureArrayOfGpEncoderParameter"
 
 	| size |
-	size := anObject byteSize min: (self Count * 28).
-	anObject replaceBytesOf: bytes from: 5 to: 4 + size startingAt: 1! !
+	size := aStructureArrayOfGpEncoderParameter byteSize.
+	aStructureArrayOfGpEncoderParameter
+		replaceBytesOf: bytes
+		from: ##((self offsetOf: #Parameter) + 1)
+		to: ##(self offsetOf: #Parameter) + size
+		startingAt: 1.
+	self Count: aStructureArrayOfGpEncoderParameter size! !
 !GpEncoderParameters categoriesFor: #byteSize!accessing!public! !
 !GpEncoderParameters categoriesFor: #Count!**compiled accessors**!public! !
 !GpEncoderParameters categoriesFor: #Count:!**compiled accessors**!public! !
+!GpEncoderParameters categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !GpEncoderParameters categoriesFor: #Parameter!**compiled accessors**!public! !
 !GpEncoderParameters categoriesFor: #Parameter:!**compiled accessors**!public! !
 

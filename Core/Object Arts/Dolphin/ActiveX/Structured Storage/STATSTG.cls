@@ -66,6 +66,9 @@ dwStgFmt
 
 	^bytes dwordAtOffset: ##(self offsetOf: #dwStgFmt)!
 
+getValidFields
+	^#(#pwcsName #type #cbSize #mtime #ctime #atime #grfMode #grfLocksSupported #clsid #grfStateBits #dwStgFmt)!
+
 grfLocksSupported
 	"Answer the <Integer> value of the receiver's 'grfLocksSupported' field."
 
@@ -145,6 +148,7 @@ type: anInteger
 !STATSTG categoriesFor: #clsid!**compiled accessors**!public! !
 !STATSTG categoriesFor: #ctime!**compiled accessors**!public! !
 !STATSTG categoriesFor: #dwStgFmt!**compiled accessors**!public! !
+!STATSTG categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !STATSTG categoriesFor: #grfLocksSupported!**compiled accessors**!public! !
 !STATSTG categoriesFor: #grfLocksSupported:!**compiled accessors**!public! !
 !STATSTG categoriesFor: #grfMode!**compiled accessors**!public! !

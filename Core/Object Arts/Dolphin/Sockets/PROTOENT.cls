@@ -39,6 +39,9 @@ aliases
 				i := i + VMConstants.IntPtrSize].
 	^addresses contents!
 
+getValidFields
+	^#(#p_name #p_proto)!
+
 p_name
 	"Answer the <AnsiString> value of the receiver's 'p_name' field."
 
@@ -62,6 +65,7 @@ protocol
 	bigEndian := self p_proto.
 	^(bigEndian << 8 bitOr: bigEndian >> 8) bitAnd: 16rFFFF! !
 !PROTOENT categoriesFor: #aliases!public! !
+!PROTOENT categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !PROTOENT categoriesFor: #p_name!**compiled accessors**!public! !
 !PROTOENT categoriesFor: #p_proto!**compiled accessors**!public! !
 !PROTOENT categoriesFor: #printFieldsOn:limit:!development!printing!private! !

@@ -14,6 +14,9 @@ This Supercedes the LV_HITTESTINFO class present in release 2.1 and earlier.'!
 !LVHITTESTINFO categoriesForClass!External-Data-Structured-Win32! !
 !LVHITTESTINFO methodsFor!
 
+getValidFields
+	^#(#pt #flags #iItem #iSubItem)!
+
 handle
 	"Private - Answer the item 'handle' associated with the receiver.
 	In the case of a ListView hit-test, this is a 1-based integer index."
@@ -21,14 +24,15 @@ handle
 	^self iItem + 1!
 
 iItem
-	"Answer the receiver's iItem field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'iItem' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #iItem)!
 
 iSubItem
-	"Answer the receiver's iSubItem field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'iSubItem' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #iSubItem)! !
+!LVHITTESTINFO categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !LVHITTESTINFO categoriesFor: #handle!accessing!private! !
 !LVHITTESTINFO categoriesFor: #iItem!**compiled accessors**!public! !
 !LVHITTESTINFO categoriesFor: #iSubItem!**compiled accessors**!public! !

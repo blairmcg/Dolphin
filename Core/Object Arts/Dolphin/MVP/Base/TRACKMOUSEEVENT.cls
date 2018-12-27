@@ -25,44 +25,48 @@ struct tagTRACKMOUSEEVENT {
 !TRACKMOUSEEVENT methodsFor!
 
 dwFlags
-	"Answer the receiver's dwFlags field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'dwFlags' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #dwFlags)!
 
-dwFlags: anObject 
-	"Set the receiver's dwFlags field to the value of anObject."
+dwFlags: anInteger
+	"Set the receiver's 'dwFlags' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #dwFlags) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #dwFlags) put: anInteger!
 
 dwHoverTime
-	"Answer the receiver's dwHoverTime field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'dwHoverTime' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #dwHoverTime)!
 
-dwHoverTime: anObject 
-	"Set the receiver's dwHoverTime field to the value of anObject."
+dwHoverTime: anInteger
+	"Set the receiver's 'dwHoverTime' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #dwHoverTime) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #dwHoverTime) put: anInteger!
 
-dwSize: anObject 
-	"Set the receiver's dwSize field to the value of anObject."
+dwSize: anInteger
+	"Set the receiver's 'dwSize' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject!
+	bytes dwordAtOffset: 0 put: anInteger!
+
+getValidFields
+	^#(#dwSize #dwFlags #hwndTrack #dwHoverTime)!
 
 hwndTrack
-	"Answer the receiver's hwndTrack field as a Smalltalk object."
+	"Answer the <ExternalHandle> value of the receiver's 'hwndTrack' field."
 
 	^(bytes uintPtrAtOffset: ##(self offsetOf: #hwndTrack)) asExternalHandle!
 
-hwndTrack: anObject 
-	"Set the receiver's hwndTrack field to the value of anObject."
+hwndTrack: anExternalHandle
+	"Set the receiver's 'hwndTrack' field to the value of the argument, anExternalHandle"
 
-	bytes uintPtrAtOffset: ##(self offsetOf: #hwndTrack) put: anObject! !
+	bytes uintPtrAtOffset: ##(self offsetOf: #hwndTrack) put: anExternalHandle! !
 !TRACKMOUSEEVENT categoriesFor: #dwFlags!**compiled accessors**!public! !
 !TRACKMOUSEEVENT categoriesFor: #dwFlags:!**compiled accessors**!public! !
 !TRACKMOUSEEVENT categoriesFor: #dwHoverTime!**compiled accessors**!public! !
 !TRACKMOUSEEVENT categoriesFor: #dwHoverTime:!**compiled accessors**!public! !
 !TRACKMOUSEEVENT categoriesFor: #dwSize:!**compiled accessors**!public! !
+!TRACKMOUSEEVENT categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !TRACKMOUSEEVENT categoriesFor: #hwndTrack!**compiled accessors**!public! !
 !TRACKMOUSEEVENT categoriesFor: #hwndTrack:!**compiled accessors**!public! !
 

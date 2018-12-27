@@ -26,24 +26,24 @@ backcolor: aColor
 	self clrTextBk: aColor asColorRef asParameter!
 
 clrText
-	"Answer the receiver's clrText field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'clrText' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #clrText)!
 
-clrText: anObject 
-	"Set the receiver's clrText field to the value of anObject."
+clrText: anInteger
+	"Set the receiver's 'clrText' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #clrText) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #clrText) put: anInteger!
 
 clrTextBk
-	"Answer the receiver's clrTextBk field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'clrTextBk' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #clrTextBk)!
 
-clrTextBk: anObject 
-	"Set the receiver's clrTextBk field to the value of anObject."
+clrTextBk: anInteger
+	"Set the receiver's 'clrTextBk' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #clrTextBk) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #clrTextBk) put: anInteger!
 
 column
 	"Answer the <ListViewColumn> associated with the sub-item if this is a sub-item
@@ -67,8 +67,11 @@ forecolor: aColor
 
 	self clrText: aColor asColorRef asParameter!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code #dwDrawStage #hdc #rc #dwItemSpec #uItemState #lParam #clrText #clrTextBk #iSubItem)!
+
 iSubItem
-	"Answer the receiver's iSubItem field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'iSubItem' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #iSubItem)!
 
@@ -100,6 +103,7 @@ subItem
 !NMLVCUSTOMDRAW categoriesFor: #column:!accessing!private! !
 !NMLVCUSTOMDRAW categoriesFor: #forecolor!accessing!public! !
 !NMLVCUSTOMDRAW categoriesFor: #forecolor:!accessing!public! !
+!NMLVCUSTOMDRAW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NMLVCUSTOMDRAW categoriesFor: #iSubItem!**compiled accessors**!public! !
 !NMLVCUSTOMDRAW categoriesFor: #itemHandle!accessing!private! !
 !NMLVCUSTOMDRAW categoriesFor: #reset!public! !

@@ -116,6 +116,9 @@ getExtendedErrorInfo: excep
 	(OLEAutLibrary default getErrorInfo: 0 pperrinfo: errorInfo) == S_OK
 		ifTrue: [excep errorInfo: errorInfo]!
 
+getValidFields
+	^#()!
+
 hash
 	"Answer the SmallInteger hash value for the receiver."
 
@@ -325,6 +328,7 @@ vtbl: anObject
 !COMInterface categoriesFor: #detach!public!realizing/unrealizing! !
 !COMInterface categoriesFor: #free!private!realizing/unrealizing! !
 !COMInterface categoriesFor: #getExtendedErrorInfo:!exceptions!private! !
+!COMInterface categoriesFor: #getValidFields!constants!private! !
 !COMInterface categoriesFor: #hash!comparing!public! !
 !COMInterface categoriesFor: #hresultError:!exceptions!public! !
 !COMInterface categoriesFor: #identity!accessing!public! !

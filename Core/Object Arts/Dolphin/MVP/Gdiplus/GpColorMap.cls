@@ -23,25 +23,29 @@ struct tagGpColorMap {
 !GpColorMap categoriesForClass!Unclassified! !
 !GpColorMap methodsFor!
 
+getValidFields
+	^#(#oldColor #newColor)!
+
 newColor
-	"Answer the receiver's newColor field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'newColor' field."
 
-	^(bytes dwordAtOffset: 4)!
+	^bytes dwordAtOffset: ##(self offsetOf: #newColor)!
 
-newColor: anObject
-	"Set the receiver's newColor field to the value of anObject."
+newColor: anInteger
+	"Set the receiver's 'newColor' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 4 put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #newColor) put: anInteger!
 
 oldColor
-	"Answer the receiver's oldColor field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'oldColor' field."
 
-	^(bytes dwordAtOffset: 0)!
+	^bytes dwordAtOffset: 0!
 
-oldColor: anObject
-	"Set the receiver's oldColor field to the value of anObject."
+oldColor: anInteger
+	"Set the receiver's 'oldColor' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject! !
+	bytes dwordAtOffset: 0 put: anInteger! !
+!GpColorMap categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !GpColorMap categoriesFor: #newColor!**compiled accessors**!public! !
 !GpColorMap categoriesFor: #newColor:!**compiled accessors**!public! !
 !GpColorMap categoriesFor: #oldColor!**compiled accessors**!public! !

@@ -40,6 +40,9 @@ dwSize: anInteger
 
 	bytes dwordAtOffset: 0 put: anInteger!
 
+getValidFields
+	^#(#dwSize #lpSecurityDescriptor #bInheritHandle)!
+
 lpSecurityDescriptor
 	"Answer the <ExternalAddress> value of the receiver's 'lpSecurityDescriptor' field."
 
@@ -52,6 +55,7 @@ lpSecurityDescriptor: anExternalAddress
 !SECURITY_ATTRIBUTES categoriesFor: #bInheritHandle!**compiled accessors**!public! !
 !SECURITY_ATTRIBUTES categoriesFor: #bInheritHandle:!**compiled accessors**!public! !
 !SECURITY_ATTRIBUTES categoriesFor: #dwSize:!**compiled accessors**!public! !
+!SECURITY_ATTRIBUTES categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !SECURITY_ATTRIBUTES categoriesFor: #lpSecurityDescriptor!**compiled accessors**!public! !
 !SECURITY_ATTRIBUTES categoriesFor: #lpSecurityDescriptor:!**compiled accessors**!public! !
 
@@ -73,10 +77,6 @@ defineFields
 	self
 		defineField: #dwSize type: DWORDField new beWriteOnly;
 		defineField: #lpSecurityDescriptor type: LPVOIDField new;
-		defineField: #bInheritHandle type: BOOLField new!
-
-getFieldList
-	^#(#dwSize #lpSecurityDescriptor #bInheritHandle)! !
+		defineField: #bInheritHandle type: BOOLField new! !
 !SECURITY_ATTRIBUTES class categoriesFor: #defineFields!initializing!public! !
-!SECURITY_ATTRIBUTES class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 

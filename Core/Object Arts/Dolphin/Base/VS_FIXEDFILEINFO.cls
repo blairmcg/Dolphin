@@ -66,6 +66,9 @@ formatProductVersionString: format
 	minor := self dwProductVersionLS.
 	^format formatWithArguments: {major highWord. major lowWord. minor highWord. minor lowWord}!
 
+getValidFields
+	^#(#dwStrucVersion #dwFileVersionMS #dwFileVersionLS #dwProductVersionMS #dwProductVersionLS #dwFileFlagsMask #dwFileFlags #dwFileOS #dwFileType #dwFileSubtype #dwFileDateMS #dwFileDateLS)!
+
 productVersionString
 	"Answer a String in the form N.N.N.N which specifies the version number of the product."
 
@@ -88,6 +91,7 @@ versionAtOffset: anInteger put: anArray
 !VS_FIXEDFILEINFO categoriesFor: #fileVersionString!accessing!public! !
 !VS_FIXEDFILEINFO categoriesFor: #formatFileVersionString:!operations!public! !
 !VS_FIXEDFILEINFO categoriesFor: #formatProductVersionString:!operations!public! !
+!VS_FIXEDFILEINFO categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !VS_FIXEDFILEINFO categoriesFor: #productVersionString!accessing!public! !
 !VS_FIXEDFILEINFO categoriesFor: #versionAtOffset:put:!accessing!private! !
 
@@ -129,10 +133,6 @@ defineFields
 		defineField: #dwFileSubtype type: DWORDField readOnly;
 		defineField: #dwFileDateMS type: DWORDField readOnly;
 		defineField: #dwFileDateLS type: DWORDField readOnly
-!
-
-getFieldList
-	^#(#dwStrucVersion #dwFileVersionMS #dwFileVersionLS #dwProductVersionMS #dwProductVersionLS #dwFileFlagsMask #dwFileFlags #dwFileOS #dwFileType #dwFileSubtype #dwFileDateMS #dwFileDateLS)! !
+! !
 !VS_FIXEDFILEINFO class categoriesFor: #defineFields!initializing!public! !
-!VS_FIXEDFILEINFO class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 

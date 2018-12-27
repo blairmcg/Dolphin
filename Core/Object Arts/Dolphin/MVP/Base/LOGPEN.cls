@@ -33,25 +33,28 @@ color: aColor
 
 	self lopnColor: aColor asParameter!
 
+getValidFields
+	^#(#lopnStyle #lopnColor)!
+
 lopnColor
-	"Answer the receiver's lopnColor field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'lopnColor' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #lopnColor)!
 
-lopnColor: anObject 
-	"Set the receiver's lopnColor field to the value of anObject."
+lopnColor: anInteger
+	"Set the receiver's 'lopnColor' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #lopnColor) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #lopnColor) put: anInteger!
 
 lopnStyle
-	"Answer the receiver's lopnStyle field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'lopnStyle' field."
 
 	^bytes dwordAtOffset: 0!
 
-lopnStyle: anObject 
-	"Set the receiver's lopnStyle field to the value of anObject."
+lopnStyle: anInteger
+	"Set the receiver's 'lopnStyle' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject!
+	bytes dwordAtOffset: 0 put: anInteger!
 
 printFieldsOn: aStream limit: anInteger 
 	aStream
@@ -81,6 +84,7 @@ width: anInteger
 	bytes sdwordAtOffset: 4 put: anInteger! !
 !LOGPEN categoriesFor: #color!accessing!public! !
 !LOGPEN categoriesFor: #color:!accessing!public! !
+!LOGPEN categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !LOGPEN categoriesFor: #lopnColor!**compiled accessors**!public! !
 !LOGPEN categoriesFor: #lopnColor:!**compiled accessors**!public! !
 !LOGPEN categoriesFor: #lopnStyle!**compiled accessors**!public! !

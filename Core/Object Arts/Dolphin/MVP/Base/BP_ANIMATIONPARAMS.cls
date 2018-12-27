@@ -50,6 +50,9 @@ dwSize: anInteger
 
 	bytes dwordAtOffset: 0 put: anInteger!
 
+getValidFields
+	^#(#dwSize #dwFlags #style #dwDuration)!
+
 style
 	"Answer the <Integer> value of the receiver's 'style' field."
 
@@ -64,6 +67,7 @@ style: anInteger
 !BP_ANIMATIONPARAMS categoriesFor: #dwFlags!**compiled accessors**!public! !
 !BP_ANIMATIONPARAMS categoriesFor: #dwFlags:!**compiled accessors**!public! !
 !BP_ANIMATIONPARAMS categoriesFor: #dwSize:!**compiled accessors**!public! !
+!BP_ANIMATIONPARAMS categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !BP_ANIMATIONPARAMS categoriesFor: #style!**compiled accessors**!public! !
 !BP_ANIMATIONPARAMS categoriesFor: #style:!**compiled accessors**!public! !
 

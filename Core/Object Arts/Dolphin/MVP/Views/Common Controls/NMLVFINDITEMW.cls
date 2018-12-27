@@ -10,15 +10,19 @@ NMLVFINDITEMW comment: ''!
 !NMLVFINDITEMW categoriesForClass!External-Data-Structured-Win32! !
 !NMLVFINDITEMW methodsFor!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code #iStart #lvfi)!
+
 iStart
 	"Answer the <Integer> value of the receiver's 'iStart' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #iStart)!
 
 lvfi
-	"Answer the <LVFINDINFO> value of the receiver's 'lvfi' field."
+	"Answer the <LVFINDINFOW> value of the receiver's 'lvfi' field."
 
 	^LVFINDINFOW fromAddress: bytes yourAddress + ##(self offsetOf: #lvfi)! !
+!NMLVFINDITEMW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NMLVFINDITEMW categoriesFor: #iStart!**compiled accessors**!public! !
 !NMLVFINDITEMW categoriesFor: #lvfi!**compiled accessors**!public! !
 
@@ -26,7 +30,7 @@ lvfi
 
 defineFields
 	"Define the fields of the Win32 NMLVFINDITEM structure.
-		NMLVFINDITEM compileDefinition
+		self compileDefinition
 	"
 
 	super defineFields.

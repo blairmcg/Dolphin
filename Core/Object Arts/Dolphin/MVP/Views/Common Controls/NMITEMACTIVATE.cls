@@ -10,40 +10,44 @@ NMITEMACTIVATE comment: ''!
 !NMITEMACTIVATE categoriesForClass!External-Data-Structured-Win32! !
 !NMITEMACTIVATE methodsFor!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code #iItem #iSubItem #uNewState #uOldState #uChanged #ptAction #uKeyFlags)!
+
 iItem
-	"Answer the receiver's iItem field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'iItem' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #iItem)!
 
 iSubItem
-	"Answer the receiver's iSubItem field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'iSubItem' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #iSubItem)!
 
 ptAction
-	"Answer the receiver's ptAction field as a Smalltalk object."
+	"Answer the <POINTL> value of the receiver's 'ptAction' field."
 
 	^POINTL fromAddress: bytes yourAddress + ##(self offsetOf: #ptAction)!
 
 uChanged
-	"Answer the receiver's uChanged field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'uChanged' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #uChanged)!
 
 uKeyFlags
-	"Answer the receiver's uKeyFlags field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'uKeyFlags' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #uKeyFlags)!
 
 uNewState
-	"Answer the receiver's uNewState field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'uNewState' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #uNewState)!
 
 uOldState
-	"Answer the receiver's uOldState field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'uOldState' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #uOldState)! !
+!NMITEMACTIVATE categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NMITEMACTIVATE categoriesFor: #iItem!**compiled accessors**!public! !
 !NMITEMACTIVATE categoriesFor: #iSubItem!**compiled accessors**!public! !
 !NMITEMACTIVATE categoriesFor: #ptAction!**compiled accessors**!public! !

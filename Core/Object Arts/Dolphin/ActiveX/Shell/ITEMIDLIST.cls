@@ -69,6 +69,9 @@ getSize
 			pidl := pidl idNext].
 	^sum!
 
+getValidFields
+	^#()!
+
 idCopy
 	"Answer an <ITEMIDLIST> that is a copy of the receiver."
 
@@ -146,6 +149,7 @@ pointerClass
 !ITEMIDLIST categoriesFor: #cb!accessing!public! !
 !ITEMIDLIST categoriesFor: #cb:!accessing!public! !
 !ITEMIDLIST categoriesFor: #getSize!operations!public! !
+!ITEMIDLIST categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !ITEMIDLIST categoriesFor: #idCopy!operations!public! !
 !ITEMIDLIST categoriesFor: #idLast!operations!public! !
 !ITEMIDLIST categoriesFor: #idNext!operations!public! !

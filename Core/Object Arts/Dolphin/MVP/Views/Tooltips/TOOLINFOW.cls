@@ -22,6 +22,9 @@ dwSize: anInteger
 
 	bytes dwordAtOffset: 0 put: anInteger!
 
+getValidFields
+	^#(#dwSize #uFlags #hwnd #uId #rect #hinst #lpszText #lParam)!
+
 hinst
 	"Answer the <ExternalHandle> value of the receiver's 'hinst' field."
 
@@ -118,6 +121,7 @@ uId: anInteger
 
 	bytes uintPtrAtOffset: ##(self offsetOf: #uId) put: anInteger! !
 !TOOLINFOW categoriesFor: #dwSize:!**compiled accessors**!public! !
+!TOOLINFOW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !TOOLINFOW categoriesFor: #hinst!**compiled accessors**!public! !
 !TOOLINFOW categoriesFor: #hwnd!**compiled accessors**!public! !
 !TOOLINFOW categoriesFor: #hwnd:!**compiled accessors**!public! !
@@ -136,20 +140,20 @@ uId: anInteger
 !TOOLINFOW class methodsFor!
 
 defineFields
-	"Define the fields of the TOOLINFOA structure.
-		TOOLINFOA compileDefinition
+	"Define the fields of the TOOLINFO structure.
+		self compileDefinition
 	
-		typedef 		struct tagTOOLINFOA {
+		typedef 		struct tagTOOLINFOW {
 			unsigned int cbSize;
 			unsigned int uFlags;
 			unsigned long hwnd;
 			UINT_PTR uId;
 			RECT rect;
 			HINSTANCE hinst;
-			LPSTR lpszText;
+			LPWSTR lpszText;
 			LPARAM lParam;
 			void* lpReserved;
-		} TOOLINFOA;
+		} TOOLINFOW;
 "
 
 	self

@@ -27,25 +27,29 @@ struct tagENLINK {
 !ENLINK methodsFor!
 
 chrg
-	"Answer the receiver's chrg field as a Smalltalk object."
+	"Answer the <CHARRANGE> value of the receiver's 'chrg' field."
 
 	^CHARRANGE fromAddress: bytes yourAddress + ##(self offsetOf: #chrg)!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code #msg #wParam #lParam #chrg)!
+
 lParam
-	"Answer the receiver's lParam field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'lParam' field."
 
 	^bytes intPtrAtOffset: ##(self offsetOf: #lParam)!
 
 msg
-	"Answer the receiver's msg field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'msg' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #msg)!
 
 wParam
-	"Answer the receiver's wParam field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'wParam' field."
 
 	^bytes uintPtrAtOffset: ##(self offsetOf: #wParam)! !
 !ENLINK categoriesFor: #chrg!**compiled accessors**!public! !
+!ENLINK categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !ENLINK categoriesFor: #lParam!**compiled accessors**!public! !
 !ENLINK categoriesFor: #msg!**compiled accessors**!public! !
 !ENLINK categoriesFor: #wParam!**compiled accessors**!public! !

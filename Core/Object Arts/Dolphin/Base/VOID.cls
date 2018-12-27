@@ -10,6 +10,12 @@ VOID comment: 'VOID is an <ExternalStructure> class to represent unspecified, nu
 
 VOID is only useful in pointer form, and mainly intended to provided a unified type scheme for auto-generation of structures from type libraries.'!
 !VOID categoriesForClass!External-Data-Unstructured! !
+!VOID methodsFor!
+
+getValidFields
+	^#()! !
+!VOID categoriesFor: #getValidFields!constants!private! !
+
 !VOID class methodsFor!
 
 new

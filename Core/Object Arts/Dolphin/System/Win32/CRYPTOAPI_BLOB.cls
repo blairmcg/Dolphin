@@ -54,6 +54,9 @@ data: aByteObject
 	self pbData: (localData := aByteObject asParameter).
 	self cbData: localData basicSize!
 
+getValidFields
+	^#(#cbData #pbData)!
+
 initialize
 	"Private - Initialize the receiver (common to internal [value] and
 	external [reference] buffers.
@@ -83,6 +86,7 @@ pbData: anExternalArray
 !CRYPTOAPI_BLOB categoriesFor: #cbData:!**compiled accessors**!private! !
 !CRYPTOAPI_BLOB categoriesFor: #data!public! !
 !CRYPTOAPI_BLOB categoriesFor: #data:!public! !
+!CRYPTOAPI_BLOB categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !CRYPTOAPI_BLOB categoriesFor: #initialize!initializing!private! !
 !CRYPTOAPI_BLOB categoriesFor: #needsFree!private!realizing/unrealizing! !
 !CRYPTOAPI_BLOB categoriesFor: #pbData!**compiled accessors**!public! !

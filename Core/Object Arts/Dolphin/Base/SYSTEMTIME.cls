@@ -33,6 +33,9 @@ displayOn: aStream
 		nextPutAll: (lc printTime: self format: nil flags: 0)
 !
 
+getValidFields
+	^#(#wYear #wMonth #wDayOfWeek #wDay #wHour #wMinute #wSecond #wMilliseconds)!
+
 printOn: aStream
 	"Append a debugging representation of the receiver to aStream."
 
@@ -125,6 +128,7 @@ wYear: anInteger
 !SYSTEMTIME categoriesFor: #asFILETIME!converting!public! !
 !SYSTEMTIME categoriesFor: #asTimeStamp!converting!public! !
 !SYSTEMTIME categoriesFor: #displayOn:!displaying!public! !
+!SYSTEMTIME categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !SYSTEMTIME categoriesFor: #printOn:!development!printing!public! !
 !SYSTEMTIME categoriesFor: #wDay!**compiled accessors**!public! !
 !SYSTEMTIME categoriesFor: #wDay:!**compiled accessors**!public! !
@@ -173,9 +177,6 @@ fromFILETIME: aFILETIME
 
 	^aFILETIME asSYSTEMTIME!
 
-getFieldList
-	^#(#wYear #wMonth #wDayOfWeek #wDay #wHour #wMinute #wSecond #wMilliseconds)!
-
 now
 	"Private - Answer the current Windows local time"
 	
@@ -194,7 +195,6 @@ nowUTC
 !SYSTEMTIME class categoriesFor: #day:month:year:!instance creation!private! !
 !SYSTEMTIME class categoriesFor: #defineFields!initializing!public! !
 !SYSTEMTIME class categoriesFor: #fromFILETIME:!instance creation!public! !
-!SYSTEMTIME class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 !SYSTEMTIME class categoriesFor: #now!instance creation!private! !
 !SYSTEMTIME class categoriesFor: #nowUTC!instance creation!public! !
 

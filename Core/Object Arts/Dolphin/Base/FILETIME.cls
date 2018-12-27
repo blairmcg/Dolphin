@@ -68,6 +68,9 @@ displayOn: aStream
 
 	aStream display: self asSYSTEMTIME!
 
+getValidFields
+	^#()!
+
 integerValue: anInteger 
 	"Set the number of 100-nanosecond intervals the receiver represents since the
 	FILETIME epoch."
@@ -89,6 +92,7 @@ printOn: aStream
 !FILETIME categoriesFor: #asUTC!converting!public! !
 !FILETIME categoriesFor: #basicAsSYSTEMTIME!converting!public! !
 !FILETIME categoriesFor: #displayOn:!printing!public! !
+!FILETIME categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !FILETIME categoriesFor: #integerValue:!accessing!public! !
 !FILETIME categoriesFor: #printOn:!development!printing!public! !
 
@@ -137,9 +141,6 @@ fromUnixTime: time_t
 
 	^self fromInteger: UnixEpoch + (time_t * 10000000)!
 
-getFieldList
-	^#()!
-
 initialize
 	"Private - Initialize the receiver's class variables.
 		FILETIME initialize
@@ -165,7 +166,6 @@ now
 !FILETIME class categoriesFor: #fromLocalTime:!instance creation!public! !
 !FILETIME class categoriesFor: #fromSYSTEMTIME:!instance creation!public! !
 !FILETIME class categoriesFor: #fromUnixTime:!instance creation!public! !
-!FILETIME class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 !FILETIME class categoriesFor: #initialize!development!initializing!private! !
 !FILETIME class categoriesFor: #now!instance creation!public! !
 

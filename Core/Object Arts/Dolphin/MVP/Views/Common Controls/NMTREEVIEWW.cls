@@ -15,18 +15,21 @@ action
 
 	^bytes dwordAtOffset: ##(self offsetOf: #action)!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code #action #itemOld #itemNew #ptDrag)!
+
 itemHandle
 	"Answer the 'handle' of the receiver's item."
 
 	^self itemNew hItem!
 
 itemNew
-	"Answer the <TVITEM> value of the receiver's 'itemNew' field."
+	"Answer the <TVITEMW> value of the receiver's 'itemNew' field."
 
 	^TVITEMW fromAddress: bytes yourAddress + ##(self offsetOf: #itemNew)!
 
 itemOld
-	"Answer the <TVITEM> value of the receiver's 'itemOld' field."
+	"Answer the <TVITEMW> value of the receiver's 'itemOld' field."
 
 	^TVITEMW fromAddress: bytes yourAddress + ##(self offsetOf: #itemOld)!
 
@@ -35,6 +38,7 @@ ptDrag
 
 	^POINTL fromAddress: bytes yourAddress + ##(self offsetOf: #ptDrag)! !
 !NMTREEVIEWW categoriesFor: #action!**compiled accessors**!public! !
+!NMTREEVIEWW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NMTREEVIEWW categoriesFor: #itemHandle!accessing!public! !
 !NMTREEVIEWW categoriesFor: #itemNew!**compiled accessors**!public! !
 !NMTREEVIEWW categoriesFor: #itemOld!**compiled accessors**!public! !

@@ -19,6 +19,9 @@ className: aString
 	className := aString asUtf16String.
 	self lpszClassName: className!
 
+getValidFields
+	^#(#style #lpfnWndProc #hInstance #hIcon #hCursor #hbrBackground #lpszMenuName #lpszClassName)!
+
 hbrBackground: anInteger
 	"Set the receiver's 'hbrBackground' field to the value of the argument, anInteger"
 
@@ -77,6 +80,7 @@ style: anInteger
 
 	bytes dwordAtOffset: 0 put: anInteger! !
 !WNDCLASS categoriesFor: #className:!accessing!public! !
+!WNDCLASS categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !WNDCLASS categoriesFor: #hbrBackground:!**compiled accessors**!public! !
 !WNDCLASS categoriesFor: #hCursor:!**compiled accessors**!public! !
 !WNDCLASS categoriesFor: #hIcon:!**compiled accessors**!public! !

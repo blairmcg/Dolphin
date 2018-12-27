@@ -55,6 +55,9 @@ dwType: anInteger
 
 	bytes dwordAtOffset: 0 put: anInteger!
 
+getValidFields
+	^#(#dwType #vt #cfType #dwHint #pstrName #clsid)!
+
 pstrName
 	"Answer the <Utf16String> value of the receiver's 'pstrName' field."
 
@@ -82,6 +85,7 @@ vt: anInteger
 !PROPBAG2 categoriesFor: #dwHint:!**compiled accessors**!public! !
 !PROPBAG2 categoriesFor: #dwType!**compiled accessors**!public! !
 !PROPBAG2 categoriesFor: #dwType:!**compiled accessors**!public! !
+!PROPBAG2 categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !PROPBAG2 categoriesFor: #pstrName!**compiled accessors**!public! !
 !PROPBAG2 categoriesFor: #pstrName:!**compiled accessors**!public! !
 !PROPBAG2 categoriesFor: #vt!**compiled accessors**!public! !

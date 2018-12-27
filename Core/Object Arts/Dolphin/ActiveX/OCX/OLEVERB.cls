@@ -35,6 +35,9 @@ fuFlags: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #fuFlags) put: anInteger!
 
+getValidFields
+	^#(#lVerb #lpszVerbName #fuFlags #grfAttribs)!
+
 grfAttribs
 	"Answer the <Integer> value of the receiver's 'grfAttribs' field."
 
@@ -77,6 +80,7 @@ printOn: aStream
 		nextPut: $)! !
 !OLEVERB categoriesFor: #fuFlags!**compiled accessors**!public! !
 !OLEVERB categoriesFor: #fuFlags:!**compiled accessors**!public! !
+!OLEVERB categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !OLEVERB categoriesFor: #grfAttribs!**compiled accessors**!public! !
 !OLEVERB categoriesFor: #grfAttribs:!**compiled accessors**!public! !
 !OLEVERB categoriesFor: #lpszVerbName!**compiled accessors**!public! !

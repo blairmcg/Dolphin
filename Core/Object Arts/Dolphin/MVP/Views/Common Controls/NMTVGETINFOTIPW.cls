@@ -15,6 +15,9 @@ cchTextMax
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #cchTextMax)!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code #pszText #cchTextMax #hItem #lParam)!
+
 hItem
 	"Answer the <Integer> value of the receiver's 'hItem' field."
 
@@ -35,6 +38,7 @@ pszText
 
 	^(bytes uintPtrAtOffset: ##(self offsetOf: #pszText)) asExternalAddress! !
 !NMTVGETINFOTIPW categoriesFor: #cchTextMax!**compiled accessors**!public! !
+!NMTVGETINFOTIPW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NMTVGETINFOTIPW categoriesFor: #hItem!**compiled accessors**!public! !
 !NMTVGETINFOTIPW categoriesFor: #itemHandle!accessing!public! !
 !NMTVGETINFOTIPW categoriesFor: #lParam!**compiled accessors**!public! !

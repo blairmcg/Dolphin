@@ -89,6 +89,9 @@ fType: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #fType) put: anInteger!
 
+getValidFields
+	^#(#dwSize #fMask #fType #fState #wID #hSubMenu #hbmpChecked #hbmpUnchecked #dwItemData #dwTypeData #cch #hbmpItem)!
+
 hbmpChecked: anExternalHandle
 	"Set the receiver's 'hbmpChecked' field to the value of the argument, anExternalHandle"
 
@@ -200,6 +203,7 @@ wID: anInteger
 !MENUITEMINFOW categoriesFor: #fState:!**compiled accessors**!public! !
 !MENUITEMINFOW categoriesFor: #fType!**compiled accessors**!public! !
 !MENUITEMINFOW categoriesFor: #fType:!**compiled accessors**!public! !
+!MENUITEMINFOW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !MENUITEMINFOW categoriesFor: #hbmpChecked:!**compiled accessors**!public! !
 !MENUITEMINFOW categoriesFor: #hbmpItem:!**compiled accessors**!public! !
 !MENUITEMINFOW categoriesFor: #hbmpUnchecked:!**compiled accessors**!public! !

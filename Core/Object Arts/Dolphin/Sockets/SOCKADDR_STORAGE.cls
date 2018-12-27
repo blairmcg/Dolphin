@@ -24,6 +24,12 @@ struct tagSOCKADDR_STORAGE {
 } SOCKADDR_STORAGE;
 '!
 !SOCKADDR_STORAGE categoriesForClass!Win32-Structs! !
+!SOCKADDR_STORAGE methodsFor!
+
+getValidFields
+	^#()! !
+!SOCKADDR_STORAGE categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
+
 !SOCKADDR_STORAGE class methodsFor!
 
 defineFields

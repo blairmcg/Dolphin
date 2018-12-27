@@ -27,57 +27,60 @@ struct tagDIBSECTION {
 !DIBSECTION methodsFor!
 
 dsBitfields
-	"Answer the receiver's dsBitfields field as a Smalltalk object."
+	"Answer the <DWORDArray> value of the receiver's 'dsBitfields' field."
 
 	^DWORDArray fromAddress: bytes yourAddress + ##(self offsetOf: #dsBitfields) length: 3!
 
 dsBm
-	"Answer the receiver's dsBm field as a Smalltalk object."
+	"Answer the <BITMAP> value of the receiver's 'dsBm' field."
 
 	^BITMAP fromAddress: bytes yourAddress!
 
-dsBm: anObject 
-	"Set the receiver's dsBm field to the value of anObject."
+dsBm: aBITMAP
+	"Set the receiver's 'dsBm' field to the value of the argument, aBITMAP"
 
-	anObject 
+	aBITMAP
 		replaceBytesOf: bytes
 		from: 1
 		to: ##(BITMAP basicByteSize)
 		startingAt: 1!
 
 dsBmih
-	"Answer the receiver's dsBmih field as a Smalltalk object."
+	"Answer the <BITMAPINFOHEADER> value of the receiver's 'dsBmih' field."
 
 	^BITMAPINFOHEADER fromAddress: bytes yourAddress + ##(self offsetOf: #dsBmih)!
 
-dsBmih: anObject 
-	"Set the receiver's dsBmih field to the value of anObject."
+dsBmih: aBITMAPINFOHEADER
+	"Set the receiver's 'dsBmih' field to the value of the argument, aBITMAPINFOHEADER"
 
-	anObject 
+	aBITMAPINFOHEADER
 		replaceBytesOf: bytes
 		from: ##((self offsetOf: #dsBmih) + 1)
 		to: ##((self offsetOf: #dsBmih) + BITMAPINFOHEADER basicByteSize)
 		startingAt: 1!
 
 dshSection
-	"Answer the receiver's dshSection field as a Smalltalk object."
+	"Answer the <ExternalHandle> value of the receiver's 'dshSection' field."
 
 	^(bytes uintPtrAtOffset: ##(self offsetOf: #dshSection)) asExternalHandle!
 
-dshSection: anObject 
-	"Set the receiver's dshSection field to the value of anObject."
+dshSection: anExternalHandle
+	"Set the receiver's 'dshSection' field to the value of the argument, anExternalHandle"
 
-	bytes uintPtrAtOffset: ##(self offsetOf: #dshSection) put: anObject!
+	bytes uintPtrAtOffset: ##(self offsetOf: #dshSection) put: anExternalHandle!
 
 dsOffset
-	"Answer the receiver's dsOffset field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'dsOffset' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #dsOffset)!
 
-dsOffset: anObject 
-	"Set the receiver's dsOffset field to the value of anObject."
+dsOffset: anInteger
+	"Set the receiver's 'dsOffset' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #dsOffset) put: anObject! !
+	bytes dwordAtOffset: ##(self offsetOf: #dsOffset) put: anInteger!
+
+getValidFields
+	^#(#dsBm #dsBmih #dsBitfields #dshSection #dsOffset)! !
 !DIBSECTION categoriesFor: #dsBitfields!**compiled accessors**!public! !
 !DIBSECTION categoriesFor: #dsBm!**compiled accessors**!public! !
 !DIBSECTION categoriesFor: #dsBm:!**compiled accessors**!public! !
@@ -87,6 +90,7 @@ dsOffset: anObject
 !DIBSECTION categoriesFor: #dshSection:!**compiled accessors**!public! !
 !DIBSECTION categoriesFor: #dsOffset!**compiled accessors**!public! !
 !DIBSECTION categoriesFor: #dsOffset:!**compiled accessors**!public! !
+!DIBSECTION categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 
 !DIBSECTION class methodsFor!
 

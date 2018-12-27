@@ -28,68 +28,76 @@ struct tagGpWmfPlaceableFileHeader {
 !GpWmfPlaceableFileHeader methodsFor!
 
 BoundingBox
-	"Answer the receiver's BoundingBox field as a Smalltalk object."
+	"Answer the <GpWMFRect16> value of the receiver's 'BoundingBox' field."
 
-	^GpWMFRect16 fromAddress: (bytes yourAddress + 6)!
+	^GpWMFRect16 fromAddress: bytes yourAddress + ##(self offsetOf: #BoundingBox)!
 
-BoundingBox: anObject
-	"Set the receiver's BoundingBox field to the value of anObject."
+BoundingBox: aGpWMFRect16
+	"Set the receiver's 'BoundingBox' field to the value of the argument, aGpWMFRect16"
 
-	anObject replaceBytesOf: bytes from: 7 to: 14 startingAt: 1!
+	aGpWMFRect16
+		replaceBytesOf: bytes
+		from: ##((self offsetOf: #BoundingBox) + 1)
+		to: ##((self offsetOf: #BoundingBox) + GpWMFRect16 basicByteSize)
+		startingAt: 1!
 
 Checksum
-	"Answer the receiver's Checksum field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Checksum' field."
 
-	^(bytes swordAtOffset: 20)!
+	^bytes swordAtOffset: ##(self offsetOf: #Checksum)!
 
-Checksum: anObject
-	"Set the receiver's Checksum field to the value of anObject."
+Checksum: anInteger
+	"Set the receiver's 'Checksum' field to the value of the argument, anInteger"
 
-	bytes swordAtOffset: 20 put: anObject!
+	bytes swordAtOffset: ##(self offsetOf: #Checksum) put: anInteger!
+
+getValidFields
+	^#(#Key #Hmf #BoundingBox #Inch #Reserved #Checksum)!
 
 Hmf
-	"Answer the receiver's Hmf field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Hmf' field."
 
-	^(bytes swordAtOffset: 4)!
+	^bytes swordAtOffset: ##(self offsetOf: #Hmf)!
 
-Hmf: anObject
-	"Set the receiver's Hmf field to the value of anObject."
+Hmf: anInteger
+	"Set the receiver's 'Hmf' field to the value of the argument, anInteger"
 
-	bytes swordAtOffset: 4 put: anObject!
+	bytes swordAtOffset: ##(self offsetOf: #Hmf) put: anInteger!
 
 Inch
-	"Answer the receiver's Inch field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Inch' field."
 
-	^(bytes swordAtOffset: 14)!
+	^bytes swordAtOffset: ##(self offsetOf: #Inch)!
 
-Inch: anObject
-	"Set the receiver's Inch field to the value of anObject."
+Inch: anInteger
+	"Set the receiver's 'Inch' field to the value of the argument, anInteger"
 
-	bytes swordAtOffset: 14 put: anObject!
+	bytes swordAtOffset: ##(self offsetOf: #Inch) put: anInteger!
 
 Key
-	"Answer the receiver's Key field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Key' field."
 
-	^(bytes dwordAtOffset: 0)!
+	^bytes dwordAtOffset: 0!
 
-Key: anObject
-	"Set the receiver's Key field to the value of anObject."
+Key: anInteger
+	"Set the receiver's 'Key' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject!
+	bytes dwordAtOffset: 0 put: anInteger!
 
 Reserved
-	"Answer the receiver's Reserved field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Reserved' field."
 
-	^(bytes dwordAtOffset: 16)!
+	^bytes dwordAtOffset: ##(self offsetOf: #Reserved)!
 
-Reserved: anObject
-	"Set the receiver's Reserved field to the value of anObject."
+Reserved: anInteger
+	"Set the receiver's 'Reserved' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 16 put: anObject! !
+	bytes dwordAtOffset: ##(self offsetOf: #Reserved) put: anInteger! !
 !GpWmfPlaceableFileHeader categoriesFor: #BoundingBox!**compiled accessors**!public! !
 !GpWmfPlaceableFileHeader categoriesFor: #BoundingBox:!**compiled accessors**!public! !
 !GpWmfPlaceableFileHeader categoriesFor: #Checksum!**compiled accessors**!public! !
 !GpWmfPlaceableFileHeader categoriesFor: #Checksum:!**compiled accessors**!public! !
+!GpWmfPlaceableFileHeader categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !GpWmfPlaceableFileHeader categoriesFor: #Hmf!**compiled accessors**!public! !
 !GpWmfPlaceableFileHeader categoriesFor: #Hmf:!**compiled accessors**!public! !
 !GpWmfPlaceableFileHeader categoriesFor: #Inch!**compiled accessors**!public! !

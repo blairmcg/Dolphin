@@ -222,14 +222,14 @@ date: newValue
 	self vt: VT_DATE!
 
 dblVal
-	"Answer the receiver's dblVal field as a Smalltalk object."
+	"Answer the <Float> value of the receiver's 'dblVal' field."
 
 	^bytes doubleAtOffset: ##(self offsetOf: #dblVal)!
 
-dblVal: anObject 
-	"Set the receiver's dblVal field to the value of anObject."
+dblVal: aFloat
+	"Set the receiver's 'dblVal' field to the value of the argument, aFloat"
 
-	bytes doubleAtOffset: ##(self offsetOf: #dblVal) put: anObject!
+	bytes doubleAtOffset: ##(self offsetOf: #dblVal) put: aFloat!
 
 decimal
 	"Answer a <ScaledDecimal> which is the Variant Decimal value 
@@ -351,6 +351,9 @@ float: newValue
 
 	bytes floatAtOffset: 8 put: newValue.
 	self vt: VT_R4.!
+
+getValidFields
+	^#(#vt #dblVal)!
 
 hresult
 	"Answer the status code (SCODE) from the receiver.
@@ -693,14 +696,14 @@ void
 		ifTrue: [VOID fromAddress: self refAddress]!
 
 vt
-	"Answer the receiver's vt field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'vt' field."
 
 	^bytes wordAtOffset: 0!
 
-vt: anObject 
-	"Set the receiver's vt field to the value of anObject."
+vt: anInteger
+	"Set the receiver's 'vt' field to the value of the argument, anInteger"
 
-	bytes wordAtOffset: 0 put: anObject!
+	bytes wordAtOffset: 0 put: anInteger!
 
 word
 	"Answer the unsigned 16-bit <integer> value from the receiver.
@@ -755,6 +758,7 @@ word: newValue
 !VARIANT categoriesFor: #dword:!accessing!public! !
 !VARIANT categoriesFor: #float!accessing!public! !
 !VARIANT categoriesFor: #float:!accessing!public! !
+!VARIANT categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !VARIANT categoriesFor: #hresult!accessing!public! !
 !VARIANT categoriesFor: #hresult:!accessing!public! !
 !VARIANT categoriesFor: #initialize!initializing!private! !
@@ -827,7 +831,6 @@ defineFields
 	to simplify the common case of accessing the first 32-bits of data stored in a VARIANT.
 
 		VARIANT compileDefinition.
-VARIANT alignment
 
 		struct  tagVARIANT
 		{

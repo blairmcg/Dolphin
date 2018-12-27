@@ -32,10 +32,14 @@ dwTime
 dwTime: anInteger
 	"Set the receiver's 'dwTime' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #dwTime) put: anInteger! !
+	bytes dwordAtOffset: ##(self offsetOf: #dwTime) put: anInteger!
+
+getValidFields
+	^#(#dwSize #dwTime)! !
 !LASTINPUTINFO categoriesFor: #dwSize:!**compiled accessors**!public! !
 !LASTINPUTINFO categoriesFor: #dwTime!**compiled accessors**!public! !
 !LASTINPUTINFO categoriesFor: #dwTime:!**compiled accessors**!public! !
+!LASTINPUTINFO categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 
 !LASTINPUTINFO class methodsFor!
 

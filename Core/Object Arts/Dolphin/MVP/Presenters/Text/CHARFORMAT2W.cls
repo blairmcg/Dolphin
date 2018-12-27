@@ -204,6 +204,9 @@ font: aFont
 		isUnderlined: aFont isUnderlined;
 		isStruckThrough: aFont isStruckThrough!
 
+getValidFields
+	^#(#dwSize #dwMask #dwEffects #yHeight #yOffset #crTextColor #bCharSet #bPitchAndFamily #szFaceName #wWeight #sSpacing #crBackColor #lcid #sStyle #wKerning #bUnderlyineType #bAnimation #bRevAuthor #bUnderlineColor)!
+
 height: aNumber
 	"Set the receiver's height field to anInteger (N.B.
 	the height is specified in half points)."
@@ -464,6 +467,7 @@ yHeight: anInteger
 !CHARFORMAT2W categoriesFor: #faceName:!accessing!public! !
 !CHARFORMAT2W categoriesFor: #font!accessing!public! !
 !CHARFORMAT2W categoriesFor: #font:!accessing!public! !
+!CHARFORMAT2W categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !CHARFORMAT2W categoriesFor: #height:!accessing!public! !
 !CHARFORMAT2W categoriesFor: #isBold!public!testing! !
 !CHARFORMAT2W categoriesFor: #isBold:!accessing!public! !

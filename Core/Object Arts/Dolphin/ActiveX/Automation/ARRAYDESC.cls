@@ -28,6 +28,9 @@ elementCount
 
 	^self rgbounds inject: 1 into: [:sz :b | sz * b cElements]!
 
+getValidFields
+	^#(#tdescElem #cDims #rgbounds)!
+
 rgbounds
 	"Answer the <StructureArray> value of the receiver's 'rgbounds' field."
 
@@ -37,6 +40,7 @@ rgbounds
 		elementClass: SAFEARRAYBOUND! !
 !ARRAYDESC categoriesFor: #cDims!**compiled accessors**!private! !
 !ARRAYDESC categoriesFor: #elementCount!accessing!private! !
+!ARRAYDESC categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !ARRAYDESC categoriesFor: #rgbounds!**compiled accessors**!public! !
 
 !ARRAYDESC class methodsFor!

@@ -15,6 +15,9 @@ dwSize: anInteger
 
 	bytes dwordAtOffset: 0 put: anInteger!
 
+getValidFields
+	^#(#dwSize #hWnd #uID #uFlags #uCallbackMessage #hIcon #szTip)!
+
 hIcon: anExternalHandle
 	"Set the receiver's 'hIcon' field to the value of the argument, anExternalHandle"
 
@@ -81,6 +84,7 @@ uID: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #uID) put: anInteger! !
 !NOTIFYICONDATAW categoriesFor: #dwSize:!**compiled accessors**!public! !
+!NOTIFYICONDATAW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NOTIFYICONDATAW categoriesFor: #hIcon:!**compiled accessors**!public! !
 !NOTIFYICONDATAW categoriesFor: #hWnd:!**compiled accessors**!public! !
 !NOTIFYICONDATAW categoriesFor: #icon:!accessing!public! !

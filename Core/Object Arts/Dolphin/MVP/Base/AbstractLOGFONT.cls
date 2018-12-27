@@ -27,6 +27,9 @@ faceName: aString
 getData: hFont
 	self subclassResponsibility!
 
+getValidFields
+	^#(#lfHeight #lfWidth #lfEscapement #lfOrientation #lfWeight #lfItalic #lfUnderline #lfStrikeOut #lfCharSet #lfOutPrecision #lfClipPrecision #lfQuality #lfPitchAndFamily #lfFaceName)!
+
 isFixedWidth
 	^(self lfPitchAndFamily bitAnd: 16r3) == 1!
 
@@ -143,6 +146,7 @@ lfWidth: anObject
 !AbstractLOGFONT categoriesFor: #faceName!accessing!public! !
 !AbstractLOGFONT categoriesFor: #faceName:!accessing!public! !
 !AbstractLOGFONT categoriesFor: #getData:!accessing!public! !
+!AbstractLOGFONT categoriesFor: #getValidFields!constants!private! !
 !AbstractLOGFONT categoriesFor: #isFixedWidth!public! !
 !AbstractLOGFONT categoriesFor: #lfCharSet!**compiled accessors**!public! !
 !AbstractLOGFONT categoriesFor: #lfCharSet:!**compiled accessors**!public! !

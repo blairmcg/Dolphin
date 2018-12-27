@@ -42,6 +42,9 @@ FileNameLength
 
 	^bytes dwordAtOffset: ##(self offsetOf: #FileNameLength)!
 
+getValidFields
+	^#(#NextEntryOffset #Action #FileNameLength #FileName)!
+
 NextEntryOffset
 	"Answer the <Integer> value of the receiver's 'NextEntryOffset' field."
 
@@ -49,6 +52,7 @@ NextEntryOffset
 !FILE_NOTIFY_INFORMATION categoriesFor: #Action!**compiled accessors**!public! !
 !FILE_NOTIFY_INFORMATION categoriesFor: #FileName!**compiled accessors**!public! !
 !FILE_NOTIFY_INFORMATION categoriesFor: #FileNameLength!**compiled accessors**!public! !
+!FILE_NOTIFY_INFORMATION categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !FILE_NOTIFY_INFORMATION categoriesFor: #NextEntryOffset!**compiled accessors**!public! !
 
 !FILE_NOTIFY_INFORMATION class methodsFor!

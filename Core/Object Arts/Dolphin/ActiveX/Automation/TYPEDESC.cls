@@ -73,8 +73,11 @@ classDesc
 getRefType
 	^self analyzer getRefType: self hreftype!
 
+getValidFields
+	^#(#hreftype #lpadesc #lptdesc #vt)!
+
 hreftype
-	"Answer the receiver's hreftype field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'hreftype' field."
 
 	^bytes dwordAtOffset: 0!
 
@@ -100,12 +103,12 @@ isUserDefined
 	^self vt = VT_USERDEFINED!
 
 lpadesc
-	"Answer the receiver's lpadesc field as a Smalltalk object."
+	"Answer the <ARRAYDESC> value of the receiver's 'lpadesc' field."
 
 	^ARRAYDESC fromAddress: (bytes intPtrAtOffset: 0)!
 
 lptdesc
-	"Answer the receiver's lptdesc field as a Smalltalk object."
+	"Answer the <TYPEDESC> value of the receiver's 'lptdesc' field."
 
 	^TYPEDESC fromAddress: (bytes intPtrAtOffset: 0)!
 
@@ -191,7 +194,7 @@ vartype
 	^vt!
 
 vt
-	"Answer the receiver's vt field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'vt' field."
 
 	^bytes wordAtOffset: ##(self offsetOf: #vt)!
 
@@ -204,6 +207,7 @@ vtName
 !TYPEDESC categoriesFor: #buildClassDesc!helpers!private! !
 !TYPEDESC categoriesFor: #classDesc!accessing!private! !
 !TYPEDESC categoriesFor: #getRefType!accessing!private! !
+!TYPEDESC categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !TYPEDESC categoriesFor: #hreftype!**compiled accessors**!public! !
 !TYPEDESC categoriesFor: #isAnonymous!public!testing! !
 !TYPEDESC categoriesFor: #isStructure!public!testing! !

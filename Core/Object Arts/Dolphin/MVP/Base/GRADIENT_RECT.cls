@@ -24,25 +24,29 @@ struct tagGRADIENT_RECT {
 !GRADIENT_RECT categoriesForClass!Win32-Structs! !
 !GRADIENT_RECT methodsFor!
 
+getValidFields
+	^#(#upperLeft #lowerRight)!
+
 lowerRight
-	"Answer the receiver's lowerRight field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'lowerRight' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #lowerRight)!
 
-lowerRight: anObject 
-	"Set the receiver's lowerRight field to the value of anObject."
+lowerRight: anInteger
+	"Set the receiver's 'lowerRight' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #lowerRight) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #lowerRight) put: anInteger!
 
 upperLeft
-	"Answer the receiver's upperLeft field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'upperLeft' field."
 
 	^bytes dwordAtOffset: 0!
 
-upperLeft: anObject 
-	"Set the receiver's upperLeft field to the value of anObject."
+upperLeft: anInteger
+	"Set the receiver's 'upperLeft' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject! !
+	bytes dwordAtOffset: 0 put: anInteger! !
+!GRADIENT_RECT categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !GRADIENT_RECT categoriesFor: #lowerRight!**compiled accessors**!public! !
 !GRADIENT_RECT categoriesFor: #lowerRight:!**compiled accessors**!public! !
 !GRADIENT_RECT categoriesFor: #upperLeft!**compiled accessors**!public! !

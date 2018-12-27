@@ -47,6 +47,9 @@ dwState: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #dwState) put: anInteger!
 
+getValidFields
+	^#(#mask #dwState #stateMask #pszText #cchTextMax #iImage #lParam)!
+
 handle
 	"Answer the 'handle' of the item described by the receiver."
 
@@ -118,6 +121,7 @@ textPointerOffset
 !TCITEMW categoriesFor: #cchTextMaxOffset!constants!private! !
 !TCITEMW categoriesFor: #dwState!**compiled accessors**!public! !
 !TCITEMW categoriesFor: #dwState:!**compiled accessors**!public! !
+!TCITEMW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !TCITEMW categoriesFor: #handle!accessing!public! !
 !TCITEMW categoriesFor: #iImage!**compiled accessors**!public! !
 !TCITEMW categoriesFor: #iImage:!**compiled accessors**!public! !
@@ -137,7 +141,7 @@ textPointerOffset
 defineFields
 	"Define the fields of the Win32 TCITEM structure.
 
-		TCITEM compileDefinition
+		self compileDefinition
 
 	typedef struct _TCITEM { 
 		UINT mask;			// value specifying which members to retrieve or set 

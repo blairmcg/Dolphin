@@ -14,19 +14,22 @@ NMMOUSE accompanies certain notifications that are sent by a control bars (e.g. 
 !NMMOUSE methodsFor!
 
 dwHitInfo
-	"Answer the receiver's dwHitInfo field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'dwHitInfo' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #dwHitInfo)!
 
 dwItemData
-	"Answer the receiver's dwItemData field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'dwItemData' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #dwItemData)!
 
 dwItemSpec
-	"Answer the receiver's dwItemSpec field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'dwItemSpec' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #dwItemSpec)!
+
+getValidFields
+	^#(#hwndFrom #idFrom #code #dwItemSpec #dwItemData #pt #dwHitInfo)!
 
 iItem
 	"Answer the item index (appropriate when originating from a control whose items
@@ -38,12 +41,13 @@ position
 	^self pt asPoint!
 
 pt
-	"Answer the receiver's pt field as a Smalltalk object."
+	"Answer the <POINTL> value of the receiver's 'pt' field."
 
 	^POINTL fromAddress: bytes yourAddress + ##(self offsetOf: #pt)! !
 !NMMOUSE categoriesFor: #dwHitInfo!**compiled accessors**!public! !
 !NMMOUSE categoriesFor: #dwItemData!**compiled accessors**!public! !
 !NMMOUSE categoriesFor: #dwItemSpec!**compiled accessors**!public! !
+!NMMOUSE categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NMMOUSE categoriesFor: #iItem!accessing!public! !
 !NMMOUSE categoriesFor: #position!accessing!public! !
 !NMMOUSE categoriesFor: #pt!**compiled accessors**!public! !

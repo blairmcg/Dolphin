@@ -40,6 +40,9 @@ flowInfo: anInteger
 
 	self sin6_flowinfo: (WS2_32Library default htonl: anInteger)!
 
+getValidFields
+	^#(#sin6_family #sin6_port #sin6_flowinfo #sin6_addr #sin6_scope_id)!
+
 port
 	"Answer the <integer> port number."
 
@@ -105,6 +108,7 @@ sin6_scope_id: anInteger
 	bytes dwordAtOffset: ##(self offsetOf: #sin6_scope_id) put: anInteger! !
 !SOCKADDR_IN6 categoriesFor: #flowInfo!accessing!public! !
 !SOCKADDR_IN6 categoriesFor: #flowInfo:!accessing!public! !
+!SOCKADDR_IN6 categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !SOCKADDR_IN6 categoriesFor: #port!accessing!public! !
 !SOCKADDR_IN6 categoriesFor: #port:!accessing!public! !
 !SOCKADDR_IN6 categoriesFor: #sin6_addr!**compiled accessors**!public! !

@@ -228,7 +228,7 @@ getValidFields
 	have a mask field which identifies which of the other fields have been 
 	initialized with a value)."
 
-	^self class getFieldList!
+	^self class fieldNamesFromTemplate!
 
 hash
 	"Answer the SmallInteger hash value for the receiver.
@@ -669,7 +669,12 @@ fieldNamesFromTemplate
 	| answer pairs |
 	pairs := self template associations.
 	answer := OrderedCollection new: pairs size.
-	(pairs asSortedCollection: [:x :y | x value offset <= y value offset])
+	(pairs asSortedCollection: 
+			[:x :y |
+			| xoff yoff |
+			xoff := x value offset.
+			yoff := y value offset.
+			xoff == yoff ifTrue: [x key <= y key] ifFalse: [xoff < yoff]])
 		do: [:assoc | (assoc key last == $: or: [assoc value isFiller]) ifFalse: [answer add: assoc key]].
 	^answer!
 
@@ -691,11 +696,6 @@ fromBytes: aByteObject
 	"Answer a new instance of the receiver with contents copied from aByteObject"
 
 	^self new copyBytes: aByteObject!
-
-getFieldList
-	"Private - Answer a <sequencedReadableCollection> of <Symbol>, being the identifiers of the fields defined in the receiver's template, sorted in ascending order of offset from the start of the	structure."
-
-	^self fieldNamesFromTemplate!
 
 inheritTemplate
 	| ancestor |
@@ -998,7 +998,6 @@ withBytes: aByteObject
 !ExternalStructure class categoriesFor: #fieldNamesFromTemplate!accessing!compiling!private! !
 !ExternalStructure class categoriesFor: #fromAddress:!instance creation!public! !
 !ExternalStructure class categoriesFor: #fromBytes:!instance creation!public! !
-!ExternalStructure class categoriesFor: #getFieldList!accessing!private! !
 !ExternalStructure class categoriesFor: #inheritTemplate!private!template definition! !
 !ExternalStructure class categoriesFor: #init:!initializing!public! !
 !ExternalStructure class categoriesFor: #initialize!development!initializing!private! !

@@ -14,6 +14,9 @@ The only relevant member at present is #pwszName, which would usually be a UNC o
 !COSERVERINFO categoriesForClass!External-Data-Structured-COM! !
 !COSERVERINFO methodsFor!
 
+getValidFields
+	^#(#pwszName #pAuthInfo)!
+
 hostName
 	"Answer the <String> value of the receiver's member variable pwszName."
 
@@ -28,24 +31,25 @@ hostName: aString
 	self pwszName: hostName!
 
 pAuthInfo
-	"Answer the receiver's pAuthInfo field as a Smalltalk object."
+	"Answer the <COAUTHINFO> value of the receiver's 'pAuthInfo' field."
 
 	^COAUTHINFO fromAddress: (bytes intPtrAtOffset: ##(self offsetOf: #pAuthInfo))!
 
-pAuthInfo: anObject 
-	"Set the receiver's pAuthInfo field to the value of anObject."
+pAuthInfo: aCOAUTHINFO
+	"Set the receiver's 'pAuthInfo' field to the value of the argument, aCOAUTHINFO"
 
-	bytes uintPtrAtOffset: ##(self offsetOf: #pAuthInfo) put: anObject yourAddress!
+	bytes uintPtrAtOffset: ##(self offsetOf: #pAuthInfo) put: aCOAUTHINFO yourAddress!
 
 pwszName
-	"Answer the receiver's pwszName field as a Smalltalk object."
+	"Answer the <Utf16String> value of the receiver's 'pwszName' field."
 
 	^Utf16String fromAddress: (bytes intPtrAtOffset: ##(self offsetOf: #pwszName))!
 
-pwszName: anObject 
-	"Set the receiver's pwszName field to the value of anObject."
+pwszName: anUtf16String
+	"Set the receiver's 'pwszName' field to the value of the argument, anUtf16String"
 
-	bytes uintPtrAtOffset: ##(self offsetOf: #pwszName) put: anObject yourAddress! !
+	bytes uintPtrAtOffset: ##(self offsetOf: #pwszName) put: anUtf16String yourAddress! !
+!COSERVERINFO categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !COSERVERINFO categoriesFor: #hostName!accessing!public! !
 !COSERVERINFO categoriesFor: #hostName:!accessing!public! !
 !COSERVERINFO categoriesFor: #pAuthInfo!**compiled accessors**!public! !

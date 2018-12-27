@@ -14,22 +14,25 @@ From MSDN: "The DRAWITEMSTRUCT structure provides information the owner window m
 !DRAWITEMSTRUCT methodsFor!
 
 CtlID
-	"Answer the receiver's CtlID field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'CtlID' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #CtlID)!
 
 CtlType
-	"Answer the receiver's CtlType field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'CtlType' field."
 
 	^bytes dwordAtOffset: 0!
 
+getValidFields
+	^#(#CtlType #CtlID #itemID #itemAction #itemState #hwndItem #hDC #rcItem)!
+
 hDC
-	"Answer the receiver's hDC field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'hDC' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #hDC)!
 
 hwndItem
-	"Answer the receiver's hwndItem field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'hwndItem' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #hwndItem)!
 
@@ -44,26 +47,27 @@ isSelected
 	^self itemState allMask: ODS_SELECTED!
 
 itemAction
-	"Answer the receiver's itemAction field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'itemAction' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #itemAction)!
 
 itemID
-	"Answer the receiver's itemID field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'itemID' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #itemID)!
 
 itemState
-	"Answer the receiver's itemState field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'itemState' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #itemState)!
 
 rcItem
-	"Answer the receiver's rcItem field as a Smalltalk object."
+	"Answer the <RECT> value of the receiver's 'rcItem' field."
 
 	^RECT fromAddress: bytes yourAddress + ##(self offsetOf: #rcItem)! !
 !DRAWITEMSTRUCT categoriesFor: #CtlID!**compiled accessors**!public! !
 !DRAWITEMSTRUCT categoriesFor: #CtlType!**compiled accessors**!public! !
+!DRAWITEMSTRUCT categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !DRAWITEMSTRUCT categoriesFor: #hDC!**compiled accessors**!public! !
 !DRAWITEMSTRUCT categoriesFor: #hwndItem!**compiled accessors**!public! !
 !DRAWITEMSTRUCT categoriesFor: #isGrayed!public!testing! !

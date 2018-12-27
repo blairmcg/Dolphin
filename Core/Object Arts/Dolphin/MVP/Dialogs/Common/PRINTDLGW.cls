@@ -25,6 +25,9 @@ flags: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #flags) put: anInteger!
 
+getValidFields
+	^#(#dwSize #hwndOwner #hDevMode #hDevNames #hDC #flags #nFromPage #nToPage #nMinPage #nMaxPage #nCopies #lpfnHook)!
+
 hDC
 	"Answer the <Integer> value of the receiver's 'hDC' field."
 
@@ -97,6 +100,7 @@ ownerView: aView
 !PRINTDLGW categoriesFor: #dwSize:!**compiled accessors**!public! !
 !PRINTDLGW categoriesFor: #flags!**compiled accessors**!public! !
 !PRINTDLGW categoriesFor: #flags:!**compiled accessors**!public! !
+!PRINTDLGW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !PRINTDLGW categoriesFor: #hDC!**compiled accessors**!public! !
 !PRINTDLGW categoriesFor: #hDC:!**compiled accessors**!public! !
 !PRINTDLGW categoriesFor: #hookFlag!accessing!public! !

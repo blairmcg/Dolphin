@@ -82,6 +82,9 @@ Flags2: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #Flags2) put: anInteger!
 
+getValidFields
+	^#(#lStructSize #hwndOwner #hDevMode #hDevNames #hDC #flags #Flags2 #ExclusionFlags #nPageRanges #nMaxPageRanges #lpPageRanges #nMinPage #nMaxPage #nCopies #hInstance #lpPrintTemplateName #lpCallback #nPropertyPages #lphPropertyPages #nStartPage #dwResultAction)!
+
 hDC
 	"Answer the <ExternalHandle> value of the receiver's 'hDC' field."
 
@@ -259,6 +262,7 @@ nStartPage: anInteger
 !PRINTDLGEXW categoriesFor: #flags:!**compiled accessors**!public! !
 !PRINTDLGEXW categoriesFor: #Flags2!**compiled accessors**!public! !
 !PRINTDLGEXW categoriesFor: #Flags2:!**compiled accessors**!public! !
+!PRINTDLGEXW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !PRINTDLGEXW categoriesFor: #hDC!**compiled accessors**!public! !
 !PRINTDLGEXW categoriesFor: #hDC:!**compiled accessors**!public! !
 !PRINTDLGEXW categoriesFor: #hDevMode!**compiled accessors**!public! !
@@ -299,7 +303,7 @@ nStartPage: anInteger
 defineFields
 	"Define the fields of the PRINTDLGEX structure.
 
-	PRINTDLGEX  compileDefinition
+	self compileDefinition
 
 		typedef [uuid(46F06E70-1BB5-4B02-98EE-6AB442F3B43F)]
 		struct tagPRINTDLGEX {

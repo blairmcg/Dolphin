@@ -47,6 +47,9 @@ allAliases
 
 	^self reifyNullTerminatedArray: self h_aliases!
 
+getValidFields
+	^#(#h_name #h_aliases #h_addrtype #h_length #h_addr_list)!
+
 h_addr
 	"Answer the FIRST entry in the receiver's h_addr_list field"
 
@@ -97,6 +100,7 @@ reifyNullTerminatedArray: list
 !HOSTENT categoriesFor: #addressClass!helpers!private! !
 !HOSTENT categoriesFor: #allAddresses!accessing!public! !
 !HOSTENT categoriesFor: #allAliases!accessing!public! !
+!HOSTENT categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !HOSTENT categoriesFor: #h_addr!accessing!public! !
 !HOSTENT categoriesFor: #h_addr_list!**compiled accessors**!public! !
 !HOSTENT categoriesFor: #h_addrtype!**compiled accessors**!public! !

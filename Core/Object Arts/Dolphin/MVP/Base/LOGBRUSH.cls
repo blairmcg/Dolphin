@@ -27,6 +27,9 @@ color: aColor
 
 	self lbColor: aColor asParameter!
 
+getValidFields
+	^#(#lbStyle #lbColor #lbHatch)!
+
 hatch
 	"Answer the hatch object. This is either a <Bitmap>, or one of a set of standard integer constants."
 
@@ -39,34 +42,34 @@ hatch: aBitmapOrInteger
 	self lbHatch: aBitmapOrInteger asParameter!
 
 lbColor
-	"Answer the receiver's lbColor field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'lbColor' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #lbColor)!
 
-lbColor: anObject 
-	"Set the receiver's lbColor field to the value of anObject."
+lbColor: anInteger
+	"Set the receiver's 'lbColor' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #lbColor) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #lbColor) put: anInteger!
 
 lbHatch
-	"Answer the receiver's lbHatch field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'lbHatch' field."
 
 	^bytes uintPtrAtOffset: ##(self offsetOf: #lbHatch)!
 
-lbHatch: anObject 
-	"Set the receiver's lbHatch field to the value of anObject."
+lbHatch: anInteger
+	"Set the receiver's 'lbHatch' field to the value of the argument, anInteger"
 
-	bytes uintPtrAtOffset: ##(self offsetOf: #lbHatch) put: anObject!
+	bytes uintPtrAtOffset: ##(self offsetOf: #lbHatch) put: anInteger!
 
 lbStyle
-	"Answer the receiver's lbStyle field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'lbStyle' field."
 
 	^bytes dwordAtOffset: 0!
 
-lbStyle: anObject 
-	"Set the receiver's lbStyle field to the value of anObject."
+lbStyle: anInteger
+	"Set the receiver's 'lbStyle' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject!
+	bytes dwordAtOffset: 0 put: anInteger!
 
 printFieldsOn: aStream limit: anInteger 
 	aStream
@@ -86,6 +89,7 @@ style: anInteger
 	self lbStyle: anInteger! !
 !LOGBRUSH categoriesFor: #color!accessing!public! !
 !LOGBRUSH categoriesFor: #color:!accessing!public! !
+!LOGBRUSH categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !LOGBRUSH categoriesFor: #hatch!accessing!public! !
 !LOGBRUSH categoriesFor: #hatch:!accessing!public! !
 !LOGBRUSH categoriesFor: #lbColor!**compiled accessors**!public! !

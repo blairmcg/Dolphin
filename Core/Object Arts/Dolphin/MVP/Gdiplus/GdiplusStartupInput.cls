@@ -25,11 +25,15 @@ struct tagGdiplusStartupInput {
 !GdiplusStartupInput categoriesForClass!Unclassified! !
 !GdiplusStartupInput methodsFor!
 
-GdiplusVersion: anObject
-	"Set the receiver's GdiplusVersion field to the value of anObject."
+GdiplusVersion: anInteger
+	"Set the receiver's 'GdiplusVersion' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject! !
+	bytes dwordAtOffset: 0 put: anInteger!
+
+getValidFields
+	^#(#GdiplusVersion)! !
 !GdiplusStartupInput categoriesFor: #GdiplusVersion:!**compiled accessors**!public! !
+!GdiplusStartupInput categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 
 !GdiplusStartupInput class methodsFor!
 

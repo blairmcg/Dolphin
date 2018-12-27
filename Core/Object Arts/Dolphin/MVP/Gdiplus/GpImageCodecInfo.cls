@@ -112,6 +112,9 @@ FormatID: aGUID
 		to: ##((self offsetOf: #FormatID) + GUID basicByteSize)
 		startingAt: 1!
 
+getValidFields
+	^#(#Clsid #FormatID #CodecName #DllName #FormatDescription #FilenameExtension #MimeType #Flags #Version #SigCount #SigSize #SigPattern #SigMask)!
+
 MimeType
 	"Answer the <Utf16String> value of the receiver's 'MimeType' field."
 
@@ -185,6 +188,7 @@ Version: anInteger
 !GpImageCodecInfo categoriesFor: #FormatDescription:!**compiled accessors**!public! !
 !GpImageCodecInfo categoriesFor: #FormatID!**compiled accessors**!public! !
 !GpImageCodecInfo categoriesFor: #FormatID:!**compiled accessors**!public! !
+!GpImageCodecInfo categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !GpImageCodecInfo categoriesFor: #MimeType!**compiled accessors**!public! !
 !GpImageCodecInfo categoriesFor: #MimeType:!**compiled accessors**!public! !
 !GpImageCodecInfo categoriesFor: #SigCount!**compiled accessors**!public! !

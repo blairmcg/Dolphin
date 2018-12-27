@@ -10,6 +10,9 @@ NMTTDISPINFOW comment: ''!
 !NMTTDISPINFOW categoriesForClass!External-Data-Structured-Win32! !
 !NMTTDISPINFOW methodsFor!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code #lpszText #uFlags)!
+
 idIsHandle
 	"Answer true if id stored in the receiver's header is a window handle, or false
 	if it is a tool id (e.g. for a toolbar button)."
@@ -44,6 +47,7 @@ uFlags
 	"Answer the <Integer> value of the receiver's 'uFlags' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #uFlags)! !
+!NMTTDISPINFOW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NMTTDISPINFOW categoriesFor: #idIsHandle!private!testing! !
 !NMTTDISPINFOW categoriesFor: #lpszText!**compiled accessors**!public! !
 !NMTTDISPINFOW categoriesFor: #lpszText:!**compiled accessors**!public! !

@@ -25,20 +25,24 @@ struct tagOFNOTIFYEX {
 !OFNOTIFYEXW categoriesForClass!Win32-Structs! !
 !OFNOTIFYEXW methodsFor!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code #lpOFN #psf #pidl)!
+
 lpOFN
-	"Answer the receiver's lpOFN field as a Smalltalk object."
+	"Answer the <OPENFILENAMEW> value of the receiver's 'lpOFN' field."
 
 	^OPENFILENAMEW fromAddress: (bytes intPtrAtOffset: ##(self offsetOf: #lpOFN))!
 
 pidl
-	"Answer the receiver's pidl field as a Smalltalk object."
+	"Answer the <ExternalAddress> value of the receiver's 'pidl' field."
 
 	^(bytes uintPtrAtOffset: ##(self offsetOf: #pidl)) asExternalAddress!
 
 psf
-	"Answer the receiver's psf field as a Smalltalk object."
+	"Answer the <ExternalAddress> value of the receiver's 'psf' field."
 
 	^(bytes uintPtrAtOffset: ##(self offsetOf: #psf)) asExternalAddress! !
+!OFNOTIFYEXW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !OFNOTIFYEXW categoriesFor: #lpOFN!**compiled accessors**!public! !
 !OFNOTIFYEXW categoriesFor: #pidl!**compiled accessors**!public! !
 !OFNOTIFYEXW categoriesFor: #psf!**compiled accessors**!public! !
@@ -48,7 +52,7 @@ psf
 defineFields
 	"Define the fields of the OFNOTIFYEX structure.
 
-	OFNOTIFYEX  compileDefinition
+	self compileDefinition
 
 		typedef [uuid(4C069709-5FAE-4AF1-AB44-F69E79128090)]
 		struct tagOFNOTIFYEX {

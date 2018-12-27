@@ -18,6 +18,9 @@ Note that this structure is only 6-bytes long, and may require packing when embe
 !IDLDESC categoriesForClass!External-Data-Structured-COM! !
 !IDLDESC methodsFor!
 
+getValidFields
+	^#(#wIDLFlags)!
+
 isIn
 	"Answer whether the receiver is describing an input argument."
 
@@ -34,9 +37,10 @@ isRetVal
 	^self wIDLFlags anyMask: IDLFLAG_FRETVAL!
 
 wIDLFlags
-	"Answer the receiver's wIDLFlags field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'wIDLFlags' field."
 
 	^bytes wordAtOffset: ##(self offsetOf: #wIDLFlags)! !
+!IDLDESC categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !IDLDESC categoriesFor: #isIn!public!testing! !
 !IDLDESC categoriesFor: #isOut!public!testing! !
 !IDLDESC categoriesFor: #isRetVal!public!testing! !

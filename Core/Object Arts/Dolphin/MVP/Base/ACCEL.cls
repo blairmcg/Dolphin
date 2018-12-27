@@ -12,22 +12,26 @@ ACCEL is used to associate accelerator key entries with a Window.'!
 !ACCEL categoriesForClass!External-Data-Structured-Win32! !
 !ACCEL methodsFor!
 
-cmd: anObject 
-	"Set the receiver's cmd field to the value of anObject."
+cmd: anInteger
+	"Set the receiver's 'cmd' field to the value of the argument, anInteger"
 
-	bytes wordAtOffset: ##(self offsetOf: #cmd) put: anObject!
+	bytes wordAtOffset: ##(self offsetOf: #cmd) put: anInteger!
 
-fVirt: anObject 
-	"Set the receiver's fVirt field to the value of anObject."
+fVirt: anInteger
+	"Set the receiver's 'fVirt' field to the value of the argument, anInteger"
 
-	bytes byteAtOffset: 0 put: anObject!
+	bytes byteAtOffset: 0 put: anInteger!
 
-key: anObject 
-	"Set the receiver's key field to the value of anObject."
+getValidFields
+	^#(#fVirt #key #cmd)!
 
-	bytes wordAtOffset: ##(self offsetOf: #key) put: anObject! !
+key: anInteger
+	"Set the receiver's 'key' field to the value of the argument, anInteger"
+
+	bytes wordAtOffset: ##(self offsetOf: #key) put: anInteger! !
 !ACCEL categoriesFor: #cmd:!**compiled accessors**!public! !
 !ACCEL categoriesFor: #fVirt:!**compiled accessors**!public! !
+!ACCEL categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !ACCEL categoriesFor: #key:!**compiled accessors**!public! !
 
 !ACCEL class methodsFor!

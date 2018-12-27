@@ -74,6 +74,9 @@ dwState: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #dwState) put: anInteger!
 
+getValidFields
+	^#(#mask #iItem #iSubItem #dwState #stateMask #pszText #cchTextMax #iImage #lParam #iIndent #iGroupId #cColumns #puColumns #piColFmt #iGroup)!
+
 handle
 	"Answer the 'handle' of the item described by the receiver."
 
@@ -236,6 +239,7 @@ textPointerOffset
 !LVITEMW categoriesFor: #column:!accessing!public! !
 !LVITEMW categoriesFor: #dwState!**compiled accessors**!public! !
 !LVITEMW categoriesFor: #dwState:!**compiled accessors**!public! !
+!LVITEMW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !LVITEMW categoriesFor: #handle!accessing!public! !
 !LVITEMW categoriesFor: #iGroup!**compiled accessors**!public! !
 !LVITEMW categoriesFor: #iGroupId!**compiled accessors**!public! !

@@ -37,6 +37,9 @@ cpMin: anObject
 
 	bytes sdwordAtOffset: 0 put: anObject!
 
+getValidFields
+	^#(#chrg #lpstrText)!
+
 lpstrText: anInteger
 	"Set the receiver's 'lpstrText' field to the value of the argument, anInteger"
 
@@ -77,6 +80,7 @@ text: buffer
 !TEXTRANGE categoriesFor: #cpMax:!public! !
 !TEXTRANGE categoriesFor: #cpMin!public! !
 !TEXTRANGE categoriesFor: #cpMin:!public! !
+!TEXTRANGE categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !TEXTRANGE categoriesFor: #lpstrText:!**compiled accessors**!public! !
 !TEXTRANGE categoriesFor: #setFrom:to:text:!initializing!private! !
 !TEXTRANGE categoriesFor: #size!accessing!public! !

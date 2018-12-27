@@ -145,6 +145,9 @@ funckind
 getAllCustData
 	^analyzer tlbInterface getAllFuncCustData: index!
 
+getValidFields
+	^#(#memid #lprgscode #lprgelemdescParam #funckind #invkind #callconv #cParams #cParamsOpt #oVft #cScodes #elemdescFunc #wFuncFlags)!
+
 hasRetval
 	"Answer whether the receiver has retval argument."
 
@@ -377,6 +380,7 @@ wFuncFlags
 !FUNCDESC categoriesFor: #flags!accessing!private! !
 !FUNCDESC categoriesFor: #funckind!**compiled accessors**!public! !
 !FUNCDESC categoriesFor: #getAllCustData!accessing!private! !
+!FUNCDESC categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !FUNCDESC categoriesFor: #hasRetval!public!testing! !
 !FUNCDESC categoriesFor: #idlCallingConvention!printing-IDL!private! !
 !FUNCDESC categoriesFor: #invkind!**compiled accessors**!public! !

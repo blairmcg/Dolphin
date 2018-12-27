@@ -69,9 +69,11 @@ getValidFields
 	structure, that are valid in this particular instance."
 
 	| fields |
-	fields := super getValidFields.
-	self isSymbolicConstant ifFalse: [fields remove: #lpvarValue].
-	^fields!
+	fields := Array writeStream.
+	fields nextPutAll: #(#memid #oInst).
+	self isSymbolicConstant ifTrue: [fields nextPut: #lpvarValue].
+	fields nextPutAll: #(#elemdesc #wVarFlags #varkind).
+	^fields contents!
 
 isAnonymous
 	"Answer whether the variable described by the receiver is anonymous (i.e. unnamed). This is

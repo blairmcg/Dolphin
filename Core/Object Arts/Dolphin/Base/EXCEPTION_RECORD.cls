@@ -48,6 +48,9 @@ ExceptionRecord
 
 	^EXCEPTION_RECORD fromAddress: (bytes intPtrAtOffset: ##(self offsetOf: #ExceptionRecord))!
 
+getValidFields
+	^#(#ExceptionCode #ExceptionFlags #ExceptionRecord #ExceptionAddress #NumberParameters)!
+
 information
 	"Answer the receiver's ExceptionInformation as an <Array> of <Integer>."
 
@@ -86,6 +89,7 @@ NumberParameters
 !EXCEPTION_RECORD categoriesFor: #ExceptionCode!**compiled accessors**!public! !
 !EXCEPTION_RECORD categoriesFor: #ExceptionFlags!**compiled accessors**!public! !
 !EXCEPTION_RECORD categoriesFor: #ExceptionRecord!**compiled accessors**!public! !
+!EXCEPTION_RECORD categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !EXCEPTION_RECORD categoriesFor: #information!accessing!public! !
 !EXCEPTION_RECORD categoriesFor: #moduleFileName!accessing!public! !
 !EXCEPTION_RECORD categoriesFor: #NumberParameters!**compiled accessors**!public! !
@@ -115,10 +119,6 @@ defineFields
 		defineField: #ExceptionAddress type: LPVOIDField new beReadOnly offset: 12;
 		defineField: #NumberParameters type: DWORDField new beReadOnly offset: 16;
 		defineField: #ExceptionInformation type: (ArrayField type: UINT_PTRArray length: 15) beReadOnly beFiller offset: 20.
-	self byteSize: 80!
-
-getFieldList
-	^#(#ExceptionCode #ExceptionFlags #ExceptionRecord #ExceptionAddress #NumberParameters)! !
+	self byteSize: 80! !
 !EXCEPTION_RECORD class categoriesFor: #defineFields!**auto generated**!initializing!public! !
-!EXCEPTION_RECORD class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 

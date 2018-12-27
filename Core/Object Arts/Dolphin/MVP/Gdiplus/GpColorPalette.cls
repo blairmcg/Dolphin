@@ -25,14 +25,14 @@ struct tagGpColorPalette {
 !GpColorPalette methodsFor!
 
 Count
-	"Answer the receiver's Count field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Count' field."
 
-	^(bytes dwordAtOffset: 4)!
+	^bytes dwordAtOffset: ##(self offsetOf: #Count)!
 
-Count: anObject
-	"Set the receiver's Count field to the value of anObject."
+Count: anInteger
+	"Set the receiver's 'Count' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 4 put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #Count) put: anInteger!
 
 Entries
 	"Answer the receiver's Entries field as a Smalltalk object."
@@ -57,20 +57,24 @@ Entries: anObject
 		startingAt: 1!
 
 Flags
-	"Answer the receiver's Flags field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'Flags' field."
 
-	^(bytes dwordAtOffset: 0)!
+	^bytes dwordAtOffset: 0!
 
-Flags: anObject
-	"Set the receiver's Flags field to the value of anObject."
+Flags: anInteger
+	"Set the receiver's 'Flags' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject! !
+	bytes dwordAtOffset: 0 put: anInteger!
+
+getValidFields
+	^#(#Flags #Count #Entries)! !
 !GpColorPalette categoriesFor: #Count!**compiled accessors**!public! !
 !GpColorPalette categoriesFor: #Count:!**compiled accessors**!public! !
 !GpColorPalette categoriesFor: #Entries!accessing!public! !
 !GpColorPalette categoriesFor: #Entries:!accessing!public! !
 !GpColorPalette categoriesFor: #Flags!**compiled accessors**!public! !
 !GpColorPalette categoriesFor: #Flags:!**compiled accessors**!public! !
+!GpColorPalette categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 
 !GpColorPalette class methodsFor!
 

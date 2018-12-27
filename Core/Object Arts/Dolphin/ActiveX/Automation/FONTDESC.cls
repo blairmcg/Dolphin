@@ -68,6 +68,9 @@ fUnderline: aBoolean
 
 	bytes dwordAtOffset: ##(self offsetOf: #fUnderline) put: aBoolean asParameter!
 
+getValidFields
+	^#(#dwSize #lpstrName #cySize #sWeight #sCharset #fItalic #fUnderline #fStrikethrough)!
+
 lpstrName
 	"Answer the <Utf16String> value of the receiver's 'lpstrName' field."
 
@@ -118,6 +121,7 @@ sWeight: anInteger
 !FONTDESC categoriesFor: #fStrikethrough:!**compiled accessors**!public! !
 !FONTDESC categoriesFor: #fUnderline!**compiled accessors**!public! !
 !FONTDESC categoriesFor: #fUnderline:!**compiled accessors**!public! !
+!FONTDESC categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !FONTDESC categoriesFor: #lpstrName!**compiled accessors**!public! !
 !FONTDESC categoriesFor: #lpstrName:!**compiled accessors**!public! !
 !FONTDESC categoriesFor: #pointSize!accessing!public! !

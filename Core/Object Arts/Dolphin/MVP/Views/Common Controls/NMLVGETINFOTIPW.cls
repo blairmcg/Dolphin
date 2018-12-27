@@ -20,6 +20,9 @@ dwFlags
 
 	^bytes dwordAtOffset: ##(self offsetOf: #dwFlags)!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code #dwFlags #pszText #cchTextMax #iItem #iSubItem)!
+
 iItem
 	"Answer the <Integer> value of the receiver's 'iItem' field."
 
@@ -41,6 +44,7 @@ pszText
 	^(bytes uintPtrAtOffset: ##(self offsetOf: #pszText)) asExternalAddress! !
 !NMLVGETINFOTIPW categoriesFor: #cchTextMax!**compiled accessors**!public! !
 !NMLVGETINFOTIPW categoriesFor: #dwFlags!**compiled accessors**!public! !
+!NMLVGETINFOTIPW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NMLVGETINFOTIPW categoriesFor: #iItem!**compiled accessors**!public! !
 !NMLVGETINFOTIPW categoriesFor: #iSubItem!**compiled accessors**!public! !
 !NMLVGETINFOTIPW categoriesFor: #itemHandle!accessing!public! !

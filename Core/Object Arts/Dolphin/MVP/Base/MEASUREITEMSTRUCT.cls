@@ -13,41 +13,45 @@ From MSDN: "The MEASUREITEMSTRUCT structure informs the system of the dimensions
 !MEASUREITEMSTRUCT methodsFor!
 
 CtlID
-	"Answer the receiver's CtlID field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'CtlID' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #CtlID)!
 
 CtlType
-	"Answer the receiver's CtlType field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'CtlType' field."
 
 	^bytes dwordAtOffset: 0!
 
+getValidFields
+	^#(#CtlType #CtlID #itemID #itemWidth #itemHeight)!
+
 itemHeight
-	"Answer the receiver's itemHeight field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'itemHeight' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #itemHeight)!
 
-itemHeight: anObject 
-	"Set the receiver's itemHeight field to the value of anObject."
+itemHeight: anInteger
+	"Set the receiver's 'itemHeight' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #itemHeight) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #itemHeight) put: anInteger!
 
 itemID
-	"Answer the receiver's itemID field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'itemID' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #itemID)!
 
 itemWidth
-	"Answer the receiver's itemWidth field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'itemWidth' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #itemWidth)!
 
-itemWidth: anObject 
-	"Set the receiver's itemWidth field to the value of anObject."
+itemWidth: anInteger
+	"Set the receiver's 'itemWidth' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #itemWidth) put: anObject! !
+	bytes dwordAtOffset: ##(self offsetOf: #itemWidth) put: anInteger! !
 !MEASUREITEMSTRUCT categoriesFor: #CtlID!**compiled accessors**!public! !
 !MEASUREITEMSTRUCT categoriesFor: #CtlType!**compiled accessors**!public! !
+!MEASUREITEMSTRUCT categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !MEASUREITEMSTRUCT categoriesFor: #itemHeight!**compiled accessors**!public! !
 !MEASUREITEMSTRUCT categoriesFor: #itemHeight:!**compiled accessors**!public! !
 !MEASUREITEMSTRUCT categoriesFor: #itemID!**compiled accessors**!public! !

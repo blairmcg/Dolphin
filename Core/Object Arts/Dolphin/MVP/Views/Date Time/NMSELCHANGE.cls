@@ -10,15 +10,19 @@ NMSELCHANGE comment: ''!
 !NMSELCHANGE categoriesForClass!External-Data-Structured-Win32! !
 !NMSELCHANGE methodsFor!
 
-stSelEnd
-	"Answer the receiver's stSelEnd field as a Smalltalk object."
+getValidFields
+	^#(#hwndFrom #idFrom #code #stSelStart #stSelEnd)!
 
-	^SYSTEMTIME fromAddress: (bytes yourAddress + 28)!
+stSelEnd
+	"Answer the <SYSTEMTIME> value of the receiver's 'stSelEnd' field."
+
+	^SYSTEMTIME fromAddress: bytes yourAddress + ##(self offsetOf: #stSelEnd)!
 
 stSelStart
-	"Answer the receiver's stSelStart field as a Smalltalk object."
+	"Answer the <SYSTEMTIME> value of the receiver's 'stSelStart' field."
 
-	^SYSTEMTIME fromAddress: (bytes yourAddress + 12)! !
+	^SYSTEMTIME fromAddress: bytes yourAddress + ##(self offsetOf: #stSelStart)! !
+!NMSELCHANGE categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NMSELCHANGE categoriesFor: #stSelEnd!**compiled accessors**!public! !
 !NMSELCHANGE categoriesFor: #stSelStart!**compiled accessors**!public! !
 

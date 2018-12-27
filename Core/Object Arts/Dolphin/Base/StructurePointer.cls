@@ -20,6 +20,9 @@ elementClass: anObject
 
 	elementClass := anObject!
 
+getValidFields
+	^#(#value)!
+
 printOn: aStream
 	"Print a string representation of self on aStream."
 
@@ -37,6 +40,7 @@ value
 	^self elementClass fromAddress: bytes! !
 !StructurePointer categoriesFor: #elementClass!accessing!private! !
 !StructurePointer categoriesFor: #elementClass:!accessing!private! !
+!StructurePointer categoriesFor: #getValidFields!constants!private! !
 !StructurePointer categoriesFor: #printOn:!printing!public! !
 !StructurePointer categoriesFor: #value!accessing!public! !
 

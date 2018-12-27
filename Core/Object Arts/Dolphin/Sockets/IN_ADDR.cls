@@ -45,6 +45,9 @@ address: anInternetAddress
 
 	self s_addr: anInternetAddress ipAddress!
 
+getValidFields
+	^#(#s_addr)!
+
 s_addr
 	"Answer the <Integer> value of the receiver's 's_addr' field."
 
@@ -56,6 +59,7 @@ s_addr: anInteger
 	bytes dwordAtOffset: 0 put: anInteger! !
 !IN_ADDR categoriesFor: #address!accessing!public! !
 !IN_ADDR categoriesFor: #address:!accessing!public! !
+!IN_ADDR categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !IN_ADDR categoriesFor: #s_addr!**compiled accessors**!public! !
 !IN_ADDR categoriesFor: #s_addr:!**compiled accessors**!public! !
 

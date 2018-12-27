@@ -34,6 +34,9 @@ asUIntPtr
 
 	^self asPoint asUIntPtr!
 
+getValidFields
+	^#(#x #y)!
+
 printOn: aStream
 	"Append a short textual description of the receiver to aStream."
 
@@ -68,6 +71,7 @@ y: anObject
 !ExternalPoint categoriesFor: #asObject!converting!public! !
 !ExternalPoint categoriesFor: #asPoint!converting!public! !
 !ExternalPoint categoriesFor: #asUIntPtr!converting!public! !
+!ExternalPoint categoriesFor: #getValidFields!constants!private! !
 !ExternalPoint categoriesFor: #printOn:!printing!public! !
 !ExternalPoint categoriesFor: #value!accessing!public! !
 !ExternalPoint categoriesFor: #value:!accessing!public! !

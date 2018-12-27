@@ -32,6 +32,9 @@ struct tagOVERLAPPED {
 !OVERLAPPED categoriesForClass!Win32-Structs! !
 !OVERLAPPED methodsFor!
 
+getValidFields
+	^#(#Internal #InternalHigh #Offset #OffsetHigh #hEvent)!
+
 hEvent
 	"Answer the <ExternalHandle> value of the receiver's 'hEvent' field."
 
@@ -71,6 +74,7 @@ OffsetHigh: anInteger
 	"Set the receiver's 'OffsetHigh' field to the value of the argument, anInteger"
 
 	bytes dwordAtOffset: ##(self offsetOf: #OffsetHigh) put: anInteger! !
+!OVERLAPPED categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !OVERLAPPED categoriesFor: #hEvent!**compiled accessors**!public! !
 !OVERLAPPED categoriesFor: #hEvent:!**compiled accessors**!public! !
 !OVERLAPPED categoriesFor: #Internal!**compiled accessors**!public! !

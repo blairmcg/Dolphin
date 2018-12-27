@@ -58,6 +58,9 @@ ftLastWriteTime
 
 	^FILETIME fromAddress: bytes yourAddress + ##(self offsetOf: #ftLastWriteTime)!
 
+getValidFields
+	^#(#dwFileAttributes #ftCreationTime #ftLastAccessTime #ftLastWriteTime #nFileSizeHigh #nFileSizeLow #cFileName #cAlternateFileName)!
+
 isDirectory
 	"Answer whether the receiver describes a directory (as opposed to a file) 
 	in the host file system."
@@ -108,6 +111,7 @@ stem
 !WIN32_FIND_DATAW categoriesFor: #ftCreationTime!**compiled accessors**!public! !
 !WIN32_FIND_DATAW categoriesFor: #ftLastAccessTime!**compiled accessors**!public! !
 !WIN32_FIND_DATAW categoriesFor: #ftLastWriteTime!**compiled accessors**!public! !
+!WIN32_FIND_DATAW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !WIN32_FIND_DATAW categoriesFor: #isDirectory!public!testing! !
 !WIN32_FIND_DATAW categoriesFor: #isReadOnly!public!testing! !
 !WIN32_FIND_DATAW categoriesFor: #nFileSizeHigh!**compiled accessors**!public! !
@@ -148,10 +152,6 @@ defineFields
 		defineField: #dwReserved0 type: DWORDField filler;
 		defineField: #dwReserved1 type: DWORDField filler;
 		defineField: #cFileName type: (StringField type: Utf16String length: File maxPath) beReadOnly;
-		defineField: #cAlternateFileName type: (StringField type: Utf16String length: 14) beReadOnly!
-
-getFieldList
-	^#(#dwFileAttributes #ftCreationTime #ftLastAccessTime #ftLastWriteTime #nFileSizeHigh #nFileSizeLow #cFileName #cAlternateFileName)! !
+		defineField: #cAlternateFileName type: (StringField type: Utf16String length: 14) beReadOnly! !
 !WIN32_FIND_DATAW class categoriesFor: #defineFields!initializing!public! !
-!WIN32_FIND_DATAW class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 

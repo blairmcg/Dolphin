@@ -11,70 +11,74 @@ TBBUTTON comment: ''!
 !TBBUTTON methodsFor!
 
 dwData
-	"Answer the receiver's dwData field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'dwData' field."
 
 	^bytes uintPtrAtOffset: ##(self offsetOf: #dwData)!
 
-dwData: anObject 
-	"Set the receiver's dwData field to the value of anObject."
+dwData: anInteger
+	"Set the receiver's 'dwData' field to the value of the argument, anInteger"
 
-	bytes uintPtrAtOffset: ##(self offsetOf: #dwData) put: anObject!
+	bytes uintPtrAtOffset: ##(self offsetOf: #dwData) put: anInteger!
 
 fsState
-	"Answer the receiver's fsState field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'fsState' field."
 
 	^bytes byteAtOffset: ##(self offsetOf: #fsState)!
 
-fsState: anObject 
-	"Set the receiver's fsState field to the value of anObject."
+fsState: anInteger
+	"Set the receiver's 'fsState' field to the value of the argument, anInteger"
 
-	bytes byteAtOffset: ##(self offsetOf: #fsState) put: anObject!
+	bytes byteAtOffset: ##(self offsetOf: #fsState) put: anInteger!
 
 fsStyle
-	"Answer the receiver's fsStyle field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'fsStyle' field."
 
 	^bytes byteAtOffset: ##(self offsetOf: #fsStyle)!
 
-fsStyle: anObject 
-	"Set the receiver's fsStyle field to the value of anObject."
+fsStyle: anInteger
+	"Set the receiver's 'fsStyle' field to the value of the argument, anInteger"
 
-	bytes byteAtOffset: ##(self offsetOf: #fsStyle) put: anObject!
+	bytes byteAtOffset: ##(self offsetOf: #fsStyle) put: anInteger!
+
+getValidFields
+	^#(#iBitmap #idCommand #fsState #fsStyle #dwData #iString)!
 
 iBitmap
-	"Answer the receiver's iBitmap field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'iBitmap' field."
 
 	^bytes sdwordAtOffset: 0!
 
-iBitmap: anObject 
-	"Set the receiver's iBitmap field to the value of anObject."
+iBitmap: anInteger
+	"Set the receiver's 'iBitmap' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: 0 put: anObject!
+	bytes sdwordAtOffset: 0 put: anInteger!
 
 idCommand
-	"Answer the receiver's idCommand field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'idCommand' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #idCommand)!
 
-idCommand: anObject 
-	"Set the receiver's idCommand field to the value of anObject."
+idCommand: anInteger
+	"Set the receiver's 'idCommand' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: ##(self offsetOf: #idCommand) put: anObject!
+	bytes sdwordAtOffset: ##(self offsetOf: #idCommand) put: anInteger!
 
 iString
-	"Answer the receiver's iString field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'iString' field."
 
 	^bytes intPtrAtOffset: ##(self offsetOf: #iString)!
 
-iString: anObject 
-	"Set the receiver's iString field to the value of anObject."
+iString: anInteger
+	"Set the receiver's 'iString' field to the value of the argument, anInteger"
 
-	bytes intPtrAtOffset: ##(self offsetOf: #iString) put: anObject! !
+	bytes intPtrAtOffset: ##(self offsetOf: #iString) put: anInteger! !
 !TBBUTTON categoriesFor: #dwData!**compiled accessors**!public! !
 !TBBUTTON categoriesFor: #dwData:!**compiled accessors**!public! !
 !TBBUTTON categoriesFor: #fsState!**compiled accessors**!public! !
 !TBBUTTON categoriesFor: #fsState:!**compiled accessors**!public! !
 !TBBUTTON categoriesFor: #fsStyle!**compiled accessors**!public! !
 !TBBUTTON categoriesFor: #fsStyle:!**compiled accessors**!public! !
+!TBBUTTON categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !TBBUTTON categoriesFor: #iBitmap!**compiled accessors**!public! !
 !TBBUTTON categoriesFor: #iBitmap:!**compiled accessors**!public! !
 !TBBUTTON categoriesFor: #idCommand!**compiled accessors**!public! !

@@ -68,6 +68,9 @@ cNamedArgs: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #cNamedArgs) put: anInteger!
 
+getValidFields
+	^#(#rgvarg #rgdispidNamedArgs #cArgs #cNamedArgs)!
+
 names: names named: namedArgs args: unnamedArgs
 	"Set the receiver's arguments to be the <sequencedReadableCollection> of named arguments,
 	namedArgs, the names (ids) of which are specified in the corresponding positions of the
@@ -163,6 +166,7 @@ singleArg
 !DISPPARAMS categoriesFor: #cArgs:!**compiled accessors**!private! !
 !DISPPARAMS categoriesFor: #cNamedArgs!**compiled accessors**!private! !
 !DISPPARAMS categoriesFor: #cNamedArgs:!**compiled accessors**!private! !
+!DISPPARAMS categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !DISPPARAMS categoriesFor: #names:named:args:!accessing!public! !
 !DISPPARAMS categoriesFor: #propertyPut:value:!accessing!public! !
 !DISPPARAMS categoriesFor: #propertyPutValue:!accessing!public! !

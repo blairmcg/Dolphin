@@ -51,6 +51,12 @@ struct tagDEVMODE {
 } DEVMODE;
 '!
 !DEVMODE categoriesForClass!Win32-Structs! !
+!DEVMODE methodsFor!
+
+getValidFields
+	^#(#dmDeviceName #dmSpecVersion #dmDriverVersion #dmSize #dmDriverExtra #dmFields #dmOrientation #dmPaperSize #dmPaperLength #dmPaperWidth #dmScale #dmCopies #dmDefaultSource #dmPrintQuality #dmColor #dmDuplex #dmYResolution #dmTTOption #dmCollate #dmFormName #dmLogPixels #dmBitsPerPel #dmPelsWidth #dmPelsHeight #dmDisplayFlags #dmDisplayFrequency #dmICMMethod #dmICMIntent #dmMediaType #dmDitherType)! !
+!DEVMODE categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
+
 !DEVMODE class methodsFor!
 
 defineFields

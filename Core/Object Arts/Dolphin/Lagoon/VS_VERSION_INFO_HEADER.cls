@@ -18,6 +18,9 @@ childrenOffset
 
 	^(self valueOffset + self wValueLength) roundUpTo: 4!
 
+getValidFields
+	^#(#wLength #wValueLength #wType)!
+
 key
 	"Answer the <readableString> key of this version info block."
 
@@ -71,20 +74,21 @@ valueString
 		ifFalse: [Utf16String fromAddress: self yourAddress asInteger + self valueOffset length: words - 1]!
 
 wLength
-	"Answer the receiver's wLength field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'wLength' field."
 
-	^(bytes wordAtOffset: 0)!
+	^bytes wordAtOffset: 0!
 
 wType
-	"Answer the receiver's wType field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'wType' field."
 
-	^(bytes wordAtOffset: 4)!
+	^bytes wordAtOffset: ##(self offsetOf: #wType)!
 
 wValueLength
-	"Answer the receiver's wValueLength field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'wValueLength' field."
 
-	^(bytes wordAtOffset: 2)! !
+	^bytes wordAtOffset: ##(self offsetOf: #wValueLength)! !
 !VS_VERSION_INFO_HEADER categoriesFor: #childrenOffset!accessing!public! !
+!VS_VERSION_INFO_HEADER categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !VS_VERSION_INFO_HEADER categoriesFor: #key!accessing!public! !
 !VS_VERSION_INFO_HEADER categoriesFor: #printOn:!printing!public! !
 !VS_VERSION_INFO_HEADER categoriesFor: #szKey!accessing!private! !

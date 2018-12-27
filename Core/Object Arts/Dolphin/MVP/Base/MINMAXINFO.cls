@@ -25,33 +25,37 @@ typedef struct tagMINMAXINFO {
 !MINMAXINFO categoriesForClass!Win-Structs! !
 !MINMAXINFO methodsFor!
 
+getValidFields
+	^#(#ptMaxSize #ptMaxPosition #ptMinTrackSize #ptMaxTrackSize)!
+
 ptMaxTrackSize
-	"Answer the receiver's ptMaxTrackSize field as a Smalltalk object."
+	"Answer the <POINTL> value of the receiver's 'ptMaxTrackSize' field."
 
 	^POINTL fromAddress: bytes yourAddress + ##(self offsetOf: #ptMaxTrackSize)!
 
-ptMaxTrackSize: anObject 
-	"Set the receiver's ptMaxTrackSize field to the value of anObject."
+ptMaxTrackSize: aPOINTL
+	"Set the receiver's 'ptMaxTrackSize' field to the value of the argument, aPOINTL"
 
-	anObject 
+	aPOINTL
 		replaceBytesOf: bytes
 		from: ##((self offsetOf: #ptMaxTrackSize) + 1)
 		to: ##((self offsetOf: #ptMaxTrackSize) + POINTL basicByteSize)
 		startingAt: 1!
 
 ptMinTrackSize
-	"Answer the receiver's ptMinTrackSize field as a Smalltalk object."
+	"Answer the <POINTL> value of the receiver's 'ptMinTrackSize' field."
 
 	^POINTL fromAddress: bytes yourAddress + ##(self offsetOf: #ptMinTrackSize)!
 
-ptMinTrackSize: anObject 
-	"Set the receiver's ptMinTrackSize field to the value of anObject."
+ptMinTrackSize: aPOINTL
+	"Set the receiver's 'ptMinTrackSize' field to the value of the argument, aPOINTL"
 
-	anObject 
+	aPOINTL
 		replaceBytesOf: bytes
 		from: ##((self offsetOf: #ptMinTrackSize) + 1)
 		to: ##((self offsetOf: #ptMinTrackSize) + POINTL basicByteSize)
 		startingAt: 1! !
+!MINMAXINFO categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !MINMAXINFO categoriesFor: #ptMaxTrackSize!**compiled accessors**!public! !
 !MINMAXINFO categoriesFor: #ptMaxTrackSize:!**compiled accessors**!public! !
 !MINMAXINFO categoriesFor: #ptMinTrackSize!**compiled accessors**!public! !

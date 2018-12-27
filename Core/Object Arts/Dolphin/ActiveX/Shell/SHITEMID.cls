@@ -30,9 +30,13 @@ abID
 cb
 	"Private - Answer the <Integer> value of the receiver's 'cb' field."
 
-	^bytes wordAtOffset: 0! !
+	^bytes wordAtOffset: 0!
+
+getValidFields
+	^#(#cb #abID)! !
 !SHITEMID categoriesFor: #abID!**compiled accessors**!public! !
 !SHITEMID categoriesFor: #cb!**compiled accessors**!private! !
+!SHITEMID categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 
 !SHITEMID class methodsFor!
 

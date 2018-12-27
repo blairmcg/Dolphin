@@ -22,25 +22,29 @@ typedef struct tagtimeval {
 !TIMEVAL categoriesForClass!WINSOCK2Lib-Structs! !
 !TIMEVAL methodsFor!
 
+getValidFields
+	^#(#tv_sec #tv_usec)!
+
 tv_sec
-	"Answer the receiver's tv_sec field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'tv_sec' field."
 
-	^(bytes sdwordAtOffset: 0)!
+	^bytes sdwordAtOffset: 0!
 
-tv_sec: anObject
-	"Set the receiver's tv_sec field to the value of anObject."
+tv_sec: anInteger
+	"Set the receiver's 'tv_sec' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: 0 put: anObject!
+	bytes sdwordAtOffset: 0 put: anInteger!
 
 tv_usec
-	"Answer the receiver's tv_usec field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'tv_usec' field."
 
-	^(bytes sdwordAtOffset: 4)!
+	^bytes sdwordAtOffset: ##(self offsetOf: #tv_usec)!
 
-tv_usec: anObject
-	"Set the receiver's tv_usec field to the value of anObject."
+tv_usec: anInteger
+	"Set the receiver's 'tv_usec' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: 4 put: anObject! !
+	bytes sdwordAtOffset: ##(self offsetOf: #tv_usec) put: anInteger! !
+!TIMEVAL categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !TIMEVAL categoriesFor: #tv_sec!**compiled accessors**!public! !
 !TIMEVAL categoriesFor: #tv_sec:!**compiled accessors**!public! !
 !TIMEVAL categoriesFor: #tv_usec!**compiled accessors**!public! !

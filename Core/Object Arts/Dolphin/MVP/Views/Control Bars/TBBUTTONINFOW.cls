@@ -55,6 +55,9 @@ fsStyle: anInteger
 
 	bytes byteAtOffset: ##(self offsetOf: #fsStyle) put: anInteger!
 
+getValidFields
+	^#(#dwSize #dwMask #idCommand #iImage #fsState #fsStyle #cx)!
+
 idCommand
 	"Answer the <Integer> value of the receiver's 'idCommand' field."
 
@@ -83,6 +86,7 @@ iImage: anInteger
 !TBBUTTONINFOW categoriesFor: #fsState:!**compiled accessors**!public! !
 !TBBUTTONINFOW categoriesFor: #fsStyle!**compiled accessors**!public! !
 !TBBUTTONINFOW categoriesFor: #fsStyle:!**compiled accessors**!public! !
+!TBBUTTONINFOW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !TBBUTTONINFOW categoriesFor: #idCommand!**compiled accessors**!public! !
 !TBBUTTONINFOW categoriesFor: #idCommand:!**compiled accessors**!public! !
 !TBBUTTONINFOW categoriesFor: #iImage!**compiled accessors**!public! !

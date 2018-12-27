@@ -12,6 +12,9 @@ MSG is an represents the state associated with a Windows message retrieved via G
 !MSG categoriesForClass!External-Data-Structured-Win32! !
 !MSG methodsFor!
 
+getValidFields
+	^#(#hwnd #message #wParam #lParam #time #x #y)!
+
 hwnd
 	"Answer the <Integer> value of the receiver's 'hwnd' field."
 
@@ -60,6 +63,7 @@ wParam
 	"Answer the <Integer> value of the receiver's 'wParam' field."
 
 	^bytes uintPtrAtOffset: ##(self offsetOf: #wParam)! !
+!MSG categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !MSG categoriesFor: #hwnd!**compiled accessors**!public! !
 !MSG categoriesFor: #isInput!public!testing! !
 !MSG categoriesFor: #isKeyboardInput!public!testing! !
@@ -95,10 +99,6 @@ defineFields
 		defineField: #time type: DWORDField readOnly;
 		defineField: #x type: SDWORDField readOnly;
 		defineField: #y type: SDWORDField readOnly
-	"The real structure has a POINT here, but that is not part of the base Dolphin package any more so we 'inline' it"!
-
-getFieldList
-	^#(#hwnd #message #wParam #lParam #time #x #y)! !
+	"The real structure has a POINT here, but that is not part of the base Dolphin package any more so we 'inline' it"! !
 !MSG class categoriesFor: #defineFields!initializing!public! !
-!MSG class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 

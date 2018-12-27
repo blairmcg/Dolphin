@@ -59,6 +59,9 @@ colors
 
 	^self bmiColors!
 
+getValidFields
+	^#(#bmiHeader #bmiColors)!
+
 initialize: anInteger 
 	super initialize: anInteger.
 	self bmiHeader dwSize: BITMAPINFOHEADER byteSize!
@@ -73,6 +76,7 @@ numQuads
 !BITMAPINFO categoriesFor: #bmiHeader:!**compiled accessors**!public! !
 !BITMAPINFO categoriesFor: #byteSize!accessing!public! !
 !BITMAPINFO categoriesFor: #colors!accessing!public! !
+!BITMAPINFO categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !BITMAPINFO categoriesFor: #initialize:!initializing!private! !
 !BITMAPINFO categoriesFor: #numQuads!accessing!private! !
 

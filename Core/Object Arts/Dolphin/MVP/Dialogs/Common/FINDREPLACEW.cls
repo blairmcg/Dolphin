@@ -43,6 +43,9 @@ flags: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #flags) put: anInteger!
 
+getValidFields
+	^#(#dwSize #hwndOwner #flags #lpstrFindWhat #lpstrReplaceWith #wFindWhatLen #wReplaceWithLen #lpfnHook)!
+
 hookFlag
 	^FR_ENABLEHOOK!
 
@@ -134,6 +137,7 @@ wReplaceWithLen: anInteger
 !FINDREPLACEW categoriesFor: #findWhat!accessing!public! !
 !FINDREPLACEW categoriesFor: #flags!**compiled accessors**!public! !
 !FINDREPLACEW categoriesFor: #flags:!**compiled accessors**!public! !
+!FINDREPLACEW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !FINDREPLACEW categoriesFor: #hookFlag!accessing!public! !
 !FINDREPLACEW categoriesFor: #hwndOwner:!**compiled accessors**!public! !
 !FINDREPLACEW categoriesFor: #isCaseSensitive!public!testing! !
@@ -157,7 +161,7 @@ wReplaceWithLen: anInteger
 defineFields
 	"Define the fields of the Win32 FINDREPLACE structure.
 
-		FINDREPLACE compileDefinition
+		self compileDefinition
 
 		typedef struct {// fr  
 			DWORD		lStructSize;

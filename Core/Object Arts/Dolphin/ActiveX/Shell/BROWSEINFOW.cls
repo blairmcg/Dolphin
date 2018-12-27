@@ -27,6 +27,9 @@ flags: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #flags) put: anInteger!
 
+getValidFields
+	^#(#hwndOwner #pidlRoot #pszDisplayName #lpszTitle #flags #lpfnHook)!
+
 hookFlag
 	^0!
 
@@ -82,6 +85,7 @@ title: text
 !BROWSEINFOW categoriesFor: #displayName!accessing!public! !
 !BROWSEINFOW categoriesFor: #flags!**compiled accessors**!public! !
 !BROWSEINFOW categoriesFor: #flags:!**compiled accessors**!public! !
+!BROWSEINFOW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !BROWSEINFOW categoriesFor: #hookFlag!constants!public! !
 !BROWSEINFOW categoriesFor: #hwndOwner:!**compiled accessors**!public! !
 !BROWSEINFOW categoriesFor: #initialize:!initializing!private! !

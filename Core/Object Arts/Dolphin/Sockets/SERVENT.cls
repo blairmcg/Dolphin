@@ -40,6 +40,9 @@ aliases
 				i := i + VMConstants.IntPtrSize].
 	^addresses contents!
 
+getValidFields
+	^#(#s_name #s_port #s_proto)!
+
 port
 	"Answer the <integer> port number."
 
@@ -66,6 +69,7 @@ s_proto
 
 	^AnsiString fromAddress: (bytes intPtrAtOffset: ##(self offsetOf: #s_proto))! !
 !SERVENT categoriesFor: #aliases!public! !
+!SERVENT categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !SERVENT categoriesFor: #port!accessing!public! !
 !SERVENT categoriesFor: #printFieldsOn:limit:!development!printing!private! !
 !SERVENT categoriesFor: #s_name!**compiled accessors**!public! !

@@ -37,6 +37,9 @@ dwStyle: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #dwStyle) put: anInteger!
 
+getValidFields
+	^#(#dwSize #hwndOwner #hInstance #lpszText #lpszCaption #dwStyle #lpszIcon #dwLanguageId)!
+
 hInstance: anInteger
 	"Set the receiver's 'hInstance' field to the value of the argument, anInteger"
 
@@ -73,6 +76,7 @@ text: aString
 !MSGBOXPARAMSW categoriesFor: #caption:!accessing!public! !
 !MSGBOXPARAMSW categoriesFor: #dwSize:!**compiled accessors**!public! !
 !MSGBOXPARAMSW categoriesFor: #dwStyle:!**compiled accessors**!public! !
+!MSGBOXPARAMSW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !MSGBOXPARAMSW categoriesFor: #hInstance:!**compiled accessors**!public! !
 !MSGBOXPARAMSW categoriesFor: #hwndOwner:!**compiled accessors**!public! !
 !MSGBOXPARAMSW categoriesFor: #lpszCaption:!**compiled accessors**!public! !
@@ -113,10 +117,6 @@ defineFields
 		defineField: #dwContextHelpId type: DWORDField filler;
 		defineField: #lpfnMsgBoxCallback type: DWORDField filler;
 		defineField: #dwLanguageId type: DWORDField writeOnly
-	"This field can hold a string, or an integer resource id"!
-
-getFieldList
-	^#(#dwSize #hwndOwner #hInstance #lpszText #lpszCaption #dwStyle #lpszIcon #dwLanguageId)! !
+	"This field can hold a string, or an integer resource id"! !
 !MSGBOXPARAMSW class categoriesFor: #defineFields!initializing!public! !
-!MSGBOXPARAMSW class categoriesFor: #getFieldList!**compiled accessors**!constants!private! !
 

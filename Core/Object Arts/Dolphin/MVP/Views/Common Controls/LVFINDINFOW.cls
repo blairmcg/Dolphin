@@ -20,6 +20,9 @@ flags
 
 	^bytes dwordAtOffset: 0!
 
+getValidFields
+	^#(#flags #psz #lParam #pt #vkDirection)!
+
 lParam
 	"Answer the <Integer> value of the receiver's 'lParam' field."
 
@@ -51,6 +54,7 @@ vkDirection
 
 	^bytes dwordAtOffset: ##(self offsetOf: #vkDirection)! !
 !LVFINDINFOW categoriesFor: #flags!**compiled accessors**!public! !
+!LVFINDINFOW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !LVFINDINFOW categoriesFor: #lParam!**compiled accessors**!public! !
 !LVFINDINFOW categoriesFor: #maskIn:!accessing!public! !
 !LVFINDINFOW categoriesFor: #param:!accessing!public! !
@@ -62,7 +66,7 @@ vkDirection
 
 defineFields
 	"Define the fields of the Win32 LVFINDINFO structure.
-		LVFINDINFO compileDefinition
+		self compileDefinition
 	"
 
 	self

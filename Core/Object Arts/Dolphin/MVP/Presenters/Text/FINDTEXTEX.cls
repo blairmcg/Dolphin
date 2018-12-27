@@ -23,10 +23,14 @@ struct tagFINDTEXTEX {
 !FINDTEXTEX methodsFor!
 
 chrgText
-	"Answer the receiver's chrgText field as a Smalltalk object."
+	"Answer the <CHARRANGE> value of the receiver's 'chrgText' field."
 
-	^CHARRANGE fromAddress: bytes yourAddress + ##(self offsetOf: #chrgText)! !
+	^CHARRANGE fromAddress: bytes yourAddress + ##(self offsetOf: #chrgText)!
+
+getValidFields
+	^#(#chrg #lpstrText #chrgText)! !
 !FINDTEXTEX categoriesFor: #chrgText!**compiled accessors**!public! !
+!FINDTEXTEX categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 
 !FINDTEXTEX class methodsFor!
 

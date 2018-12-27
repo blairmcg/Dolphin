@@ -26,6 +26,9 @@ defaultValue
 directionFlags
 	^self wParamFlags bitAnd: ##(PARAMFLAG_FIN | PARAMFLAG_FOUT)!
 
+getValidFields
+	^#(#pparamdescex #wParamFlags)!
+
 hasDefaultValue
 	"Answer whether the receiver has a default value."
 
@@ -60,16 +63,17 @@ isRetVal
 	^self wParamFlags anyMask: PARAMFLAG_FRETVAL!
 
 pparamdescex
-	"Answer the receiver's pparamdescex field as a Smalltalk object."
+	"Answer the <PARAMDESCEX> value of the receiver's 'pparamdescex' field."
 
 	^PARAMDESCEX fromAddress: (bytes intPtrAtOffset: 0)!
 
 wParamFlags
-	"Answer the receiver's wParamFlags field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'wParamFlags' field."
 
 	^bytes wordAtOffset: ##(self offsetOf: #wParamFlags)! !
 !PARAMDESC categoriesFor: #defaultValue!accessing!public! !
 !PARAMDESC categoriesFor: #directionFlags!public!testing! !
+!PARAMDESC categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !PARAMDESC categoriesFor: #hasDefaultValue!public!testing! !
 !PARAMDESC categoriesFor: #isIn!public!testing! !
 !PARAMDESC categoriesFor: #isOptional!public!testing! !

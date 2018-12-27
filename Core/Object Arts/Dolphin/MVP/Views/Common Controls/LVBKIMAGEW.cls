@@ -24,6 +24,9 @@ cchImageMax: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #cchImageMax) put: anInteger!
 
+getValidFields
+	^#(#ulFlags #hbm #pszImage #cchImageMax #xOffsetPercent #yOffsetPercent)!
+
 hbm
 	"Answer the <ExternalHandle> value of the receiver's 'hbm' field."
 
@@ -125,6 +128,7 @@ yOffsetPercent: anInteger
 	bytes sdwordAtOffset: ##(self offsetOf: #yOffsetPercent) put: anInteger! !
 !LVBKIMAGEW categoriesFor: #bitmap:!accessing!public! !
 !LVBKIMAGEW categoriesFor: #cchImageMax:!**compiled accessors**!public! !
+!LVBKIMAGEW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !LVBKIMAGEW categoriesFor: #hbm!**compiled accessors**!public! !
 !LVBKIMAGEW categoriesFor: #hbm:!**compiled accessors**!public! !
 !LVBKIMAGEW categoriesFor: #imageSource:!accessing!private! !

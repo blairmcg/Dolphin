@@ -24,26 +24,30 @@ struct tagGpCharacterRange {
 !GpCharacterRange methodsFor!
 
 First
-	"Answer the receiver's First field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'First' field."
 
-	^(bytes sdwordAtOffset: 0)!
+	^bytes sdwordAtOffset: 0!
 
-First: anObject
-	"Set the receiver's First field to the value of anObject."
+First: anInteger
+	"Set the receiver's 'First' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: 0 put: anObject!
+	bytes sdwordAtOffset: 0 put: anInteger!
+
+getValidFields
+	^#(#First #length)!
 
 length
-	"Answer the receiver's length field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'length' field."
 
-	^(bytes sdwordAtOffset: 4)!
+	^bytes sdwordAtOffset: ##(self offsetOf: #length)!
 
-length: anObject
-	"Set the receiver's length field to the value of anObject."
+length: anInteger
+	"Set the receiver's 'length' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: 4 put: anObject! !
+	bytes sdwordAtOffset: ##(self offsetOf: #length) put: anInteger! !
 !GpCharacterRange categoriesFor: #First!**compiled accessors**!public! !
 !GpCharacterRange categoriesFor: #First:!**compiled accessors**!public! !
+!GpCharacterRange categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !GpCharacterRange categoriesFor: #length!**compiled accessors**!public! !
 !GpCharacterRange categoriesFor: #length:!**compiled accessors**!public! !
 

@@ -24,6 +24,9 @@ struct tagOFNOTIFY {
 !OFNOTIFYW categoriesForClass!Win32-Structs! !
 !OFNOTIFYW methodsFor!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code #lpOFN #pszFile)!
+
 lpOFN
 	"Answer the <OPENFILENAMEW> value of the receiver's 'lpOFN' field."
 
@@ -33,6 +36,7 @@ pszFile
 	"Answer the <Utf16String> value of the receiver's 'pszFile' field."
 
 	^Utf16String fromAddress: (bytes intPtrAtOffset: ##(self offsetOf: #pszFile))! !
+!OFNOTIFYW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !OFNOTIFYW categoriesFor: #lpOFN!**compiled accessors**!public! !
 !OFNOTIFYW categoriesFor: #pszFile!**compiled accessors**!public! !
 

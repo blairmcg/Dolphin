@@ -41,6 +41,9 @@ contents
 
 	^contents ifNil: [contents := self buildContents]!
 
+getValidFields
+	^#(#cCustData #prgCustData)!
+
 prgCustData
 	"Answer the <StructureArray> value of the receiver's 'prgCustData' field."
 
@@ -52,6 +55,7 @@ prgCustData
 !CUSTDATA categoriesFor: #buildContents!printing-IDL!private! !
 !CUSTDATA categoriesFor: #cCustData!**compiled accessors**!private! !
 !CUSTDATA categoriesFor: #contents!printing-IDL!public! !
+!CUSTDATA categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !CUSTDATA categoriesFor: #prgCustData!**compiled accessors**!public! !
 
 !CUSTDATA class methodsFor!

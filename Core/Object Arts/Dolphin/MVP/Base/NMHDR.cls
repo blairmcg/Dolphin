@@ -11,23 +11,27 @@ NMHDR comment: 'NMHDR is a <Win32Structure> representing the NMHDR external Win3
 !NMHDR methodsFor!
 
 code
-	"Answer the receiver's code field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'code' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #code)!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code)!
+
 hwndFrom
-	"Answer the receiver's hwndFrom field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'hwndFrom' field."
 
 	^bytes dwordAtOffset: 0!
 
 idFrom
-	"Answer the receiver's idFrom field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'idFrom' field."
 
 	^bytes uintPtrAtOffset: ##(self offsetOf: #idFrom)!
 
 itemHandle
 	^self idFrom! !
 !NMHDR categoriesFor: #code!**compiled accessors**!public! !
+!NMHDR categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NMHDR categoriesFor: #hwndFrom!**compiled accessors**!public! !
 !NMHDR categoriesFor: #idFrom!**compiled accessors**!public! !
 !NMHDR categoriesFor: #itemHandle!accessing!public! !

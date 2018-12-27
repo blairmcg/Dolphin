@@ -10,25 +10,29 @@ UDACCEL comment: '<UDACCEL> is an <ExternalStructure> class to wrap the struct '
 !UDACCEL categoriesForClass!External-Data-Structured-Win32! !
 !UDACCEL methodsFor!
 
+getValidFields
+	^#(#nSec #nInc)!
+
 nInc
-	"Answer the receiver's nInc field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'nInc' field."
 
-	^(bytes dwordAtOffset: 4)!
+	^bytes dwordAtOffset: ##(self offsetOf: #nInc)!
 
-nInc: anObject
-	"Set the receiver's nInc field to the value of anObject."
+nInc: anInteger
+	"Set the receiver's 'nInc' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 4 put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #nInc) put: anInteger!
 
 nSec
-	"Answer the receiver's nSec field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'nSec' field."
 
-	^(bytes dwordAtOffset: 0)!
+	^bytes dwordAtOffset: 0!
 
-nSec: anObject
-	"Set the receiver's nSec field to the value of anObject."
+nSec: anInteger
+	"Set the receiver's 'nSec' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject! !
+	bytes dwordAtOffset: 0 put: anInteger! !
+!UDACCEL categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !UDACCEL categoriesFor: #nInc!**compiled accessors**!public! !
 !UDACCEL categoriesFor: #nInc:!**compiled accessors**!public! !
 !UDACCEL categoriesFor: #nSec!**compiled accessors**!public! !

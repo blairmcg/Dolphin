@@ -10,6 +10,9 @@ TVITEMEXW comment: ''!
 !TVITEMEXW categoriesForClass!External-Data-Structured-Win32! !
 !TVITEMEXW methodsFor!
 
+getValidFields
+	^super getValidFields, #(#iIntegral #uStateEx #hwnd #iExpandedImage)!
+
 iExpandedImage
 	"Answer the <Integer> value of the receiver's 'iExpandedImage' field."
 
@@ -29,6 +32,7 @@ uStateEx: anInteger
 	"Set the receiver's 'uStateEx' field to the value of the argument, anInteger"
 
 	bytes dwordAtOffset: ##(self offsetOf: #uStateEx) put: anInteger! !
+!TVITEMEXW categoriesFor: #getValidFields!constants!private! !
 !TVITEMEXW categoriesFor: #iExpandedImage!**compiled accessors**!public! !
 !TVITEMEXW categoriesFor: #iExpandedImage:!**compiled accessors**!public! !
 !TVITEMEXW categoriesFor: #uStateEx!**compiled accessors**!public! !

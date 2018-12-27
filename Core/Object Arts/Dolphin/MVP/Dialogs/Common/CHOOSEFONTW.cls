@@ -34,6 +34,9 @@ flags: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #flags) put: anInteger!
 
+getValidFields
+	^#(#dwSize #hwndOwner #hDC #lpLogFont #iPointSize #flags #rgbColors #lpfnHook #lpszStyle #nFontType #nSizeMin #nSizeMax)!
+
 hDC: anExternalHandle
 	"Set the receiver's 'hDC' field to the value of the argument, anExternalHandle"
 
@@ -95,6 +98,7 @@ rgbColors: anInteger
 !CHOOSEFONTW categoriesFor: #dwSize:!**compiled accessors**!public! !
 !CHOOSEFONTW categoriesFor: #flags!**compiled accessors**!public! !
 !CHOOSEFONTW categoriesFor: #flags:!**compiled accessors**!public! !
+!CHOOSEFONTW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !CHOOSEFONTW categoriesFor: #hDC:!**compiled accessors**!public! !
 !CHOOSEFONTW categoriesFor: #hookFlag!accessing!public! !
 !CHOOSEFONTW categoriesFor: #hwndOwner:!**compiled accessors**!public! !

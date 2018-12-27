@@ -28,6 +28,9 @@ struct tagWSADATA {
 !WSADATA categoriesForClass!Win32-Structs! !
 !WSADATA methodsFor!
 
+getValidFields
+	^#(#wVersion #wHighVersion #szDescription #szSystemStatus #iMaxSockets #iMaxUdpDg #lpVendorInfo)!
+
 iMaxSockets
 	"Answer the <Integer> value of the receiver's 'iMaxSockets' field."
 
@@ -62,6 +65,7 @@ wVersion
 	"Answer the <Integer> value of the receiver's 'wVersion' field."
 
 	^bytes wordAtOffset: 0! !
+!WSADATA categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !WSADATA categoriesFor: #iMaxSockets!**compiled accessors**!public! !
 !WSADATA categoriesFor: #iMaxUdpDg!**compiled accessors**!public! !
 !WSADATA categoriesFor: #lpVendorInfo!**compiled accessors**!public! !

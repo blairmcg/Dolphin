@@ -27,44 +27,47 @@ struct tagMARGINS {
 !MARGINS methodsFor!
 
 cxLeftWidth
-	"Answer the receiver's cxLeftWidth field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'cxLeftWidth' field."
 
 	^bytes sdwordAtOffset: 0!
 
-cxLeftWidth: anObject 
-	"Set the receiver's cxLeftWidth field to the value of anObject."
+cxLeftWidth: anInteger
+	"Set the receiver's 'cxLeftWidth' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: 0 put: anObject!
+	bytes sdwordAtOffset: 0 put: anInteger!
 
 cxRightWidth
-	"Answer the receiver's cxRightWidth field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'cxRightWidth' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #cxRightWidth)!
 
-cxRightWidth: anObject 
-	"Set the receiver's cxRightWidth field to the value of anObject."
+cxRightWidth: anInteger
+	"Set the receiver's 'cxRightWidth' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: ##(self offsetOf: #cxRightWidth) put: anObject!
+	bytes sdwordAtOffset: ##(self offsetOf: #cxRightWidth) put: anInteger!
 
 cyBottomHeight
-	"Answer the receiver's cyBottomHeight field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'cyBottomHeight' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #cyBottomHeight)!
 
-cyBottomHeight: anObject 
-	"Set the receiver's cyBottomHeight field to the value of anObject."
+cyBottomHeight: anInteger
+	"Set the receiver's 'cyBottomHeight' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: ##(self offsetOf: #cyBottomHeight) put: anObject!
+	bytes sdwordAtOffset: ##(self offsetOf: #cyBottomHeight) put: anInteger!
 
 cyTopHeight
-	"Answer the receiver's cyTopHeight field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'cyTopHeight' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #cyTopHeight)!
 
-cyTopHeight: anObject 
-	"Set the receiver's cyTopHeight field to the value of anObject."
+cyTopHeight: anInteger
+	"Set the receiver's 'cyTopHeight' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: ##(self offsetOf: #cyTopHeight) put: anObject! !
+	bytes sdwordAtOffset: ##(self offsetOf: #cyTopHeight) put: anInteger!
+
+getValidFields
+	^#(#cxLeftWidth #cxRightWidth #cyTopHeight #cyBottomHeight)! !
 !MARGINS categoriesFor: #cxLeftWidth!**compiled accessors**!public! !
 !MARGINS categoriesFor: #cxLeftWidth:!**compiled accessors**!public! !
 !MARGINS categoriesFor: #cxRightWidth!**compiled accessors**!public! !
@@ -73,6 +76,7 @@ cyTopHeight: anObject
 !MARGINS categoriesFor: #cyBottomHeight:!**compiled accessors**!public! !
 !MARGINS categoriesFor: #cyTopHeight!**compiled accessors**!public! !
 !MARGINS categoriesFor: #cyTopHeight:!**compiled accessors**!public! !
+!MARGINS categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 
 !MARGINS class methodsFor!
 

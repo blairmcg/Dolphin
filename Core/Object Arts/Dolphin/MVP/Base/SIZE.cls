@@ -11,24 +11,27 @@ SIZE comment: '`SIZE` is an `ExternalStructure` class to wrap the standard Win32
 !SIZE methodsFor!
 
 cx
-	"Answer the receiver's cx field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'cx' field."
 
 	^bytes sdwordAtOffset: 0!
 
-cx: anObject 
-	"Set the receiver's cx field to the value of anObject."
+cx: anInteger
+	"Set the receiver's 'cx' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: 0 put: anObject!
+	bytes sdwordAtOffset: 0 put: anInteger!
 
 cy
-	"Answer the receiver's cy field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'cy' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #cy)!
 
-cy: anObject 
-	"Set the receiver's cy field to the value of anObject."
+cy: anInteger
+	"Set the receiver's 'cy' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: ##(self offsetOf: #cy) put: anObject!
+	bytes sdwordAtOffset: ##(self offsetOf: #cy) put: anInteger!
+
+getValidFields
+	^#(#cx #cy)!
 
 height
 	^bytes sdwordAtOffset: ##(self offsetOf: #cy)!
@@ -45,6 +48,7 @@ width: anObject
 !SIZE categoriesFor: #cx:!**compiled accessors**!public! !
 !SIZE categoriesFor: #cy!**compiled accessors**!public! !
 !SIZE categoriesFor: #cy:!**compiled accessors**!public! !
+!SIZE categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !SIZE categoriesFor: #height!accessing!public! !
 !SIZE categoriesFor: #height:!accessing!public! !
 !SIZE categoriesFor: #width!accessing!public! !

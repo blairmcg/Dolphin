@@ -13,74 +13,77 @@ The COAUTHINFO structure specifies the authentication settings used while making
 !COAUTHINFO methodsFor!
 
 dwAuthnLevel
-	"Answer the receiver's dwAuthnLevel field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'dwAuthnLevel' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #dwAuthnLevel)!
 
-dwAuthnLevel: anObject 
-	"Set the receiver's dwAuthnLevel field to the value of anObject."
+dwAuthnLevel: anInteger
+	"Set the receiver's 'dwAuthnLevel' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #dwAuthnLevel) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #dwAuthnLevel) put: anInteger!
 
 dwAuthnSvc
-	"Answer the receiver's dwAuthnSvc field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'dwAuthnSvc' field."
 
 	^bytes dwordAtOffset: 0!
 
-dwAuthnSvc: anObject 
-	"Set the receiver's dwAuthnSvc field to the value of anObject."
+dwAuthnSvc: anInteger
+	"Set the receiver's 'dwAuthnSvc' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: 0 put: anObject!
+	bytes dwordAtOffset: 0 put: anInteger!
 
 dwAuthzSvc
-	"Answer the receiver's dwAuthzSvc field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'dwAuthzSvc' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #dwAuthzSvc)!
 
-dwAuthzSvc: anObject 
-	"Set the receiver's dwAuthzSvc field to the value of anObject."
+dwAuthzSvc: anInteger
+	"Set the receiver's 'dwAuthzSvc' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #dwAuthzSvc) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #dwAuthzSvc) put: anInteger!
 
 dwCapabilities
-	"Answer the receiver's dwCapabilities field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'dwCapabilities' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #dwCapabilities)!
 
-dwCapabilities: anObject 
-	"Set the receiver's dwCapabilities field to the value of anObject."
+dwCapabilities: anInteger
+	"Set the receiver's 'dwCapabilities' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #dwCapabilities) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #dwCapabilities) put: anInteger!
 
 dwImpersonationLevel
-	"Answer the receiver's dwImpersonationLevel field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'dwImpersonationLevel' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #dwImpersonationLevel)!
 
-dwImpersonationLevel: anObject 
-	"Set the receiver's dwImpersonationLevel field to the value of anObject."
+dwImpersonationLevel: anInteger
+	"Set the receiver's 'dwImpersonationLevel' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #dwImpersonationLevel) put: anObject!
+	bytes dwordAtOffset: ##(self offsetOf: #dwImpersonationLevel) put: anInteger!
+
+getValidFields
+	^#(#dwAuthnSvc #dwAuthzSvc #pwszServerPrincName #dwAuthnLevel #dwImpersonationLevel #pAuthIdentityData #dwCapabilities)!
 
 pAuthIdentityData
-	"Answer the receiver's pAuthIdentityData field as a Smalltalk object."
+	"Answer the <COAUTHIDENTITY> value of the receiver's 'pAuthIdentityData' field."
 
 	^COAUTHIDENTITY fromAddress: (bytes intPtrAtOffset: ##(self offsetOf: #pAuthIdentityData))!
 
-pAuthIdentityData: anObject 
-	"Set the receiver's pAuthIdentityData field to the value of anObject."
+pAuthIdentityData: aCOAUTHIDENTITY
+	"Set the receiver's 'pAuthIdentityData' field to the value of the argument, aCOAUTHIDENTITY"
 
-	bytes uintPtrAtOffset: ##(self offsetOf: #pAuthIdentityData) put: anObject yourAddress!
+	bytes uintPtrAtOffset: ##(self offsetOf: #pAuthIdentityData) put: aCOAUTHIDENTITY yourAddress!
 
 pwszServerPrincName
-	"Answer the receiver's pwszServerPrincName field as a Smalltalk object."
+	"Answer the <Utf16String> value of the receiver's 'pwszServerPrincName' field."
 
 	^Utf16String fromAddress: (bytes intPtrAtOffset: ##(self offsetOf: #pwszServerPrincName))!
 
-pwszServerPrincName: anObject 
-	"Set the receiver's pwszServerPrincName field to the value of anObject."
+pwszServerPrincName: anUtf16String
+	"Set the receiver's 'pwszServerPrincName' field to the value of the argument, anUtf16String"
 
-	bytes uintPtrAtOffset: ##(self offsetOf: #pwszServerPrincName) put: anObject yourAddress! !
+	bytes uintPtrAtOffset: ##(self offsetOf: #pwszServerPrincName) put: anUtf16String yourAddress! !
 !COAUTHINFO categoriesFor: #dwAuthnLevel!**compiled accessors**!public! !
 !COAUTHINFO categoriesFor: #dwAuthnLevel:!**compiled accessors**!public! !
 !COAUTHINFO categoriesFor: #dwAuthnSvc!**compiled accessors**!public! !
@@ -91,6 +94,7 @@ pwszServerPrincName: anObject
 !COAUTHINFO categoriesFor: #dwCapabilities:!**compiled accessors**!public! !
 !COAUTHINFO categoriesFor: #dwImpersonationLevel!**compiled accessors**!public! !
 !COAUTHINFO categoriesFor: #dwImpersonationLevel:!**compiled accessors**!public! !
+!COAUTHINFO categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !COAUTHINFO categoriesFor: #pAuthIdentityData!**compiled accessors**!public! !
 !COAUTHINFO categoriesFor: #pAuthIdentityData:!**compiled accessors**!public! !
 !COAUTHINFO categoriesFor: #pwszServerPrincName!**compiled accessors**!public! !

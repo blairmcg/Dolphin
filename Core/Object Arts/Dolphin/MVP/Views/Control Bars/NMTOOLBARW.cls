@@ -18,6 +18,9 @@ cchText
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #cchText)!
 
+getValidFields
+	^#(#hwndFrom #idFrom #code #iItem #tbButton #cchText #pszText)!
+
 iItem
 	"Answer the <Integer> value of the receiver's 'iItem' field."
 
@@ -33,6 +36,7 @@ tbButton
 
 	^TBBUTTON fromAddress: bytes yourAddress + ##(self offsetOf: #tbButton)! !
 !NMTOOLBARW categoriesFor: #cchText!**compiled accessors**!public! !
+!NMTOOLBARW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NMTOOLBARW categoriesFor: #iItem!**compiled accessors**!public! !
 !NMTOOLBARW categoriesFor: #pszText!**compiled accessors**!public! !
 !NMTOOLBARW categoriesFor: #tbButton!**compiled accessors**!public! !

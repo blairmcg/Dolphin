@@ -22,6 +22,9 @@ displayOn: target
 
 	target display: (self isNull ifFalse: [self value])!
 
+getValidFields
+	^#(#value)!
+
 value
 	"Answer the receiver's value as a Smalltalk object of the appropriate scalar type for the subclass."
 
@@ -33,12 +36,7 @@ value: anObject
 	^self subclassResponsibility! !
 !ExternalScalar categoriesFor: #=!comparing!public! !
 !ExternalScalar categoriesFor: #displayOn:!printing!private! !
+!ExternalScalar categoriesFor: #getValidFields!constants!private! !
 !ExternalScalar categoriesFor: #value!converting!public! !
 !ExternalScalar categoriesFor: #value:!public! !
-
-!ExternalScalar class methodsFor!
-
-getFieldList
-	^#(#value)! !
-!ExternalScalar class categoriesFor: #getFieldList!constants!private! !
 

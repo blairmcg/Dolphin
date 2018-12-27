@@ -28,6 +28,9 @@ defaultValue
 
 	^self param defaultValue!
 
+getValidFields
+	^#(#tdescElem #paramdesc)!
+
 hasDefaultValue
 	^self param hasDefaultValue!
 
@@ -66,6 +69,7 @@ paramdesc
 
 	^PARAMDESC fromAddress: bytes yourAddress + ##(self offsetOf: #paramdesc)! !
 !ELEMDESC categoriesFor: #defaultValue!accessing!public! !
+!ELEMDESC categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !ELEMDESC categoriesFor: #hasDefaultValue!development!helpers!private! !
 !ELEMDESC categoriesFor: #isIn!public!testing! !
 !ELEMDESC categoriesFor: #isOptional!public!testing! !

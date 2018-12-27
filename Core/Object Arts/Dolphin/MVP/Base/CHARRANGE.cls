@@ -29,29 +29,33 @@ asObject
 	^self cpMin to: self cpMax!
 
 cpMax
-	"Answer the receiver's cpMax field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'cpMax' field."
 
 	^bytes sdwordAtOffset: ##(self offsetOf: #cpMax)!
 
-cpMax: anObject 
-	"Set the receiver's cpMax field to the value of anObject."
+cpMax: anInteger
+	"Set the receiver's 'cpMax' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: ##(self offsetOf: #cpMax) put: anObject!
+	bytes sdwordAtOffset: ##(self offsetOf: #cpMax) put: anInteger!
 
 cpMin
-	"Answer the receiver's cpMin field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'cpMin' field."
 
 	^bytes sdwordAtOffset: 0!
 
-cpMin: anObject 
-	"Set the receiver's cpMin field to the value of anObject."
+cpMin: anInteger
+	"Set the receiver's 'cpMin' field to the value of the argument, anInteger"
 
-	bytes sdwordAtOffset: 0 put: anObject! !
+	bytes sdwordAtOffset: 0 put: anInteger!
+
+getValidFields
+	^#(#cpMin #cpMax)! !
 !CHARRANGE categoriesFor: #asObject!accessing!public! !
 !CHARRANGE categoriesFor: #cpMax!**compiled accessors**!public! !
 !CHARRANGE categoriesFor: #cpMax:!**compiled accessors**!public! !
 !CHARRANGE categoriesFor: #cpMin!**compiled accessors**!public! !
 !CHARRANGE categoriesFor: #cpMin:!**compiled accessors**!public! !
+!CHARRANGE categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 
 !CHARRANGE class methodsFor!
 

@@ -28,11 +28,15 @@ codepage: anInteger
 flags: anInteger
 	"Set the receiver's 'flags' field to the value of the argument, anInteger"
 
-	bytes dwordAtOffset: ##(self offsetOf: #flags) put: anInteger! !
+	bytes dwordAtOffset: ##(self offsetOf: #flags) put: anInteger!
+
+getValidFields
+	^#(#cb #flags #codepage)! !
 !GETTEXTEX categoriesFor: #cb!**compiled accessors**!public! !
 !GETTEXTEX categoriesFor: #cb:!**compiled accessors**!public! !
 !GETTEXTEX categoriesFor: #codepage:!**compiled accessors**!public! !
 !GETTEXTEX categoriesFor: #flags:!**compiled accessors**!public! !
+!GETTEXTEX categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 
 !GETTEXTEX class methodsFor!
 

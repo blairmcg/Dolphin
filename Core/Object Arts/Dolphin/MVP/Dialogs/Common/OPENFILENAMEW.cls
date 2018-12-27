@@ -71,6 +71,9 @@ flagsEx: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #flagsEx) put: anInteger!
 
+getValidFields
+	^#(#dwSize #hwndOwner #lpstrFilter #nFilterIndex #lpstrFile #nMaxFile #lpstrFileTitle #nMaxFileTitle #lpstrInitialDir #lpstrTitle #flags #nFileOffset #nFileExtension #lpstrDefExt #lpfnHook #flagsEx)!
+
 hookFlag
 	^OFN_ENABLEHOOK!
 
@@ -175,6 +178,7 @@ title: aString
 !OPENFILENAMEW categoriesFor: #flags:!**compiled accessors**!public! !
 !OPENFILENAMEW categoriesFor: #flagsEx!**compiled accessors**!public! !
 !OPENFILENAMEW categoriesFor: #flagsEx:!**compiled accessors**!public! !
+!OPENFILENAMEW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !OPENFILENAMEW categoriesFor: #hookFlag!accessing!public! !
 !OPENFILENAMEW categoriesFor: #hwndOwner:!**compiled accessors**!public! !
 !OPENFILENAMEW categoriesFor: #initialDirectory:!accessing!public! !
@@ -199,7 +203,7 @@ title: aString
 defineFields
 	"Define the fields of the OPENFILENAME structure.
 
-	OPENFILENAME  compileDefinition
+	self compileDefinition
 
 		typedef [uuid(87B4C603-026E-11D3-9FD7-00A0CC3E4A32)]
 		struct tagOPENFILENAME {

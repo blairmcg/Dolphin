@@ -10,6 +10,9 @@ TVINSERTSTRUCTW comment: ''!
 !TVINSERTSTRUCTW categoriesForClass!External-Data-Structured-Win32! !
 !TVINSERTSTRUCTW methodsFor!
 
+getValidFields
+	^#(#hParent #hInsertAfter #item)!
+
 hInsertAfter: anInteger
 	"Set the receiver's 'hInsertAfter' field to the value of the argument, anInteger"
 
@@ -33,6 +36,7 @@ item: aTVITEMEXW
 		from: ##((self offsetOf: #item) + 1)
 		to: ##((self offsetOf: #item) + TVITEMEXW basicByteSize)
 		startingAt: 1! !
+!TVINSERTSTRUCTW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !TVINSERTSTRUCTW categoriesFor: #hInsertAfter:!**compiled accessors**!public! !
 !TVINSERTSTRUCTW categoriesFor: #hParent:!**compiled accessors**!public! !
 !TVINSERTSTRUCTW categoriesFor: #item!**compiled accessors**!public! !
@@ -42,7 +46,7 @@ item: aTVITEMEXW
 
 defineFields
 	"Define the layout of the Win32 TVINSERTSTRUCT structure.
-		TVINSERTSTRUCT compileDefinition
+		self compileDefinition
 	"
 
 	self

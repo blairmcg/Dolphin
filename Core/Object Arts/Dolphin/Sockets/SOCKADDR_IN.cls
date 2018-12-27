@@ -26,6 +26,9 @@ struct tagSOCKADDR_IN {
 !SOCKADDR_IN categoriesForClass!Win32-Structs! !
 !SOCKADDR_IN methodsFor!
 
+getValidFields
+	^#(#sin_family #sin_port #sin_addr)!
+
 port
 	"Answer the <integer> port number."
 
@@ -69,6 +72,7 @@ sin_port: anInteger
 	"Set the receiver's 'sin_port' field to the value of the argument, anInteger"
 
 	bytes wordAtOffset: ##(self offsetOf: #sin_port) put: anInteger! !
+!SOCKADDR_IN categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !SOCKADDR_IN categoriesFor: #port!accessing!public! !
 !SOCKADDR_IN categoriesFor: #port:!accessing!public! !
 !SOCKADDR_IN categoriesFor: #sin_addr!**compiled accessors**!public! !

@@ -40,25 +40,28 @@ free
 	GDILibrary default deleteObject: hbm.
 	self hbmMask: 0!
 
+getValidFields
+	^#(#fIcon #xHotspot #yHotspot #hbmMask #hbmColor)!
+
 hbmColor
-	"Answer the receiver's hbmColor field as a Smalltalk object."
+	"Answer the <ExternalHandle> value of the receiver's 'hbmColor' field."
 
 	^(bytes uintPtrAtOffset: ##(self offsetOf: #hbmColor)) asExternalHandle!
 
-hbmColor: anObject 
-	"Set the receiver's hbmColor field to the value of anObject."
+hbmColor: anExternalHandle
+	"Set the receiver's 'hbmColor' field to the value of the argument, anExternalHandle"
 
-	bytes uintPtrAtOffset: ##(self offsetOf: #hbmColor) put: anObject!
+	bytes uintPtrAtOffset: ##(self offsetOf: #hbmColor) put: anExternalHandle!
 
 hbmMask
-	"Answer the receiver's hbmMask field as a Smalltalk object."
+	"Answer the <ExternalHandle> value of the receiver's 'hbmMask' field."
 
 	^(bytes uintPtrAtOffset: ##(self offsetOf: #hbmMask)) asExternalHandle!
 
-hbmMask: anObject 
-	"Set the receiver's hbmMask field to the value of anObject."
+hbmMask: anExternalHandle
+	"Set the receiver's 'hbmMask' field to the value of the argument, anExternalHandle"
 
-	bytes uintPtrAtOffset: ##(self offsetOf: #hbmMask) put: anObject!
+	bytes uintPtrAtOffset: ##(self offsetOf: #hbmMask) put: anExternalHandle!
 
 initialize
 	"Private - Initialize the receiver.
@@ -68,16 +71,17 @@ initialize
 	self beFinalizable!
 
 xHotspot
-	"Answer the receiver's xHotspot field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'xHotspot' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #xHotspot)!
 
 yHotspot
-	"Answer the receiver's yHotspot field as a Smalltalk object."
+	"Answer the <Integer> value of the receiver's 'yHotspot' field."
 
 	^bytes dwordAtOffset: ##(self offsetOf: #yHotspot)! !
 !ICONINFO categoriesFor: #extent!accessing!public! !
 !ICONINFO categoriesFor: #free!public!realizing/unrealizing! !
+!ICONINFO categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !ICONINFO categoriesFor: #hbmColor!**compiled accessors**!public! !
 !ICONINFO categoriesFor: #hbmColor:!**compiled accessors**!public! !
 !ICONINFO categoriesFor: #hbmMask!**compiled accessors**!public! !

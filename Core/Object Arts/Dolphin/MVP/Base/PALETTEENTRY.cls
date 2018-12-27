@@ -34,6 +34,9 @@ asColor
 		g: self peGreen
 		b: self peBlue!
 
+getValidFields
+	^#(#peRed #peGreen #peBlue #peFlags)!
+
 peBlue
 	"Answer the <Integer> value of the receiver's 'peBlue' field."
 
@@ -74,6 +77,7 @@ peRed: anInteger
 
 	bytes byteAtOffset: 0 put: anInteger! !
 !PALETTEENTRY categoriesFor: #asColor!converting!public! !
+!PALETTEENTRY categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !PALETTEENTRY categoriesFor: #peBlue!**compiled accessors**!public! !
 !PALETTEENTRY categoriesFor: #peBlue:!**compiled accessors**!public! !
 !PALETTEENTRY categoriesFor: #peFlags!**compiled accessors**!public! !

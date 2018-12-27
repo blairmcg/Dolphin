@@ -17,6 +17,9 @@ dwSize: anInteger
 
 	bytes dwordAtOffset: 0 put: anInteger!
 
+getValidFields
+	^#(#dwSize #iBorderWidth #iScrollWidth #iScrollHeight #iCaptionWidth #iCaptionHeight #lfCationFont #iSmCaptionWidth #iSmCaptionHeight #lfSmCaptionFont #iMenuWidth #iMenuHeight #lfMenuFont #lfStatusFont #lfMessageFont #iPaddedBorderWidth)!
+
 iCaptionHeight
 	"Answer the <Integer> value of the receiver's 'iCaptionHeight' field."
 
@@ -52,6 +55,7 @@ lfMenuFont
 
 	^LOGFONTW fromAddress: bytes yourAddress + ##(self offsetOf: #lfMenuFont)! !
 !NONCLIENTMETRICSW categoriesFor: #dwSize:!**compiled accessors**!public! !
+!NONCLIENTMETRICSW categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !NONCLIENTMETRICSW categoriesFor: #iCaptionHeight!**compiled accessors**!public! !
 !NONCLIENTMETRICSW categoriesFor: #iMenuHeight!**compiled accessors**!public! !
 !NONCLIENTMETRICSW categoriesFor: #iMenuWidth!**compiled accessors**!public! !

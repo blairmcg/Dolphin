@@ -31,17 +31,24 @@ atPoint: aPoint put: aNumber
 		col: aPoint y
 		put: aNumber!
 
+getValidFields
+	^#(#m)!
+
 m
-	"Answer the receiver's m field as a Smalltalk object."
+	"Answer the <FLOATArray> value of the receiver's 'm' field."
 
-	^FLOATArray fromAddress: (bytes yourAddress) length: 25!
+	^FLOATArray fromAddress: bytes yourAddress length: 25!
 
-m: anObject
-	"Set the receiver's m field to the value of anObject."
+m: aFLOATArray
+	"Set the receiver's 'm' field to the value of the argument, aFLOATArray"
 
 	| size |
-	size := anObject byteSize min: (25 * 4).
-	anObject replaceBytesOf: bytes from: 1 to: size startingAt: 1!
+	size := aFLOATArray byteSize min: ##(25 * FLOATArray elementSize).
+	aFLOATArray
+		replaceBytesOf: bytes
+		from: 1
+		to: size
+		startingAt: 1!
 
 row: rowInteger col: colInteger 
 	^self m at: (rowInteger - 1) * 5 + colInteger!
@@ -50,6 +57,7 @@ row: rowInteger col: colInteger put: aNumber
 	self m at: (rowInteger - 1) * 5 + colInteger put: aNumber! !
 !GpColorMatrix categoriesFor: #atPoint:!accessing!public! !
 !GpColorMatrix categoriesFor: #atPoint:put:!accessing!public! !
+!GpColorMatrix categoriesFor: #getValidFields!**compiled accessors**!constants!private! !
 !GpColorMatrix categoriesFor: #m!**compiled accessors**!public! !
 !GpColorMatrix categoriesFor: #m:!**compiled accessors**!public! !
 !GpColorMatrix categoriesFor: #row:col:!accessing!public! !
