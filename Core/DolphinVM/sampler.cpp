@@ -60,7 +60,7 @@ HRESULT Interpreter::SetSampleTimer(SMALLINTEGER newInterval)
 	}
 	else
 	{
-		m_nInputPollInterval = newInterval;
+		m_nInputPollInterval = static_cast<int32_t>(newInterval);
 	}
 
 	BOOL bSuccess = TRUE;

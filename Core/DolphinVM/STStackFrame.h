@@ -26,7 +26,7 @@ namespace ST
 
 		Oop* stackPointer()	const { return reinterpret_cast<Oop*>(m_sp - 1); }
 		void setStackPointer(Oop* value);
-		void setInstructionPointer(int nOffset);
+		void setInstructionPointer(ptrdiff_t nOffset);
 		Oop* basePointer() const;
 		BOOL isBlockFrame() const;
 		Oop	 receiver() const;
@@ -47,7 +47,7 @@ namespace ST
 		m_sp = Oop(value) + 1;
 	}
 
-	inline void StackFrame::setInstructionPointer(int nOffset)
+	inline void StackFrame::setInstructionPointer(ptrdiff_t nOffset)
 	{
 		m_ip = integerObjectOf(nOffset);
 	}

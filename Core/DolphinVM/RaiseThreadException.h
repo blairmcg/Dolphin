@@ -21,7 +21,7 @@ void __stdcall RaiseThreadException(
     DWORD dwExceptionCode,
     DWORD dwExceptionFlags,
     DWORD nNumberOfArguments,
-    CONST DWORD *lpArguments);
+    CONST ULONG_PTR *lpArguments);
 
 #ifdef __cplusplus
 }

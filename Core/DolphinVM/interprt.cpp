@@ -68,7 +68,7 @@ unsigned Interpreter::m_nOTOverflows;
 
 // Pools of reusable objects (just linked list of previously allocated and free'd objects of
 // correct size and class)
-ObjectMemory::OTEPool Interpreter::m_otePools[Interpreter::NUMOTEPOOLS];
+ObjectMemory::OTEPool Interpreter::m_otePools[(size_t)Interpreter::Pools::NUMOTEPOOLS];
 
 POTE* Interpreter::m_roots[] = {
 	reinterpret_cast<POTE*>(&m_oteNewProcess),
@@ -102,7 +102,7 @@ DWORD Interpreter::m_dwQueueStatusMask;
 #endif
 
 #pragma code_seg(INIT_SEG)
-HRESULT Interpreter::initialize(const wchar_t* szFileName, LPVOID imageData, UINT imageSize, bool isDevSys)
+HRESULT Interpreter::initialize(const wchar_t* szFileName, LPVOID imageData, size_t imageSize, bool isDevSys)
 {
 	HRESULT hr = initializeBeforeLoad();
 	if (FAILED(hr))
@@ -253,7 +253,7 @@ HRESULT Interpreter::initializeCharMaps()
 	m_unicodeReplacementChar = cpInfo.UnicodeDefaultChar;
 
 	// Map the ansi code units to unicode code points using the current code page. 
-	::MultiByteToWideChar(m_ansiCodePage, MB_PRECOMPOSED, byteCharSet, 256, m_ansiToUnicodeCharMap, 256);
+	::MultiByteToWideChar(m_ansiCodePage, MB_PRECOMPOSED, byteCharSet, 256, reinterpret_cast<LPWSTR>(m_ansiToUnicodeCharMap), 256);
 
 	// Create the reverse map - it will be very sparse, but as it only consumes 64Kb it isn't worth using a hash table
 	memset(m_unicodeToAnsiCharMap, 0, sizeof(m_unicodeToAnsiCharMap));
@@ -283,7 +283,7 @@ void Interpreter::ShutDown()
 	_ASSERTE(!m_bShutDown);
 	m_bShutDown = true;
 	// Nulling out the handle means that any further attempts to queue APCs, etc, will fail
-	HANDLE hThread = LPVOID(InterlockedExchange(reinterpret_cast<SHAREDLONG*>(&m_hThread), 0));
+	HANDLE hThread = InterlockedExchangePointer(&m_hThread, 0);
 
 	TerminateSampler();
 
@@ -332,10 +332,10 @@ inline void Interpreter::initializeCaches()
 #ifdef _DEBUG
 #pragma code_seg(DEBUG_SEG)
 
-static MWORD ResizeProcInContext(InterpreterRegisters& reg)
+static size_t ResizeProcInContext(InterpreterRegisters& reg)
 {
 	ProcessOTE* oteProc = reg.m_oteActiveProcess;
-	MWORD size = oteProc->getSize();
+	size_t size = oteProc->getSize();
 	reg.ResizeProcess();
 	if (size != oteProc->getSize() && Interpreter::executionTrace)
 	{
@@ -357,11 +357,11 @@ void Interpreter::checkReferences(Oop* const sp)
 void Interpreter::checkReferences(InterpreterRegisters& reg)
 {
 	HARDASSERT(ObjectMemory::isKindOf(m_registers.m_oteActiveProcess, Pointers.ClassProcess));
-	MWORD oldProcSize = ResizeProcInContext(reg);
+	size_t oldProcSize = ResizeProcInContext(reg);
 	if (reg.m_pActiveProcess != m_registers.m_pActiveProcess)
 	{
 		// Resize active process as well as the one in the context passed
-		MWORD oldActiveProcSize = ResizeProcInContext(m_registers);
+		size_t oldActiveProcSize = ResizeProcInContext(m_registers);
 		ObjectMemory::checkReferences();
 		m_registers.m_oteActiveProcess->setSize(oldActiveProcSize);
 	}
@@ -409,7 +409,7 @@ void Interpreter::interpret()
 		DWORD dwCode;
 		__try
 		{
-			_asm jmp byteCodeLoop
+			byteCodeLoop();
 		}
 		// I'd like to just test for IS_ERROR() here, but due to some macro nastiness
 		// it GPFs in a release build
@@ -443,11 +443,16 @@ void Interpreter::interpret()
 #pragma code_seg(INTERPMISC_SEG)
 bool Interpreter::saveContextAfterFault(LPEXCEPTION_POINTERS info)
 {
+#ifdef _M_IX86
 	BYTE* ip = reinterpret_cast<BYTE*>(info->ContextRecord->Edi);
+#else
+	BYTE* ip = reinterpret_cast<BYTE*>(info->ContextRecord->Rdi);
+#endif
+
 	Oop byteCodes = m_registers.m_pMethod->m_byteCodes;
 	BYTE* pBytes = ObjectMemory::ByteAddressOfObjectContents(byteCodes);
-	int numByteCodes = ObjectMemoryIsIntegerObject(byteCodes) ?
-		sizeof(MWORD) : reinterpret_cast<BytesOTE*>(byteCodes)->bytesSize();
+	size_t numByteCodes = ObjectMemoryIsIntegerObject(byteCodes) ?
+		sizeof(SMALLINTEGER) : reinterpret_cast<BytesOTE*>(byteCodes)->bytesSize();
 	if (ip >= pBytes && ip < pBytes + numByteCodes)
 	{
 		m_registers.m_instructionPointer = ip;
@@ -457,13 +462,17 @@ bool Interpreter::saveContextAfterFault(LPEXCEPTION_POINTERS info)
 	bool inPrim = isInPrimitive(info);
 	if (!inPrim)
 	{
+#ifdef _M_IX86
 		Oop* sp = reinterpret_cast<Oop*>(info->ContextRecord->Esi);
+#else
+		Oop* sp = reinterpret_cast<Oop*>(info->ContextRecord->Rsi);
+#endif
 		Process* pProc = actualActiveProcess();
 		if (sp > reinterpret_cast<Oop*>(pProc))
 		{
 			VirtualObject* pVObj = reinterpret_cast<VirtualObject*>(pProc);
 			VirtualObjectHeader* pBase = pVObj->getHeader();
-			unsigned cbCurrent = pBase->getCurrentAllocation();
+			uintptr_t cbCurrent = pBase->getCurrentAllocation();
 			if (sp < reinterpret_cast<Oop*>(reinterpret_cast<BYTE*>(pBase) + cbCurrent))
 				m_registers.m_stackPointer = sp;
 		}
@@ -478,7 +487,11 @@ bool Interpreter::saveContextAfterFault(LPEXCEPTION_POINTERS info)
 // 
 bool Interpreter::isInPrimitive(LPEXCEPTION_POINTERS pExInfo)
 {
+#ifdef _M_IX86
 	uintptr_t eip = pExInfo->ContextRecord->Eip;
+#else
+	uintptr_t eip = pExInfo->ContextRecord->Rip;
+#endif
 	return eip < reinterpret_cast<uintptr_t>(byteCodeLoop) || eip > reinterpret_cast<uintptr_t>(invalidByteCode);
 }
 
@@ -590,7 +603,11 @@ int Interpreter::interpreterExceptionFilter(LPEXCEPTION_POINTERS pExInfo)
 			TRACESTREAM<< L"Divide by zero in " << *m_registers.m_pMethod << std::endl;
 		}
 #endif
-		sendVMInterrupt(VMI_ZERODIVIDE, Integer::NewSigned32WithRef(pExInfo->ContextRecord->Eax));
+#ifdef _M_IX86
+		sendVMInterrupt(VMI_ZERODIVIDE, Integer::NewSignedWithRef(pExInfo->ContextRecord->Eax));
+#else
+		sendVMInterrupt(VMI_ZERODIVIDE, Integer::NewSignedWithRef(pExInfo->ContextRecord->Rax));
+#endif
 		action = EXCEPTION_EXECUTE_HANDLER;
 	}
 	break;
@@ -598,7 +615,11 @@ int Interpreter::interpreterExceptionFilter(LPEXCEPTION_POINTERS pExInfo)
 	case EXCEPTION_FLT_STACK_CHECK:
 		if (PleaseTrapGPFs())
 		{
+#ifdef _M_IX86
 			_asm fninit;
+#else
+			_fpreset();
+#endif
 			sendExceptionInterrupt(VMI_FPSTACK, pExInfo);
 			action = EXCEPTION_EXECUTE_HANDLER;
 		}
@@ -681,11 +702,11 @@ int Interpreter::memoryExceptionFilter(LPEXCEPTION_POINTERS pExInfo)
 	// Determine if the fault is a stack overflow, and if so try
 	// growing the stack. If the stack has reached max. size, then
 	// pass control to the exception handler
-	DWORD dwAddress = pExRec->ExceptionInformation[1];
+	uintptr_t dwAddress = pExRec->ExceptionInformation[1];
 
 	VirtualObjectHeader* pBase = actualActiveProcess()->getHeader();
-	MWORD activeProcAlloc = pBase->getCurrentAllocation();
-	DWORD dwNext = DWORD(pBase) + activeProcAlloc;
+	uintptr_t activeProcAlloc = pBase->getCurrentAllocation();
+	uintptr_t dwNext = reinterpret_cast<uintptr_t>(pBase) + activeProcAlloc;
 
 #ifdef OAD
 	{

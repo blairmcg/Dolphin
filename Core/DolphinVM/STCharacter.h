@@ -27,16 +27,16 @@ namespace ST
 		enum { CharacterValueIndex = Magnitude::FixedSize, FixedSize };
 
 		static CharOTE* NewAnsi(unsigned char value);
-		static CharOTE* NewUnicode(MWORD value);
+		static CharOTE* NewUnicode(char32_t value);
 
 		__declspec(property(get = getEncoding)) StringEncoding Encoding;
 		StringEncoding getEncoding() const { return static_cast<StringEncoding>((m_code >> 25) & 0x3); }
 
-		__declspec(property(get = getCodeUnit)) MWORD CodeUnit;
-		MWORD getCodeUnit() const { return ObjectMemoryIntegerValueOf(m_code) & 0xffffff; }
+		__declspec(property(get = getCodeUnit)) char32_t CodeUnit;
+		char32_t getCodeUnit() const { return ObjectMemoryIntegerValueOf(m_code) & 0xffffff; }
 
-		__declspec(property(get = getCodePoint)) uint32_t CodePoint;
-		uint32_t getCodePoint() const;
+		__declspec(property(get = getCodePoint)) char32_t CodePoint;
+		char32_t getCodePoint() const;
 	};
 }
 

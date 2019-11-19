@@ -28,13 +28,13 @@ namespace ST
 }
 typedef TOTE<ST::Behavior> BehaviorOTE;
 
-typedef	BYTE count_t;
-typedef WORD hash_t;						// Identity hash value, assigned on object creation
+typedef	uint8_t count_t;
+typedef uint16_t hash_t;						// Identity hash value, assigned on object creation
 
 union OTEFlags
 {
 	// Object Creation
-	enum Spaces { NormalSpace, VirtualSpace, BlockSpace, ContextSpace, DWORDSpace, HeapSpace, FloatSpace, PoolSpace, NumSpaces };
+	enum Spaces { NormalSpace, VirtualSpace, BlockSpace, ContextSpace, IntPtrSpace, HeapSpace, FloatSpace, PoolSpace, NumSpaces };
 
 	struct
 	{
@@ -66,28 +66,29 @@ union OTEFlags
 template <class T> class TOTE
 {
 public:
-	enum { MAXCOUNT	= ((2<<(COUNTBITS-1))-1) };
-	enum { SizeMask = 0x7FFFFFFF, ImmutabilityBit = 0x80000000 };
+	static constexpr count_t MAXCOUNT = ((2 << (COUNTBITS - 1)) - 1);
+	static constexpr uintptr_t SizeMask = INTPTR_MAX;
+	static constexpr uintptr_t ImmutabilityBit = static_cast<uintptr_t>(INTPTR_MAX) + 1;
 
-	__forceinline MWORD getSize() const						{ return m_size & SizeMask; }
-	__forceinline void setSize(MWORD size)					{ m_size = size; }
+	__forceinline size_t getSize() const						{ return m_size & SizeMask; }
+	__forceinline void setSize(size_t size)						{ m_size = size; }
 
-	__forceinline MWORD getWordSize() const					{ return getSize()/sizeof(MWORD); }
-	__forceinline MWORD pointersSize() const				{ ASSERT(isPointers());	return getSize()/sizeof(MWORD); }
-	__forceinline int pointersSizeForUpdate() const			{ ASSERT(isPointers());	return static_cast<int>(m_size)/static_cast<int>(sizeof(MWORD)); }
-	__forceinline MWORD bytesSize()	const					{ ASSERT(isBytes()); return getSize(); }
-	__forceinline int bytesSizeForUpdate() const			{ ASSERT(isBytes()); return m_size; }
+	__forceinline size_t getWordSize() const					{ return getSize()/sizeof(uintptr_t); }
+	__forceinline size_t pointersSize() const					{ ASSERT(isPointers());	return getSize()/sizeof(uintptr_t); }
+	__forceinline ptrdiff_t pointersSizeForUpdate() const		{ ASSERT(isPointers());	return static_cast<intptr_t>(m_size)/static_cast<intptr_t>(sizeof(uintptr_t)); }
+	__forceinline size_t bytesSize()	const					{ ASSERT(isBytes()); return getSize(); }
+	__forceinline ptrdiff_t bytesSizeForUpdate() const			{ ASSERT(isBytes()); return m_size; }
 
 	// The size of a byte object can be one more than it pretends because of the hidden null terminator!
 	// Answers actual byte (heap) size of the object pointed at by this OTE
-	__forceinline int sizeOf() const
+	__forceinline size_t sizeOf() const
 	{
 		// If we use getSize() here, it does not get inlined
 		return getSize() + (isNullTerminated() * NULLTERMSIZE);
 	}
 
 	// The required size for this variable pointer object to accommodate the specified number of indexable fields
-	__forceinline MWORD pointerSizeFor(MWORD pointersRequested) { ASSERT(isPointers()); return pointersRequested + m_oteClass->m_location->fixedFields(); }
+	__forceinline uintptr_t pointerSizeFor(uintptr_t pointersRequested) { ASSERT(isPointers()); return pointersRequested + m_oteClass->m_location->fixedFields(); }
 
 	__forceinline BOOL isSticky() const						{ return m_count == MAXCOUNT; }
 	__forceinline void beSticky()							{ m_count = MAXCOUNT; }
@@ -95,7 +96,7 @@ public:
 	// Answer whether the receiver has the current mark
 	__forceinline void setMark(BYTE mark)					{ m_flags.m_mark = mark; }
 
-	__forceinline MWORD getIndex()	const					{ return this - reinterpret_cast<const TOTE<T>*>(ObjectMemory::m_pOT); }
+	__forceinline uintptr_t getIndex()	const					{ return this - reinterpret_cast<const TOTE<T>*>(ObjectMemory::m_pOT); }
 
 	__forceinline void countUp() 
 	{ 
@@ -125,7 +126,7 @@ public:
 	}
 
 	__forceinline bool decRefs()							{ return (m_count != MAXCOUNT) && (--m_count == 0); }
-	__forceinline bool isImmutable() const					{ return static_cast<int>(m_size) < 0; }
+	__forceinline bool isImmutable() const					{ return static_cast<intptr_t>(m_size) < 0; }
 	__forceinline void beImmutable()						{ m_size |= ImmutabilityBit; }
 	__forceinline void beMutable()							{ m_size &= SizeMask; }
 	__forceinline BOOL isFree() const						{ return m_dwFlags & OTEFlags::FreeMask; /*m_flags.m_free;*/ }
@@ -165,7 +166,7 @@ public:
 	T*				m_location;					// Pointer to array of elements which is the object
 	BehaviorOTE*	m_oteClass;					// Class Oop
 	// Size is now in the OTE too, if zero then m_location should be NULL
-	MWORD 	m_size;			// In practice max size is maximum positive SmallInteger, i.e. 16r3FFFFFFF, around 1Mb
+	size_t 			m_size;						// In practice max size is maximum positive SmallInteger
 
 	union
 	{
@@ -177,18 +178,19 @@ public:
 				BYTE		m_ubFlags;
 			};
 			count_t		m_count;
-			hash_t		m_idHash;					// identity hash value (16-bit)
+			hash_t		m_idHash;						// identity hash value (16-bit)
 		};
-		DWORD m_dwFlags;
+		uintptr_t m_dwFlags;
 	};
 };
 
-#define isIntegerObject(objectPointer)	(Oop(objectPointer) & 1)
-#define integerObjectOf(value) 			(Oop(((SMALLINTEGER)(value) << 1) | 1))
-#define integerValueOf(objectPointer) 	(SMALLINTEGER(objectPointer) >> 1)
+#define isIntegerObject(objectPointer)	(((uintptr_t)(objectPointer)) & 1)
+#define integerObjectOf(value) 			((Oop)(((SMALLINTEGER)(value) << 1) | 1))
+// Cast to signed value necessary to preserve sign correctly when shifting
+#define integerValueOf(objectPointer) 	(((SMALLINTEGER)(objectPointer)) >> 1)
 #define isIntegerValue(valueWord)		((SMALLINTEGER(valueWord) ^ (SMALLINTEGER(valueWord)<<1)) >= 0)
 //#define isIntegerValue(valueWord)		(SMALLINTEGER(valueWord) >= MinSmallInteger && SMALLINTEGER(valueWord) <= MaxSmallInteger)
-#define isPositiveIntegerValue(valueWord) ((MWORD)(valueWord) <= MaxSmallInteger)
+#define isPositiveIntegerValue(valueWord) ((uintptr_t)(valueWord) <= MaxSmallInteger)
 
 // SmallInteger constants
 #define MinusOnePointer -1 /*(integerObjectOf(-1))*/

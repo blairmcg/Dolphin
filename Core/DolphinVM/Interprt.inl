@@ -64,24 +64,32 @@ inline void Interpreter::pushSmallInteger(SMALLINTEGER n)
 	push(ObjectMemoryIntegerObjectOf(n));
 }
 
-inline void Interpreter::pushUnsigned32(DWORD dwValue)
+inline void Interpreter::pushUnsigned(uint32_t value)
 {
-	pushNewObject(Integer::NewUnsigned32(dwValue));
+#ifdef _M_IX86
+	pushNewObject(Integer::NewUnsigned(value));
+#else
+	pushSmallInteger(value);
+#endif
 }
 
 inline void Interpreter::pushUIntPtr(UINT_PTR uptrValue)
 {
-	pushNewObject(Integer::NewUIntPtr(uptrValue));
+	pushNewObject(Integer::NewUnsigned(uptrValue));
 }
 
-inline void Interpreter::pushSigned32(SDWORD lValue)
+inline void Interpreter::pushSigned(int32_t lValue)
 {
-	pushNewObject(Integer::NewSigned32(lValue));
+#ifdef _M_IX86
+	pushNewObject(Integer::NewSigned(lValue));
+#else
+	pushSmallInteger(lValue);
+#endif
 }
 
 inline void Interpreter::pushIntPtr(INT_PTR ptrValue)
 {
-	pushNewObject(Integer::NewIntPtr(ptrValue));
+	pushNewObject(Integer::NewSigned(ptrValue));
 }
 
 inline void Interpreter::pushBool(BOOL bValue)
@@ -114,39 +122,112 @@ inline Oop Interpreter::popAndCountUp()
 	return top;
 }
 
-// Functor to write a 32-bit signed integer to a stack location - used in primitives
-struct StoreSigned32
+///////////////////////////////////////////////////////////////////////////////
+// Functors for instantiating primitive templates
+
+struct StoreSmallInteger
 {
-	__forceinline void operator()(Oop* const sp, int32_t value)
+	__forceinline constexpr void operator()(Oop* const sp, SMALLINTEGER value)
 	{
-		if (ObjectMemoryIsIntegerValue(value))
+		*sp = ObjectMemoryIntegerObjectOf(value);
+	}
+};
+
+struct StoreUIntPtr
+{
+	__forceinline void operator()(Oop* const sp, uintptr_t ptr)
+	{
+		if (ObjectMemoryIsPositiveIntegerValue(ptr))
 		{
-			*sp = ObjectMemoryIntegerObjectOf(value);
+			*sp = ObjectMemoryIntegerObjectOf(ptr);
 		}
 		else
 		{
-			LargeIntegerOTE* oteLi = LargeInteger::liNewSigned32(value);
+			LargeIntegerOTE* oteLi = LargeInteger::liNewUnsigned(ptr);
 			*sp = reinterpret_cast<Oop>(oteLi);
 			ObjectMemory::AddToZct((OTE*)oteLi);
 		}
 	}
 };
 
-// Functor to write a 32-bit positive integer to a stack location - used in primitives
-struct StoreUnsigned32
+struct StoreIntPtr
 {
-	__forceinline void operator()(Oop* const sp, uint32_t dwValue)
+	__forceinline void operator()(Oop* const sp, intptr_t ptr)
 	{
-		if (ObjectMemoryIsPositiveIntegerValue(dwValue))
+		if (ObjectMemoryIsIntegerValue(ptr))
 		{
-			*sp = ObjectMemoryIntegerObjectOf(dwValue);
+			*sp = ObjectMemoryIntegerObjectOf(ptr);
 		}
 		else
 		{
-			LargeIntegerOTE* oteLi = LargeInteger::liNewUnsigned(dwValue);
+			LargeIntegerOTE* oteLi = LargeInteger::liNewSigned(ptr);
 			*sp = reinterpret_cast<Oop>(oteLi);
 			ObjectMemory::AddToZct((OTE*)oteLi);
 		}
+	}
+};
+
+struct StoreUnsigned64
+{
+	__forceinline void operator()(Oop* const sp, uint64_t value)
+	{
+		Oop result = LargeInteger::NewUnsigned(value);
+		*sp = result;
+		ObjectMemory::AddOopToZct(result);
+	}
+};
+
+struct StoreSigned64
+{
+	__forceinline void operator()(Oop* const sp, int64_t value)
+	{
+		Oop result = LargeInteger::NewSigned(value);
+		*sp = result;
+		ObjectMemory::AddOopToZct(result);
+	}
+};
+
+// Functor to write a 32-bit signed integer to a stack location - used in primitives
+struct StoreSigned32
+{
+	__forceinline void operator()(Oop* const sp, int32_t value)
+	{
+#ifdef _M_X64
+		*sp = ObjectMemoryIntegerObjectOf(value);
+#else
+		if (ObjectMemoryIsIntegerValue(value))
+		{
+			*sp = ObjectMemoryIntegerObjectOf(value);
+		}
+		else
+		{
+			LargeIntegerOTE* oteLi = LargeInteger::liNewSigned(value);
+			*sp = reinterpret_cast<Oop>(oteLi);
+			ObjectMemory::AddToZct((OTE*)oteLi);
+		}
+#endif
+	}
+};
+
+// Functor to write a 32-bit positive integer to a stack location - used in primitives
+struct StoreUnsigned32
+{
+	__forceinline void operator()(Oop* const sp, uint32_t value)
+	{
+#ifdef _M_X64
+		* sp = ObjectMemoryIntegerObjectOf(value);
+#else
+		if (ObjectMemoryIsPositiveIntegerValue(value))
+		{
+			*sp = ObjectMemoryIntegerObjectOf(value);
+		}
+		else
+		{
+			LargeIntegerOTE* oteLi = LargeInteger::liNewUnsigned(value);
+			*sp = reinterpret_cast<Oop>(oteLi);
+			ObjectMemory::AddToZct((OTE*)oteLi);
+		}
+#endif
 	}
 };
 
@@ -155,7 +236,7 @@ struct StoreUnsigned32
 
 #ifndef _M_IX86
 	// Intel version in assembler (see primitiv.cpp)
-	inline int __fastcall smalltalkMod(int numerator, int denominator)
+	inline SMALLINTEGER __fastcall smalltalkMod(SMALLINTEGER numerator, SMALLINTEGER denominator)
 	{
 		SMALLINTEGER quotient = numerator/denominator;
 		quotient = quotient - (quotient < 0 && quotient*denominator!=numerator);
@@ -200,13 +281,13 @@ inline BOOL Interpreter::isAFloat(Oop objectPointer)
 	#define STOPPROFILING()
 #endif
 
-inline void Interpreter::sendSelectorArgumentCount(SymbolOTE* selector, unsigned argCount)
+inline void Interpreter::sendSelectorArgumentCount(SymbolOTE* selector, uintptr_t argCount)
 {
 	m_oopMessageSelector = selector;
 	sendSelectorToClass(ObjectMemory::fetchClassOf(*(m_registers.m_stackPointer - argCount)), argCount);
 }
 
-inline void Interpreter::sendSelectorToClass(BehaviorOTE* classPointer, unsigned argCount)
+inline void Interpreter::sendSelectorToClass(BehaviorOTE* classPointer, uintptr_t argCount)
 {
 	MethodCacheEntry* pEntry = findNewMethodInClass(classPointer, argCount);
 	executeNewMethod(pEntry->method, argCount);
@@ -231,14 +312,14 @@ inline void Interpreter::basicQueueForFinalization(OTE* ote)
 	m_qForFinalize.Push(ote);
 }
 
-inline void Interpreter::queueForFinalization(OTE* ote, int highWater)
+inline void Interpreter::queueForFinalization(OTE* ote, size_t highWater)
 {
 	basicQueueForFinalization(ote);
 	asynchronousSignal(Pointers.FinalizeSemaphore);
 
-	unsigned count = m_qForFinalize.Count();
+	size_t count = m_qForFinalize.Count();
 	// Only raise interrupt when high water mark is hit!
-	if (count == static_cast<unsigned>(highWater))
+	if (count == highWater)
 		queueInterrupt(VMI_HOSPICECRISIS, ObjectMemoryIntegerObjectOf(count));
 }
 
@@ -257,12 +338,12 @@ inline void Interpreter::queueForBereavementOf(OTE* ote, Oop argPointer)
 
 inline AddressOTE* ST::ExternalAddress::New(void* ptr)
 {
-	return reinterpret_cast<AddressOTE*>(Interpreter::NewDWORD(DWORD(ptr), Pointers.ClassExternalAddress));
+	return reinterpret_cast<AddressOTE*>(Interpreter::NewIntPtr(reinterpret_cast<uintptr_t>(ptr), Pointers.ClassExternalAddress));
 }
 
 inline HandleOTE* ST::ExternalHandle::New(HANDLE hValue)
 {
-	return reinterpret_cast<HandleOTE*>(Interpreter::NewDWORD(DWORD(hValue), Pointers.ClassExternalHandle));
+	return reinterpret_cast<HandleOTE*>(Interpreter::NewIntPtr(reinterpret_cast<uintptr_t>(hValue), Pointers.ClassExternalHandle));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -50,10 +50,10 @@ Oop* __fastcall Interpreter::primitiveNextIndexOfFromTo(Oop* const sp, primargco
 
 			if (ObjectMemoryIsIntegerObject(valuePointer))// Arg MUST be an Integer to be a member
 			{
-				const MWORD byteValue = ObjectMemoryIntegerValueOf(valuePointer);
-				if (byteValue < 256)	// Only worth looking for 0..255
+				const SMALLUNSIGNED byteValue = ObjectMemoryIntegerValueOf(valuePointer);
+				if (byteValue <= UINT8_MAX)	// Only worth looking for 0..255
 				{
-					const SMALLINTEGER length = oteBytes->bytesSize();
+					const ptrdiff_t length = oteBytes->bytesSize();
 					// We can only be in here if to>=from, so if to>=1, then => from >= 1
 					// furthermore if to <= length then => from <= length
 					if (from < 1 || to > length)
@@ -80,8 +80,8 @@ Oop* __fastcall Interpreter::primitiveNextIndexOfFromTo(Oop* const sp, primargco
 			PointersOTE* oteReceiver = reinterpret_cast<PointersOTE*>(receiverPointer);
 			VariantObject* receiver = oteReceiver->m_location;
 			Behavior* behavior = receiverPointer->m_oteClass->m_location;
-			const MWORD length = oteReceiver->pointersSize();
-			const MWORD fixedFields = behavior->fixedFields();
+			const size_t length = oteReceiver->pointersSize();
+			const size_t fixedFields = behavior->fixedFields();
 
 			// Similar reasoning with to/from as for byte objects, but here we need to
 			// take account of the fixed fields.
@@ -107,32 +107,32 @@ Oop* __fastcall Interpreter::primitiveNextIndexOfFromTo(Oop* const sp, primargco
 }
 
 // Initialize the Boyer-Moorer skip array
-inline void __stdcall bmInitSkip(const BYTE* p, const int M, int* skip)
+inline void __stdcall bmInitSkip(const BYTE* p, const ptrdiff_t M, ptrdiff_t* skip)
 {
-	for (int j=0;j<256;j++)
+	for (size_t j=0;j<256;j++)
 		skip[j] = M;
-	for (int j=0;j < M;j++)
+	for (ptrdiff_t j=0;j < M;j++)
 		skip[p[j]] = M-j-1;
 }
 
 
 // Returns -1 for not found, or zero based index if found
-int __stdcall bmSearch(const BYTE* string, const int N, const BYTE* p, const int M, /*const int* skip, */const int startAt)
+ptrdiff_t __stdcall bmSearch(const BYTE* string, const size_t N, const BYTE* p, const size_t M, const size_t startAt)
 {
-	int skip[256];
+	ptrdiff_t skip[256];
 	bmInitSkip(p,M,skip);
 
-	const int n = N - startAt;
-	const BYTE* a = string + startAt;
+	const ptrdiff_t n = N - startAt;
+	const uint8_t* a = string + startAt;
 
-	int i, j;
+	ptrdiff_t i, j;
 	for (i=j=M-1; j >= 0; j--,i--)
 	{
-		BYTE c;
+		uint8_t c;
 		while ((c = a[i]) != p[j])
 		{
-			const int t = skip[c];
-			i += (M-j > t) ? M-j : t;
+			const ptrdiff_t t = skip[c];
+			i += (static_cast<ptrdiff_t>(M)-j > t) ? M-j : t;
 			if (i >= n) 
 				return -1;
 			j = M-1;
@@ -143,10 +143,10 @@ int __stdcall bmSearch(const BYTE* string, const int N, const BYTE* p, const int
 	return i+1+startAt;
 }
 
-int __stdcall bruteSearch(const BYTE* a, const int N, const BYTE* p, const int M, const int startAt)
+ptrdiff_t __stdcall bruteSearch(const uint8_t* a, const size_t N, const uint8_t* p, const size_t M, const size_t startAt)
 {
-	int i, j;
-	for (i=startAt,j=0; j < M && i < N;i++,j++)
+	ptrdiff_t i, j;
+	for (i=startAt,j=0; j < static_cast<ptrdiff_t>(M) && i < static_cast<ptrdiff_t>(N);i++,j++)
 	{
 		if (a[i] != p[j])
 		{
@@ -158,11 +158,11 @@ int __stdcall bruteSearch(const BYTE* a, const int N, const BYTE* p, const int M
 }
 
 // N.B. startAt is now zero based
-inline int __stdcall stringSearch(const BYTE* a, const int N, const BYTE* p, const int M, const int startAt)
+inline ptrdiff_t __stdcall stringSearch(const uint8_t* a, const size_t N, const uint8_t* p, const size_t M, const size_t startAt)
 {
 	// In order for it to be worth initiating the skip array, we have to have enough characters to search
 	return N >= 512
-		? bmSearch(a, N, p, M, /*NULL, */startAt)
+		? bmSearch(a, N, p, M, startAt)
 		: bruteSearch(a, N, p, M, startAt);
 }
 
@@ -186,13 +186,13 @@ Oop* __fastcall Interpreter::primitiveStringSearch(Oop* const sp, primargcount_t
 
 			VariantByteObject* bytesPattern = oteSubString->m_location;
 			VariantByteObject* bytesReceiver = oteReceiver->m_location;
-			const int M = oteSubString->bytesSize();
-			const int N = oteReceiver->bytesSize();
+			const size_t M = oteSubString->bytesSize();
+			const size_t N = oteReceiver->bytesSize();
 
 			// Check 'startingAt' is in range
 			if (startingAt > 0)
 			{
-				int nOffset = M == 0 || ((startingAt + M) - 1 > N)
+				SMALLINTEGER nOffset = M == 0 || ((startingAt + M) - 1 > N)
 					? -1
 					: stringSearch(bytesReceiver->m_fields, N, bytesPattern->m_fields, M, startingAt - 1);
 

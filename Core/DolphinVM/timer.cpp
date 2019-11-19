@@ -67,7 +67,7 @@ uint64_t Interpreter::m_clockFrequency;
 // Access to the asynchronous semaphore array is protected by a critical section
 // in the asynchronousSignal and CheckProcessSwitch routines. We don't really care
 // that much about the timerID
-void CALLBACK Interpreter::TimeProc(UINT uID, UINT /*uMsg*/, DWORD /*dwUser*/, DWORD /*dw1*/, DWORD /*dw2*/)
+void CALLBACK Interpreter::TimeProc(UINT uID, UINT /*uMsg*/, DWORD_PTR /*dwUser*/, DWORD_PTR /*dw1*/, DWORD_PTR /*dw2*/)
 {
 	// Avoid firing a timer which has been cancelled (or is about to be cancelled!)
 	// We use an InterlockedExchange() to set the value to 0 so that the main thread
@@ -140,7 +140,7 @@ Oop* __fastcall Interpreter::primitiveSignalAtTick(Oop* const sp, primargcount_t
 	if (nDelay > 0)
 	{
 		// Clamp the requested delay to the maximum if it is too large. This simplifies the Delay code in the image a little.
-		if (nDelay > SMALLINTEGER(wTimerMax))
+		if (nDelay > static_cast<SMALLINTEGER>(wTimerMax))
 		{
 			nDelay = wTimerMax;
 		}
@@ -152,7 +152,7 @@ Oop* __fastcall Interpreter::primitiveSignalAtTick(Oop* const sp, primargcount_t
 		// timers, we've killed any outstanding timer, and the timer thread should be dormant
 		InterlockedExchange(&timerID, static_cast<UINT>(-1));		// -1 is not used as a timer ID.
 
-		UINT newTimerID = ::timeSetEvent(nDelay, 0, TimeProc, 0, TIME_ONESHOT);
+		UINT newTimerID = ::timeSetEvent(static_cast<UINT>(nDelay), 0, TimeProc, 0, TIME_ONESHOT);
 		if (newTimerID && newTimerID != UINT(-1))
 		{
 			// Unless timer has already fired, record the timer id so can cancel if necessary
@@ -203,7 +203,7 @@ Oop* __fastcall Interpreter::primitiveSignalAtTick(Oop* const sp, primargcount_t
 
 Oop* __fastcall Interpreter::primitiveMillisecondClockValue(Oop* const sp, primargcount_t)
 {
-	Oop result = Integer::NewUnsigned64(GetMicrosecondClock()/1000);
+	Oop result = Integer::NewUnsigned(GetMicrosecondClock()/1000ui64);
 	*sp = result;
 	ObjectMemory::AddOopToZct(result);
 	return sp;
@@ -211,7 +211,7 @@ Oop* __fastcall Interpreter::primitiveMillisecondClockValue(Oop* const sp, prima
 
 Oop* __fastcall Interpreter::primitiveMicrosecondClockValue(Oop* const sp, primargcount_t)
 {
-	Oop result = Integer::NewUnsigned64(GetMicrosecondClock());
+	Oop result = Integer::NewUnsigned(GetMicrosecondClock());
 	*sp = result;
 	ObjectMemory::AddOopToZct(result);
 	return sp;

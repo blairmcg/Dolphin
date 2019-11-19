@@ -94,8 +94,8 @@ template <bool Lt, bool Eq> static bool liCmp(const LargeIntegerOTE* oteA, const
 	const LargeInteger* liA = oteA->m_location;
 	const LargeInteger* liB = oteB->m_location;
 
-	const int aSign = liA->sign(oteA);
-	const int bSign = liB->sign(oteB);
+	const int32_t aSign = liA->sign(oteA);
+	const int32_t bSign = liB->sign(oteB);
 
 	// Compiler will optimize this to one comparison, and two conditional jumps
 	if (aSign < bSign)
@@ -105,12 +105,13 @@ template <bool Lt, bool Eq> static bool liCmp(const LargeIntegerOTE* oteA, const
 
 	// Same sign
 
-	const MWORD ai = oteA->getWordSize();
-	const MWORD bi = oteB->getWordSize();
+	// Note that the sizes cannot be 0. The minimum size is 1.
+	const size_t ai = oteA->getWordSize();
+	const size_t bi = oteB->getWordSize();
 
 	if (ai == bi)
 	{
-		int i = ai - 1;
+		ptrdiff_t i = ai - 1;
 		// Same sign and size: Compare words (same sign, so comparison can be unsigned)
 		do
 		{
@@ -144,7 +145,7 @@ template <bool Lt, bool Eq> static Oop* __fastcall Interpreter::primitiveLargeIn
 		// since LargeIntegers are always normalized, any negative LargeInteger must be less
 		// than any SmallInteger, and any positive LargeInteger must be greater than any SmallInteger
 		// SmallIntegers can never be equal to normalized large integers
-		int sign = oteReceiver->m_location->signDigit(oteReceiver);
+		int32_t sign = oteReceiver->m_location->signDigit(oteReceiver);
 		*(sp - 1) = reinterpret_cast<Oop>((sign < 0 ? Lt : !Lt) ? Pointers.True : Pointers.False);
 		return sp - 1;
 	}
@@ -177,9 +178,9 @@ namespace Li
 		Oop operator()(const LargeIntegerOTE* oteOuter, const LargeIntegerOTE* oteInner) const
 		{
 			const LargeInteger* liOuter = oteOuter->m_location;
-			MWORD outerSize = oteOuter->getWordSize();
+			size_t outerSize = oteOuter->getWordSize();
 			const LargeInteger* liInner = oteInner->m_location;
-			MWORD innerSize = oteInner->getWordSize();
+			size_t innerSize = oteInner->getWordSize();
 
 			// The algorithm is substantially faster if the outer loop is shorter
 			return outerSize > innerSize ? LargeInteger::Mul(liInner, innerSize, liOuter, outerSize) :
@@ -189,7 +190,7 @@ namespace Li
 
 	struct MulSingle
 	{
-		__forceinline Oop operator()(const LargeIntegerOTE* oteInner, SMALLINTEGER outerDigit) const
+		__forceinline Oop operator()(const LargeIntegerOTE* oteInner, int32_t outerDigit) const
 		{
 			return LargeInteger::Mul(oteInner, outerDigit);
 		}
@@ -197,7 +198,7 @@ namespace Li
 
 	struct AddSingle
 	{
-		__forceinline LargeIntegerOTE* operator()(const LargeIntegerOTE* oteLI, const SMALLINTEGER operand) const
+		__forceinline LargeIntegerOTE* operator()(const LargeIntegerOTE* oteLI, const int32_t operand) const
 		{
 			return LargeInteger::Add(oteLI, operand);
 		}
@@ -213,7 +214,7 @@ namespace Li
 
 	struct SubSingle
 	{
-		__forceinline LargeIntegerOTE* operator()(const LargeIntegerOTE* oteLI, SMALLINTEGER operand) const
+		__forceinline LargeIntegerOTE* operator()(const LargeIntegerOTE* oteLI, int32_t operand) const
 		{
 			return LargeInteger::Sub(oteLI, operand);
 		}
@@ -237,7 +238,7 @@ namespace Li
 
 	struct BitAndSingle
 	{
-		__forceinline Oop operator()(const LargeIntegerOTE* oteA, SMALLINTEGER mask) const
+		__forceinline Oop operator()(const LargeIntegerOTE* oteA, int32_t mask) const
 		{
 			return LargeInteger::BitAnd(oteA, mask);
 		}
@@ -256,7 +257,7 @@ namespace Li
 	// mask.
 	struct BitOrSingle
 	{
-		__forceinline LargeIntegerOTE* operator()(const LargeIntegerOTE* oteA, SMALLINTEGER mask) const
+		__forceinline LargeIntegerOTE* operator()(const LargeIntegerOTE* oteA, int32_t mask) const
 		{
 			return LargeInteger::BitOr(oteA, mask);
 		}
@@ -274,7 +275,7 @@ namespace Li
 	// mask.
 	struct BitXorSingle
 	{
-		__forceinline LargeIntegerOTE* operator()(const LargeIntegerOTE* oteA, SMALLINTEGER mask) const
+		__forceinline LargeIntegerOTE* operator()(const LargeIntegerOTE* oteA, int32_t mask) const
 		{
 			return LargeInteger::BitXor(oteA, mask);
 

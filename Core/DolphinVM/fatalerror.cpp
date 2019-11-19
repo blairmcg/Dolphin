@@ -152,7 +152,7 @@ void __stdcall FatalException(const EXCEPTION_RECORD& exRec)
 
 	LPWSTR buf;
 	::FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_STRING|FORMAT_MESSAGE_ARGUMENT_ARRAY,
-						szFormat.c_str(), 0, 0, LPWSTR(&buf), 0, (va_list*)exRec.ExceptionInformation);
+						szFormat.c_str(), 0, 0, reinterpret_cast<LPWSTR>(&buf), 0, (va_list*)exRec.ExceptionInformation);
 
 	DolphinFatalExit(exRec.ExceptionCode, buf);
 

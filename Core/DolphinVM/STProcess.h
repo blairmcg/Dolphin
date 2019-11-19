@@ -68,9 +68,9 @@ namespace ST
 	public:
 		void sizeToSP(ProcessOTE*, Oop* sp) const;
 
-		SMALLUNSIGNED stackSize(ProcessOTE* oteMe)
+		size_t stackSize(ProcessOTE* oteMe)
 		{
-			return (oteMe->getSize() - offsetof(Process, m_stack[0])) / sizeof(MWORD);
+			return (oteMe->getSize() - offsetof(Process, m_stack[0])) / sizeof(Oop);
 		}
 
 		SMALLUNSIGNED indexOfSP(Oop* sp)
@@ -128,10 +128,10 @@ namespace ST
 		}
 		void ClearSuspendedFrame();
 
-		DWORD FpControl() const
+		uint32_t FpControl() const
 		{
 			ASSERT(isIntegerObject(m_fpControl));
-			return integerValueOf(m_fpControl);
+			return integerValueOf(m_fpControl) & UINT_MAX;
 		}
 
 		void ResetFP() const
@@ -210,7 +210,7 @@ namespace ST
 		Oop m_excessSignals;
 		enum { ExcessSignalsIndex = LinkedList::FixedSize };
 
-		DWORD Wait(SemaphoreOTE* oteThis, ProcessOTE* oteProcess, int nTimeout);
+		NTSTATUS Wait(SemaphoreOTE* oteThis, ProcessOTE* oteProcess, intptr_t nTimeout);
 
 		static SemaphoreOTE* New(int sigs = 0);
 	};
@@ -246,8 +246,8 @@ namespace ST
 	// when accessing the active frame using the 'thisContext' pseudo variable.
 	inline void Process::sizeToSP(ProcessOTE* oteMe, Oop* sp) const
 	{
-		MWORD words = sp - reinterpret_cast<const Oop*>(this) + 1;
-		oteMe->setSize(words*sizeof(MWORD));
+		size_t words = sp - reinterpret_cast<const Oop*>(this) + 1;
+		oteMe->setSize(words*sizeof(Oop));
 	}
 
 #ifdef _DEBUG

@@ -48,9 +48,12 @@ HRESULT __stdcall ErrorUnableToCreateVM(HRESULT hr)
 int __cdecl wmain(int argc, wchar_t* argv[])
 {
 	// The VM is created through COM, or if TO GO may still be needed to load compiler
-	::CoInitialize(NULL);
- 	HRESULT hr = RunEmbeddedImage(GetResLibHandle(), IDR_IMAGE);
-	::CoUninitialize();
+	HRESULT hr = ::CoInitialize(NULL);
+	if (SUCCEEDED(hr))
+	{
+		hr = RunEmbeddedImage(GetResLibHandle(), IDR_IMAGE);
+		::CoUninitialize();
+	}
 
 	return DecodeHRESULT(hr);
 }

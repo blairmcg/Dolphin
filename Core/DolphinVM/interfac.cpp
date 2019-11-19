@@ -43,12 +43,12 @@ typedef int (__stdcall *FP)();
 struct VTblThunk
 {
 	//		mov		ecx, id
-	//BYTE	int3;
-	BYTE	movEcx;
-	DWORD	id;
+	//BYTE		int3;
+	BYTE		movEcx;
+	uintptr_t	id;
 	// jmp		commonVfnEntryPoint
-	BYTE	jmp;
-	SDWORD	commonVfnEntryPoint;
+	BYTE		jmp;
+	uintptr_t	commonVfnEntryPoint;
 };
 
 static VTblThunk* aVtblThunks;
@@ -69,7 +69,7 @@ inline void __fastcall Interpreter::returnValueTo(Oop resultPointer, Oop context
 }
 
 // Private - common part of perform callback routines
-Oop __stdcall Interpreter::callback(SymbolOTE* selector, unsigned argCount TRACEPARM) /* throws SE_VMCALLBACKUNWIND */
+Oop __stdcall Interpreter::callback(SymbolOTE* selector, uintptr_t argCount TRACEPARM) /* throws SE_VMCALLBACKUNWIND */
 {
 	//CHECKREFERENCES
 
@@ -380,17 +380,17 @@ Oop	__stdcall Interpreter::performWithArguments(Oop receiver, SymbolOTE* selecto
 
 #pragma code_seg(MEM_SEG)
 
-// Allocate a new four byte object of the specified (unref counted) class from the DWORD pool
-BytesOTE* __fastcall Interpreter::NewDWORD(DWORD dwValue, BehaviorOTE* classPointer)
+// Allocate a new intptr-sized byte object of the specified (unref counted) class from the IntPtr pool
+BytesOTE* __fastcall Interpreter::NewIntPtr(uintptr_t value, BehaviorOTE* classPointer)
 {
-	BytesOTE* ote = m_otePools[DWORDPOOL].newByteObject(classPointer, sizeof(DWORD), OTEFlags::DWORDSpace);
+	BytesOTE* ote = m_otePools[(size_t)Pools::DWORDPOOL].newByteObject(classPointer, sizeof(value), OTEFlags::IntPtrSpace);
 	ASSERT(ObjectMemory::hasCurrentMark(ote));
 
-	// Assign class as this can differ in this particular pool, which is used for all manner of 32-bit objects
+	// Assign class as this can differ in this particular pool, which is used for all manner of intptr objects
 	ote->m_oteClass = classPointer;
 
-	DWORDBytes* dwObj = reinterpret_cast<DWORDBytes*>(ote->m_location);
-	dwObj->m_dwValue = dwValue;
+	UintPtrBytes* obj = reinterpret_cast<UintPtrBytes*>(ote->m_location);
+	obj->m_value = value;
 
 	return ote;
 }
@@ -502,7 +502,7 @@ LRESULT CALLBACK Interpreter::DolphinWndProc(HWND hWnd, UINT uMsg, WPARAM wParam
 	//CHECKREFERENCES
 	#ifdef _DEBUG
 		if (ObjectMemoryIntegerValueOf(m_registers.m_pActiveFrame->m_ip) > 1024)
-			_asm int 3;
+			DebugBreak();
 	#endif
 
 	ResetInputPollCounter();
@@ -524,10 +524,10 @@ LRESULT CALLBACK Interpreter::DolphinWndProc(HWND hWnd, UINT uMsg, WPARAM wParam
 
 		// Dispatch to Smalltalk
 		pushObject(Pointers.Dispatcher);
-		pushUnsigned32(DWORD(hWnd));
-		pushUnsigned32(uMsg);
-		pushUnsigned32(wParam);
-		pushUnsigned32(lParam);
+		pushUIntPtr(reinterpret_cast<uintptr_t>(hWnd));
+		pushUnsigned(uMsg);
+		pushUIntPtr(wParam);
+		pushUIntPtr(lParam);
 
 		disableInterrupts(true);
 		Oop lResultOop = callback(Pointers.wndProcSelector, 4 TRACEARG(TRACEFLAG::TraceOff));
@@ -610,9 +610,9 @@ int __stdcall Interpreter::callbackExceptionFilter(LPEXCEPTION_POINTERS info)
 }
 
 
-inline DWORD __stdcall Interpreter::GenericCallbackMain(SMALLINTEGER id, BYTE* lpArgs)
+inline LRESULT __stdcall Interpreter::GenericCallbackMain(SMALLINTEGER id, BYTE* lpArgs)
 {
-	DWORD result;
+	LRESULT result;
 	__try
 	{
 		// All accesses to stack/OT allocations must be inside the
@@ -630,7 +630,7 @@ inline DWORD __stdcall Interpreter::GenericCallbackMain(SMALLINTEGER id, BYTE* l
 		#ifdef _DEBUG
 		{
 			wchar_t buf[128];
-			wsprintfW(buf, L"WARNING: Unwinding GenericCallback(%d, %p)\n", id, lpArgs);
+			wsprintfW(buf, L"WARNING: Unwinding GenericCallback(%Id, %p)\n", id, lpArgs);
 			WarningWithStackTrace(buf);
 		}
 		#endif
@@ -661,9 +661,9 @@ LRESULT CALLBACK Interpreter::VMWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 ///////////////////////////////////////////////////////////////////////////////
 // GenericCallback is the routine used for constructing function pointers for passing to external
 // libraries as callback functions.
-DWORD __stdcall Interpreter::GenericCallback(SMALLINTEGER id, BYTE* lpArgs)
+LRESULT __stdcall Interpreter::GenericCallback(SMALLINTEGER id, BYTE* lpArgs)
 {
-	DWORD dwResult;
+	LRESULT dwResult;
 	// We must perform this all inside our standard SEH catcher to handle the stack/OT overflows etc 
 	// As we have entered from an external function
 	if (GetCurrentThreadId() != MainThreadId())
@@ -677,7 +677,7 @@ DWORD __stdcall Interpreter::GenericCallback(SMALLINTEGER id, BYTE* lpArgs)
 }
 
 
-DWORD Interpreter::callbackResultFromOop(Oop objectPointer)
+LRESULT Interpreter::callbackResultFromOop(Oop objectPointer)
 {
 	if (ObjectMemoryIsIntegerObject(objectPointer))
 		// The result is a SmallInteger (the most common answer we hope)
@@ -686,9 +686,9 @@ DWORD Interpreter::callbackResultFromOop(Oop objectPointer)
 	OTE* ote = reinterpret_cast<OTE*>(objectPointer);
 	if (ote->isBytes())
 	{
-		ASSERT(ote->bytesSize() <= 8);
-		LargeInteger* l32i = static_cast<LargeInteger*>(ote->m_location);
-		LRESULT lResult = l32i->m_digits[0];
+		ASSERT(ote->bytesSize() <= sizeof(uintptr_t)+4);
+		LargeInteger* l64i = static_cast<LargeInteger*>(ote->m_location);
+		LRESULT lResult = *reinterpret_cast<LRESULT*>(l64i->m_digits);
 		// Remove the ref. added by callback()
 		ote->countDown();
 		return lResult;
@@ -726,7 +726,7 @@ Oop* __fastcall Interpreter::primitiveReturnFromCallback(Oop* const sp, primargc
 		// Is it current callback ?
 		if (callbackCookie == currentCallbackContext)
 		{
-			int* pJumpBuf = reinterpret_cast<int*>(callbackCookie ^ 1);
+			_JBTYPE* pJumpBuf = reinterpret_cast<_JBTYPE*>(callbackCookie ^ 1);
 			longjmp(pJumpBuf, SE_VMCALLBACKEXIT);
 
 			// Can't get here
@@ -796,9 +796,9 @@ Oop* __fastcall Interpreter::primitiveUnwindCallback(Oop* const sp, primargcount
 ///////////////////////////////////////////////////////////////////////////////
 // Virtual function call-ins
 
-DWORD __fastcall Interpreter::VirtualCallback(SMALLINTEGER offset, COMThunk** args)
+LRESULT __fastcall Interpreter::VirtualCallback(SMALLINTEGER offset, COMThunk** args)
 {
-		DWORD dwResult;
+		LRESULT dwResult;
 		// We must perform this all inside our standard SEH catcher to handle the stack/OT overflows etc 
 		// As we have entered from an external function
 		if (GetCurrentThreadId() != MainThreadId())
@@ -811,11 +811,11 @@ DWORD __fastcall Interpreter::VirtualCallback(SMALLINTEGER offset, COMThunk** ar
 		return dwResult;
 }
 
-DWORD __fastcall Interpreter::VirtualCallbackMain(SMALLINTEGER offset, COMThunk** args)
+LRESULT __fastcall Interpreter::VirtualCallbackMain(SMALLINTEGER offset, COMThunk** args)
 {
 	// We must perform this all inside our standard SEH catcher to handle the stack/OT overflows etc 
 	// and also to handle unwinds
-	DWORD result;
+	LRESULT result;
 	__try
 	{
 		pushObject((OTE*)Pointers.Scheduler);
@@ -837,6 +837,8 @@ DWORD __fastcall Interpreter::VirtualCallbackMain(SMALLINTEGER offset, COMThunk*
 	return result;
 };
 
+#ifdef _M_IX86
+
 __declspec(naked) int __stdcall _commonVfnEntryPoint()
 {
 	_asm 
@@ -855,6 +857,9 @@ __declspec(naked) int __stdcall _commonVfnEntryPoint()
 		ret
 	}
 }
+#else
+extern LRESULT __stdcall _commonVfnEntryPoint();
+#endif
 
 #pragma code_seg(INIT_SEG)
 

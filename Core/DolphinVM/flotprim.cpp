@@ -34,7 +34,7 @@ inline FloatOTE* __stdcall Float::New()
 {
 	ASSERT(sizeof(Float) == sizeof(double) + ObjectHeaderSize);
 
-	FloatOTE* newFloatPointer = reinterpret_cast<FloatOTE*>(Interpreter::m_otePools[Interpreter::FLOATPOOL].newByteObject(Pointers.ClassFloat, sizeof(double), OTEFlags::FloatSpace));
+	FloatOTE* newFloatPointer = reinterpret_cast<FloatOTE*>(Interpreter::m_otePools[(size_t)Interpreter::Pools::FLOATPOOL].newByteObject(Pointers.ClassFloat, sizeof(double), OTEFlags::FloatSpace));
 	ASSERT(ObjectMemory::hasCurrentMark(newFloatPointer));
 	ASSERT(newFloatPointer->m_oteClass == Pointers.ClassFloat);
 	newFloatPointer->beImmutable();
@@ -47,7 +47,7 @@ inline FloatOTE* __stdcall Float::New(double fValue)
 {
 	ASSERT(sizeof(Float) == sizeof(double) + ObjectHeaderSize);
 
-	FloatOTE* newFloatPointer = reinterpret_cast<FloatOTE*>(Interpreter::m_otePools[Interpreter::FLOATPOOL].newByteObject(Pointers.ClassFloat, sizeof(double), OTEFlags::FloatSpace));
+	FloatOTE* newFloatPointer = reinterpret_cast<FloatOTE*>(Interpreter::m_otePools[(size_t)Interpreter::Pools::FLOATPOOL].newByteObject(Pointers.ClassFloat, sizeof(double), OTEFlags::FloatSpace));
 	ASSERT(ObjectMemory::hasCurrentMark(newFloatPointer));
 	ASSERT(newFloatPointer->m_oteClass == Pointers.ClassFloat);
 	newFloatPointer->beImmutable();
@@ -75,20 +75,22 @@ Oop* Interpreter::primitiveFloatTimesTwoPower(Oop* const sp, primargcount_t)
 	if (ObjectMemoryIsIntegerObject(oopArg))
 	{
 		SMALLINTEGER arg = ObjectMemoryIntegerValueOf(oopArg);
+		if (arg <= INT_MAX)
+		{
+			FloatOTE* oteResult = Float::New();
+			FloatOTE* oteReceiver = reinterpret_cast<FloatOTE*>(*(sp - 1));
+			// Compiler doesn't have an intrinsic form for ldexp(), and the lib functions uses old x87 instructions
+			oteResult->m_location->m_fValue = ldexp(oteReceiver->m_location->m_fValue, arg & UINT_MAX);
+			// exp2(1074) overflows when printing Float.FMin
+			//oteResult->m_location->m_fValue = oteReceiver->m_location->m_fValue * exp2(arg);
 
-		FloatOTE* oteResult = Float::New();
-		FloatOTE* oteReceiver = reinterpret_cast<FloatOTE*>(*(sp-1));
-		// Compiler doesn't have an intrinsic form for ldexp(), and the lib functions uses old x87 instructions
-		oteResult->m_location->m_fValue = ldexp(oteReceiver->m_location->m_fValue, arg);
-		// exp2(1074) overflows when printing Float.FMin
-		//oteResult->m_location->m_fValue = oteReceiver->m_location->m_fValue * exp2(arg);
-
-		*(sp-1) = reinterpret_cast<Oop>(oteResult);
-		ObjectMemory::AddToZct((OTE*)oteResult);
-		return sp-1;
+			*(sp - 1) = reinterpret_cast<Oop>(oteResult);
+			ObjectMemory::AddToZct((OTE*)oteResult);
+			return sp - 1;
+		}
 	}
-	else
-		return primitiveFailure(_PrimitiveFailureCode::InvalidParameter1);
+
+	return primitiveFailure(_PrimitiveFailureCode::InvalidParameter1);
 }
 
 Oop* __fastcall Interpreter::primitiveFloatExponent(Oop* const sp, primargcount_t)
@@ -118,7 +120,7 @@ Oop* __fastcall Interpreter::primitiveLongDoubleAt(Oop* const sp, primargcount_t
 		return primitiveFailure(_PrimitiveFailureCode::InvalidParameter1);	// Index not an integer
 	}
 
-	SMALLUNSIGNED offset = ObjectMemoryIntegerValueOf(integerPointer);
+	SMALLINTEGER offset = ObjectMemoryIntegerValueOf(integerPointer);
 	OTE* receiver = reinterpret_cast<OTE*>(*(sp-1));
 
 	ASSERT(!ObjectMemoryIsIntegerObject(receiver));
@@ -138,7 +140,7 @@ Oop* __fastcall Interpreter::primitiveLongDoubleAt(Oop* const sp, primargcount_t
 		BytesOTE* oteBytes = reinterpret_cast<BytesOTE*>(receiver);
 
 		// We can check that the offset is in bounds
-		if (static_cast<int>(offset) < 0 || offset+sizeof(double) > oteBytes->bytesSize())
+		if (offset < 0 || offset+sizeof(double) > oteBytes->bytesSize())
 			return primitiveFailure(_PrimitiveFailureCode::OutOfBounds);	// Out of bounds
 
 		VariantByteObject* bytes = oteBytes->m_location;
@@ -146,6 +148,7 @@ Oop* __fastcall Interpreter::primitiveLongDoubleAt(Oop* const sp, primargcount_t
 	}
 
 	// VC++ does not support 80-bit floats (it's long double type is the same as double), so we must use assembler here
+#ifdef _M_IX86
 	_asm
 	{
 		mov		eax, pLongDbl
@@ -154,6 +157,9 @@ Oop* __fastcall Interpreter::primitiveLongDoubleAt(Oop* const sp, primargcount_t
 		// Raise pending exceptions, e.g. overflow
 		fwait
 	}
+#else
+	fValue = *reinterpret_cast<long double*>(pLongDbl);
+#endif
 
 	FloatOTE* oteResult = Float::New(fValue);
 	*(sp-1) = reinterpret_cast<Oop>(oteResult);

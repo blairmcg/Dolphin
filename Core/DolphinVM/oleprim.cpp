@@ -200,25 +200,33 @@ Oop* __fastcall Interpreter::primitiveVariantValue(Oop* const sp, primargcount_t
 
 		case VT_I1:
 			{
-				SDWORD i1 = V_I1(pVar);
+				SMALLINTEGER i1 = V_I1(pVar);
 				value = ObjectMemoryIntegerObjectOf(i1);
 			}
 			break;
 
 		case VT_I2:
 			{
-				SDWORD i2 = V_I2(pVar);
+				SMALLINTEGER i2 = V_I2(pVar);
 				value = ObjectMemoryIntegerObjectOf(i2);
 			}
 			break;
 
 		case VT_INT:
 		case VT_I4:
-			value = Integer::NewSigned32(V_I4(pVar));
+#ifdef _M_IX86
+			value = Integer::NewSigned(V_I4(pVar));
+#else
+			{
+				SMALLINTEGER i4 = V_I4(pVar);
+				value = ObjectMemoryIntegerObjectOf(i4);
+			}
+			break;
+#endif
 			break;
 
 		case VT_I8:
-			value = LargeInteger::NewSigned64(V_I8(pVar));
+			value = LargeInteger::NewSigned(V_I8(pVar));
 			break;
 
 		case VT_R4:
@@ -271,11 +279,11 @@ Oop* __fastcall Interpreter::primitiveVariantValue(Oop* const sp, primargcount_t
 
 		case VT_UINT:
 		case VT_UI4:
-			value = Integer::NewUnsigned32(V_UI4(pVar));
+			value = Integer::NewUnsigned(static_cast<uint32_t>(V_UI4(pVar)));
 			break;
 
 		case VT_UI8:
-			value = LargeInteger::NewUnsigned64(V_UI8(pVar));
+			value = LargeInteger::NewUnsigned(V_UI8(pVar));
 			break;
 
 		case VT_CY:

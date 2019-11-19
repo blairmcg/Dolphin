@@ -21,7 +21,7 @@ namespace ST { class Array; }
 class ArrayOTE : public TOTE<ST::Array>
 {
 public:
-	__forceinline int sizeForUpdate() const { return static_cast<int>(m_size) / static_cast<int>(sizeof(MWORD)); }
+	__forceinline int sizeForUpdate() const { return static_cast<int>(m_size) / static_cast<int>(sizeof(Oop)); }
 };
 
 namespace ST
@@ -31,8 +31,8 @@ namespace ST
 	public:
 		Oop	m_elements[];			// Variable length array of data
 
-		static ArrayOTE* New(unsigned size);
-		static ArrayOTE* NewUninitialized(unsigned size);
+		static ArrayOTE* New(size_t size);
+		static ArrayOTE* NewUninitialized(size_t size);
 	};
 }
 

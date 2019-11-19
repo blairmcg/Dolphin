@@ -23,8 +23,8 @@
 #endif
 
 #ifdef MEMSTATS
-	extern unsigned m_nLargeAllocated;
-	extern unsigned m_nSmallAllocated;
+	extern size_t m_nLargeAllocated;
+	extern size_t m_nSmallAllocated;
 #endif
 
 // Smalltalk classes
@@ -34,7 +34,7 @@
 // No auto-inlining in this module please
 #pragma auto_inline(off)
 
-//MWORD ObjectMemory::MaxSizeOfPoolObject;
+//size_t ObjectMemory::MaxSizeOfPoolObject;
 //int ObjectMemory::NumPools;
 ObjectMemory::FixedSizePool	ObjectMemory::m_pools[MaxPools];
 ObjectMemory::FixedSizePool::Link* ObjectMemory::FixedSizePool::m_pFreePages;
@@ -45,13 +45,13 @@ unsigned ObjectMemory::FixedSizePool::m_nAllocations;
 // Public object allocation routines
 
 // Rarely used, so don't inline it
-POBJECT ObjectMemory::allocLargeObject(MWORD objectSize, OTE*& ote)
+POBJECT ObjectMemory::allocLargeObject(size_t objectSize, OTE*& ote)
 {
 #ifdef MEMSTATS
 	++m_nLargeAllocated;
 #endif
 
-	POBJECT pObj = static_cast<POBJECT>(allocChunk(_ROUND2(objectSize, sizeof(DWORD))));
+	POBJECT pObj = static_cast<POBJECT>(allocChunk(_ROUND2(objectSize, sizeof(uintptr_t))));
 
 	// allocateOop expects crit section to be used
 	ote = allocateOop(pObj);
@@ -60,9 +60,9 @@ POBJECT ObjectMemory::allocLargeObject(MWORD objectSize, OTE*& ote)
 	return pObj;
 }
 
-inline POBJECT ObjectMemory::allocObject(MWORD objectSize, OTE*& ote)
+inline POBJECT ObjectMemory::allocObject(size_t objectSize, OTE*& ote)
 {
-	// Callers are expected to round requests to DWORD granularity
+	// Callers are expected to round requests to intptr granularity
 	if (objectSize > MaxSmallObjectSize)
 		return allocLargeObject(objectSize, ote);
 
@@ -94,7 +94,7 @@ PointersOTE* __fastcall ObjectMemory::shallowCopy(PointersOTE* ote)
 	BehaviorOTE* classPointer = ote->m_oteClass;
 
 	PointersOTE* copyPointer;
-	MWORD size;
+	uintptr_t size;
 
 	if (ote->heapSpace() == OTEFlags::VirtualSpace)
 	{
@@ -105,12 +105,12 @@ PointersOTE* __fastcall ObjectMemory::shallowCopy(PointersOTE* ote)
 
 		VirtualObject* pVObj = reinterpret_cast<VirtualObject*>(obj);
 		VirtualObjectHeader* pBase = pVObj->getHeader();
-		unsigned maxByteSize = pBase->getMaxAllocation();
-		unsigned currentTotalByteSize = pBase->getCurrentAllocation();
+		uintptr_t maxByteSize = pBase->getMaxAllocation();
+		uintptr_t currentTotalByteSize = pBase->getCurrentAllocation();
 
 		VirtualOTE* virtualCopy = ObjectMemory::newVirtualObject(classPointer,
-			currentTotalByteSize / sizeof(MWORD),
-			maxByteSize / sizeof(MWORD));
+			currentTotalByteSize / sizeof(uintptr_t),
+			maxByteSize / sizeof(uintptr_t));
 		if (!virtualCopy)
 			return nullptr;
 
@@ -160,7 +160,7 @@ Oop* __fastcall Interpreter::primitiveShallowCopy(Oop* const sp, primargcount_t)
 // opaque to external users, and to be interchangeable with MWORDs.
 //
 
-Oop* __fastcall Interpreter::primitiveNewFromStack(Oop* const stackPointer, unsigned)
+Oop* __fastcall Interpreter::primitiveNewFromStack(Oop* const stackPointer, uintptr_t)
 {
 	BehaviorOTE* oteClass = reinterpret_cast<BehaviorOTE*>(*(stackPointer - 1));
 
@@ -312,15 +312,15 @@ PointersOTE* __fastcall ObjectMemory::newPointerObject(BehaviorOTE* classPointer
 	return newPointerObject(classPointer, classPointer->m_location->fixedFields());
 }
 
-PointersOTE* __fastcall ObjectMemory::newPointerObject(BehaviorOTE* classPointer, MWORD oops)
+PointersOTE* __fastcall ObjectMemory::newPointerObject(BehaviorOTE* classPointer, size_t oops)
 {
 	PointersOTE* ote = newUninitializedPointerObject(classPointer, oops);
 
 	// Initialise the fields to nils
 	const Oop nil = Oop(Pointers.Nil);		// Loop invariant (otherwise compiler reloads each time)
 	VariantObject* pLocation = ote->m_location;
-	const MWORD loopEnd = oops;
-	for (MWORD i = 0; i<loopEnd; i++)
+	const size_t loopEnd = oops;
+	for (size_t i = 0; i<loopEnd; i++)
 		pLocation->m_fields[i] = nil;
 
 	ASSERT(ote->isPointers());
@@ -328,13 +328,10 @@ PointersOTE* __fastcall ObjectMemory::newPointerObject(BehaviorOTE* classPointer
 	return reinterpret_cast<PointersOTE*>(ote);
 }
 
-PointersOTE* __fastcall ObjectMemory::newUninitializedPointerObject(BehaviorOTE* classPointer, MWORD oops)
+PointersOTE* __fastcall ObjectMemory::newUninitializedPointerObject(BehaviorOTE* classPointer, size_t oops)
 {
-	// Total size must fit in a DWORD bits
-	ASSERT(oops < ((DWORD(1) << 30) - ObjectHeaderSize));
-
 	// Don't worry, compiler will not really use multiply instruction here
-	MWORD objectSize = SizeOfPointers(oops);
+	size_t objectSize = SizeOfPointers(oops);
 	OTE* ote;
 	allocObject(objectSize, ote);
 	ASSERT((objectSize > MaxSizeOfPoolObject && ote->heapSpace() == OTEFlags::NormalSpace)
@@ -352,7 +349,7 @@ PointersOTE* __fastcall ObjectMemory::newUninitializedPointerObject(BehaviorOTE*
 	return reinterpret_cast<PointersOTE*>(ote);
 }
 
-template <bool MaybeZ, bool Initialized> BytesOTE* ObjectMemory::newByteObject(BehaviorOTE* classPointer, MWORD elementCount)
+template <bool MaybeZ, bool Initialized> BytesOTE* ObjectMemory::newByteObject(BehaviorOTE* classPointer, size_t elementCount)
 {
 	Behavior& byteClass = *classPointer->m_location;
 	OTE* ote;
@@ -383,7 +380,7 @@ template <bool MaybeZ, bool Initialized> BytesOTE* ObjectMemory::newByteObject(B
 	{
 		ASSERT(classPointer->m_location->m_instanceSpec.m_nullTerminated);
 
-		MWORD objectSize;
+		size_t objectSize;
 
 		switch (reinterpret_cast<const StringClass&>(byteClass).Encoding)
 		{
@@ -434,10 +431,10 @@ template <bool MaybeZ, bool Initialized> BytesOTE* ObjectMemory::newByteObject(B
 }
 
 // Explicit instantiations
-template BytesOTE* ObjectMemory::newByteObject<false, false>(BehaviorOTE*, MWORD);
-template BytesOTE* ObjectMemory::newByteObject<false, true>(BehaviorOTE*, MWORD);
-template BytesOTE* ObjectMemory::newByteObject<true, false>(BehaviorOTE*, MWORD);
-template BytesOTE* ObjectMemory::newByteObject<true, true>(BehaviorOTE*, MWORD);
+template BytesOTE* ObjectMemory::newByteObject<false, false>(BehaviorOTE*, size_t);
+template BytesOTE* ObjectMemory::newByteObject<false, true>(BehaviorOTE*, size_t);
+template BytesOTE* ObjectMemory::newByteObject<true, false>(BehaviorOTE*, size_t);
+template BytesOTE* ObjectMemory::newByteObject<true, true>(BehaviorOTE*, size_t);
 
 Oop* __fastcall Interpreter::primitiveNewPinned(Oop* const sp, primargcount_t)
 {
@@ -467,7 +464,7 @@ Oop* __fastcall Interpreter::primitiveNewPinned(Oop* const sp, primargcount_t)
 	return primitiveFailure(_PrimitiveFailureCode::InvalidParameter1);	// Size must be positive SmallInteger
 }
 
-OTE* ObjectMemory::CopyElements(OTE* oteObj, MWORD startingAt, MWORD count)
+OTE* ObjectMemory::CopyElements(OTE* oteObj, size_t startingAt, size_t count)
 {
 	// Note that startingAt is expected to be a zero-based index
 	ASSERT(startingAt >= 0);
@@ -478,9 +475,9 @@ OTE* ObjectMemory::CopyElements(OTE* oteObj, MWORD startingAt, MWORD count)
 		BytesOTE* oteBytes = reinterpret_cast<BytesOTE*>(oteObj);
 		size_t elementSize = ObjectMemory::GetBytesElementSize(oteBytes);
 
-		if (count == 0 || ((startingAt + count) * elementSize <= oteBytes->bytesSize()))
+		if (count == 0 || ((startingAt + count) * elementSize) <= oteBytes->bytesSize())
 		{
-			MWORD objectSize = elementSize * count;
+			size_t objectSize = elementSize * count;
 
 			if (oteBytes->m_flags.m_weakOrZ)
 			{
@@ -516,12 +513,12 @@ OTE* ObjectMemory::CopyElements(OTE* oteObj, MWORD startingAt, MWORD count)
 
 			if (count == 0 || (startingAt + count) <= otePointers->pointersSize())
 			{
-				MWORD objectSize = SizeOfPointers(count);
+				size_t objectSize = SizeOfPointers(count);
 				auto pSlice = static_cast<VariantObject*>(allocObject(objectSize, oteSlice));
 				// When copying pointers, the slice is always an Array
 				oteSlice->m_oteClass = Pointers.ClassArray;
 				VariantObject* pSrc = otePointers->m_location;
-				for (MWORD i = 0; i < count; i++)
+				for (size_t i = 0; i < count; i++)
 				{
 					countUp(pSlice->m_fields[i] = pSrc->m_fields[startingAt + i]);
 				}
@@ -583,7 +580,7 @@ BytesOTE* __fastcall ObjectMemory::shallowCopy(BytesOTE* ote)
 	// Copying byte objects is simple and fast
 	VariantByteObject& bytes = *ote->m_location;
 	BehaviorOTE* classPointer = ote->m_oteClass;
-	MWORD objectSize = ote->sizeOf();
+	size_t objectSize = ote->sizeOf();
 
 	OTE* copyPointer;
 	// Allocate an uninitialized object ...
@@ -662,7 +659,7 @@ Oop* __fastcall Interpreter::primitiveNewVirtual(Oop* const sp, primargcount_t)
 	virtual allocation overhead). Should the allocation request fail, then a memory exception is 
 	generated.
 */
-MWORD* __stdcall AllocateVirtualSpace(MWORD maxBytes, MWORD initialBytes)
+uintptr_t* __stdcall AllocateVirtualSpace(size_t maxBytes, size_t initialBytes)
 {
 	unsigned reserveBytes = _ROUND2(maxBytes + dwPageSize, dwAllocationGranularity);
 	ASSERT(reserveBytes % dwAllocationGranularity == 0);
@@ -707,7 +704,7 @@ MWORD* __stdcall AllocateVirtualSpace(MWORD maxBytes, MWORD initialBytes)
 
 			// Use first slot to hold the maximum size for the object
 			pLocation->setMaxAllocation(maxBytes);
-			return reinterpret_cast<MWORD*>(pLocation + 1);
+			return reinterpret_cast<uintptr_t*>(pLocation + 1);
 		}
 	}
 
@@ -718,7 +715,7 @@ MWORD* __stdcall AllocateVirtualSpace(MWORD maxBytes, MWORD initialBytes)
 // objects in virtual space (used for allocating Processes, for example), does not adjust
 // the ref. count of the class, because this is often unecessary, and does not adjust the
 // sizes to allow for fixed fields - callers must do this
-VirtualOTE* ObjectMemory::newVirtualObject(BehaviorOTE* classPointer, MWORD initialSize, MWORD maxSize)
+VirtualOTE* ObjectMemory::newVirtualObject(BehaviorOTE* classPointer, size_t initialSize, size_t maxSize)
 {
 	#ifdef _DEBUG
 	{
@@ -741,18 +738,18 @@ VirtualOTE* ObjectMemory::newVirtualObject(BehaviorOTE* classPointer, MWORD init
 
 	// We have to allow for the virtual allocation overhead. The allocation function will add in
 	// space for this. The maximum size should include this, the initial size should not
-	initialSize -= sizeof(VirtualObjectHeader)/sizeof(MWORD);
+	initialSize -= sizeof(VirtualObjectHeader)/sizeof(uintptr_t);
 
-	unsigned byteSize = initialSize*sizeof(MWORD);
-	VariantObject* pLocation = reinterpret_cast<VariantObject*>(AllocateVirtualSpace(maxSize * sizeof(MWORD), byteSize));
+	size_t byteSize = initialSize*sizeof(uintptr_t);
+	VariantObject* pLocation = reinterpret_cast<VariantObject*>(AllocateVirtualSpace(maxSize * sizeof(uintptr_t), byteSize));
 	if (pLocation)
 	{
 		// No need to alter ref. count of process class, as it is sticky
 
 		// Fill space with nils for initial values
 		const Oop nil = Oop(Pointers.Nil);
-		const unsigned loopEnd = initialSize;
-		for (unsigned i = 0; i < loopEnd; i++)
+		const size_t loopEnd = initialSize;
+		for (size_t i = 0; i < loopEnd; i++)
 			pLocation->m_fields[i] = nil;
 
 		OTE* ote = ObjectMemory::allocateOop(static_cast<POBJECT>(pLocation));
@@ -778,7 +775,7 @@ void ObjectMemory::FixedSizePool::morePages()
 	ASSERT(dwPageSize*nPages == dwAllocationGranularity);
 
 	BYTE* pStart = static_cast<BYTE*>(::VirtualAlloc(NULL, dwAllocationGranularity, MEM_COMMIT, PAGE_READWRITE));
-	if (!pStart)
+	if (pStart == nullptr)
 		::RaiseException(STATUS_NO_MEMORY, EXCEPTION_NONCONTINUABLE, 0, NULL);	// Fatal - we must exit Dolphin
 
 	#ifdef _DEBUG
@@ -792,6 +789,8 @@ void ObjectMemory::FixedSizePool::morePages()
 	{
 		m_nAllocations++;
 		m_pAllocations = static_cast<void**>(realloc(m_pAllocations, m_nAllocations*sizeof(void*)));
+		if (m_pAllocations == nullptr)
+			::RaiseException(STATUS_NO_MEMORY, EXCEPTION_NONCONTINUABLE, 0, NULL);	// Fatal - we must exit Dolphin
 		m_pAllocations[m_nAllocations-1] = pStart;
 	}
 
@@ -835,9 +834,9 @@ inline BYTE* ObjectMemory::FixedSizePool::allocatePage()
 // Allocate another page for a fixed size pool
 void ObjectMemory::FixedSizePool::moreChunks()
 {
-	const int nOverhead = 0;//12;
-	const int nBlockSize = dwPageSize - nOverhead;
-	const int nChunks = nBlockSize / m_nChunkSize;
+	const size_t nOverhead = 0;//12;
+	const size_t nBlockSize = dwPageSize - nOverhead;
+	const size_t nChunks = nBlockSize / m_nChunkSize;
 
 	BYTE* pStart = allocatePage();
 
@@ -857,15 +856,15 @@ void ObjectMemory::FixedSizePool::moreChunks()
 		// We don't know whether the chunks are to contain zeros or nils, so we don't bother to init the space
 	#endif
 
-	BYTE* pLast = &pStart[(nChunks-1) * m_nChunkSize];
+	uint8_t* pLast = &pStart[(nChunks-1) * m_nChunkSize];
 
 	#ifdef _DEBUG
 		// ASSERT that pLast is correct by causing a GPF if it isn't!
 		memset(static_cast<BYTE*>(pLast), 0xCD, m_nChunkSize);
 	#endif
 
-	const unsigned chunkSize = m_nChunkSize;			// Loop invariant
-	for (BYTE* p = pStart; p < pLast; p += chunkSize)
+	const size_t chunkSize = m_nChunkSize;			// Loop invariant
+	for (uint8_t* p = pStart; p < pLast; p += chunkSize)
 		reinterpret_cast<Link*>(p)->next = reinterpret_cast<Link*>(p + chunkSize);
 
 	reinterpret_cast<Link*>(pLast)->next = 0;
@@ -874,20 +873,22 @@ void ObjectMemory::FixedSizePool::moreChunks()
 	#ifdef _DEBUG
 		m_nPages++;
 		m_pages = static_cast<void**>(realloc(m_pages, m_nPages*sizeof(void*)));
+		if (m_pages == nullptr)
+			::RaiseException(STATUS_NO_MEMORY, EXCEPTION_NONCONTINUABLE, 0, NULL);	// Fatal - we must exit Dolphin
 		m_pages[m_nPages-1] = pStart;
 	#endif
 }
 
-void ObjectMemory::FixedSizePool::setSize(unsigned nChunkSize)
+void ObjectMemory::FixedSizePool::setSize(size_t nChunkSize)
 {
 	m_nChunkSize = nChunkSize;
-// Must be on 4 byte boundaries
+// Must be on allocation boundaries
 	ASSERT(m_nChunkSize % PoolGranularity == 0);
 	ASSERT(m_nChunkSize >= MinObjectSize);
 //	m_dwPageUsed = (dwPageSize / m_nChunkSize) * m_nChunkSize;
 }
 
-inline ObjectMemory::FixedSizePool::FixedSizePool(unsigned nChunkSize) : m_pFreeChunks(0)
+inline ObjectMemory::FixedSizePool::FixedSizePool(size_t nChunkSize) : m_pFreeChunks(0)
 #ifdef _DEBUG
 	, m_pages(0), m_nPages(0)
 #endif
@@ -899,7 +900,7 @@ inline ObjectMemory::FixedSizePool::FixedSizePool(unsigned nChunkSize) : m_pFree
 //	#pragma auto_inline(on)
 //#endif
 
-inline POBJECT ObjectMemory::reallocChunk(POBJECT pChunk, MWORD newChunkSize)
+inline POBJECT ObjectMemory::reallocChunk(POBJECT pChunk, size_t newChunkSize)
 {
 	#ifdef PRIVATE_HEAP
 		return static_cast<POBJECT>(::HeapReAlloc(m_hHeap, HEAP_NO_SERIALIZE, pChunk, newChunkSize));
@@ -943,21 +944,21 @@ inline POBJECT ObjectMemory::reallocChunk(POBJECT pChunk, MWORD newChunkSize)
 			  << m_pools[NumPools-1].getSize()<< L" by: "
 			  << PoolGranularity << L')' << std::endl << std::endl;
 
-		int pageWaste=0;
-		int totalPages=0;
-		int totalFreeBytes=0;
-		int totalChunks=0;
-		int totalFreeChunks=0;
+		size_t pageWaste=0;
+		size_t totalPages=0;
+		size_t totalFreeBytes=0;
+		size_t totalChunks=0;
+		size_t totalFreeChunks=0;
 		for (int i=0;i<NumPools;i++)
 		{
-			int nSize = m_pools[i].getSize();
-			int perPage = dwPageSize/nSize;
-			int wastePerPage = dwPageSize - (perPage*nSize);
-			int nPages = m_pools[i].getPages();
-			int nChunks = perPage*nPages;
-			int waste = nPages*wastePerPage;
-			int nFree = m_pools[i].getFree();
-			TRACE(L"%d: size %d, %d objects on %d pgs (%d per pg, %d free), waste %d (%d per page)\n",
+			size_t nSize = m_pools[i].getSize();
+			size_t perPage = dwPageSize/nSize;
+			size_t wastePerPage = dwPageSize - (perPage*nSize);
+			size_t nPages = m_pools[i].getPages();
+			size_t nChunks = perPage*nPages;
+			size_t waste = nPages*wastePerPage;
+			size_t nFree = m_pools[i].getFree();
+			TRACE(L"%d: size %Iu, %Iu objects on %Iu pgs (%Iu per pg, %Iu free), waste %Iu (%Iu per page)\n",
 				i, nSize, nChunks-nFree, nPages, perPage, nFree, waste, wastePerPage);
 			totalChunks += nChunks;
 			pageWaste += waste;
@@ -966,8 +967,8 @@ inline POBJECT ObjectMemory::reallocChunk(POBJECT pChunk, MWORD newChunkSize)
 			totalFreeChunks += nFree;
 		}
 
-		int objectWaste = 0;
-		int totalObjects = 0;
+		size_t objectWaste = 0;
+		size_t totalObjects = 0;
 		const OTE* pEnd = m_pOT+m_nOTSize;
 		for (OTE* ote=m_pOT; ote < pEnd; ote++)
 		{
@@ -976,30 +977,30 @@ inline POBJECT ObjectMemory::reallocChunk(POBJECT pChunk, MWORD newChunkSize)
 				totalObjects++;
 				if (ote->heapSpace() == OTEFlags::PoolSpace)
 				{
-					int size = ote->sizeOf();
-					int chunkSize = _ROUND2(size, PoolGranularity);
+					size_t size = ote->sizeOf();
+					size_t chunkSize = _ROUND2(size, PoolGranularity);
 					objectWaste += chunkSize - size;
 				}
 			}
 		}
 
-		int wastePercentage = (totalChunks - totalFreeChunks) == 0 
+		size_t wastePercentage = (totalChunks - totalFreeChunks) == 0 
 								? 0 
-								: int(double(objectWaste)/
+								: size_t(double(objectWaste)/
 										double(totalChunks-totalFreeChunks)*100.0);
 
 		TRACESTREAM<< L"===============================================" << std::endl;
-		TRACE(L"Total objects	= %d\n"
-			  "Total pool objs	= %d\n"
-			  "Total chunks		= %d\n"
-			  "Total Pages		= %d\n"
-			  "Total Allocs		= %d\n"
-			  "Total allocated	= %d\n"
-			  "Page Waste		= %d bytes\n"
-			  "Object Waste		= %d bytes (avg 0.%d)\n"
-			  "Total Waste		= %d\n"
-			  "Total free chks	= %d\n"
-			  "Total Free		= %d bytes\n",
+		TRACE(L"Total objects	= %Iu\n"
+			  "Total pool objs	= %Iu\n"
+			  "Total chunks		= %Iu\n"
+			  "Total Pages		= %Iu\n"
+			  "Total Allocs		= %Iu\n"
+			  "Total allocated	= %Iu\n"
+			  "Page Waste		= %Iu bytes\n"
+			  "Object Waste		= %Iu bytes (avg 0.%Iu)\n"
+			  "Total Waste		= %Iu\n"
+			  "Total free chks	= %Iu\n"
+			  "Total Free		= %Iu bytes\n",
 				totalObjects,
 				totalChunks-totalFreeChunks,
 				totalChunks,
@@ -1018,10 +1019,10 @@ inline POBJECT ObjectMemory::reallocChunk(POBJECT pChunk, MWORD newChunkSize)
 		_CrtMemCheckpoint(&CRTMemState);
 	}
 
-	int ObjectMemory::FixedSizePool::getFree()
+	size_t ObjectMemory::FixedSizePool::getFree()
 	{
 		Link* pChunk = m_pFreeChunks; 
-		int tally = 0;
+		size_t tally = 0;
 		while (pChunk)
 		{
 			tally++;

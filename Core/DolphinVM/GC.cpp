@@ -46,7 +46,7 @@ extern VMPointers _Pointers;
 #endif
 
 enum { NoWeakMask = 0, GCNoWeakness = 1 };
-BYTE ObjectMemory::WeaknessMask = static_cast<BYTE>(OTEFlags::WeakMask);
+BYTE ObjectMemory::WeaknessMask = static_cast<uint8_t>(OTEFlags::WeakMask);
 
 void ObjectMemory::ClearGCInfo()
 {
@@ -82,9 +82,9 @@ void ObjectMemory::markObjectsAccessibleFrom(OTE* ote)
 	if ((oteClass->m_ubFlags ^ curMark) & OTEFlags::MarkMask)	// Already accessible from roots of world?
 		markObjectsAccessibleFrom(reinterpret_cast<POTE>(oteClass));
 
-	const MWORD lastPointer = lastStrongPointerOf(ote);
+	const size_t lastPointer = lastStrongPointerOf(ote);
 	Oop* pFields = reinterpret_cast<Oop*>(ote->m_location);
-	for (MWORD i = ObjectHeaderSize; i < lastPointer; i++)
+	for (size_t i = ObjectHeaderSize; i < lastPointer; i++)
 	{
 		// This will get nicely optimised by the Compiler
 		Oop fieldPointer = pFields[i];
@@ -112,7 +112,7 @@ OTEFlags ObjectMemory::nextMark()
 	return oldMark;
 }
 
-void ObjectMemory::asyncGC(DWORD gcFlags, Oop* const sp)
+void ObjectMemory::asyncGC(uintptr_t gcFlags, Oop* const sp)
 {
 	EmptyZct(sp);
 	reclaimInaccessibleObjects(gcFlags);
@@ -121,13 +121,13 @@ void ObjectMemory::asyncGC(DWORD gcFlags, Oop* const sp)
 	Interpreter::scheduleFinalization();
 }
 
-void ObjectMemory::reclaimInaccessibleObjects(DWORD gcFlags)
+void ObjectMemory::reclaimInaccessibleObjects(uintptr_t gcFlags)
 {
 	// Assign flags to static, as we use some deeply recursive routines
 	// and we don't want to pass down to the depths. When we want to turn off
 	// weakness we mask with the free bit, which obviously can't be set on any
 	// live object so the test will always fail
-	WeaknessMask = static_cast<BYTE>(gcFlags & GCNoWeakness ? 0 : OTEFlags::WeakMask);
+	WeaknessMask = static_cast<uint8_t>(gcFlags & GCNoWeakness ? 0 : OTEFlags::WeakMask);
 
 	// Get the Oop to use for corpses from the interpreter (it's a global)
 	Oop corpse = corpsePointer();
@@ -222,11 +222,11 @@ void ObjectMemory::reclaimInaccessibleObjects(DWORD gcFlags)
 			{
 				SMALLINTEGER losses = 0;
 				PointersOTE* otePointers = reinterpret_cast<PointersOTE*>(ote);
-				const MWORD size = otePointers->pointersSize();
+				const size_t size = otePointers->pointersSize();
 				VariantObject* weakObj = otePointers->m_location;
 				const Behavior* weakObjClass = ote->m_oteClass->m_location;
-				const MWORD fixedFields = weakObjClass->fixedFields();
-				for (MWORD j = fixedFields; j < size; j++)
+				const size_t fixedFields = weakObjClass->fixedFields();
+				for (size_t j = fixedFields; j < size; j++)
 				{
 					Oop fieldPointer = weakObj->m_fields[j];
 					if (!ObjectMemoryIsIntegerObject(fieldPointer))
@@ -268,7 +268,7 @@ void ObjectMemory::reclaimInaccessibleObjects(DWORD gcFlags)
 #ifdef _DEBUG
 					{
 						tracelock lock(TRACESTREAM);
-						TRACESTREAM<< L"Weakling: " << ote<< L" (" << std::hex << UINT(ote)<< L") lost " << std::dec << losses << L" elements" << std::endl;
+						TRACESTREAM<< L"Weakling: " << ote<< L" (" << std::hex << reinterpret_cast<uintptr_t>(ote) << L") lost " << std::dec << losses << L" elements" << std::endl;
 					}
 #endif
 					// We must also ensure that it and its referenced objects are marked since we're
@@ -340,7 +340,7 @@ void ObjectMemory::reclaimInaccessibleObjects(DWORD gcFlags)
 				if (ote->isPointers())
 				{
 					PointersOTE* otePointers = reinterpret_cast<PointersOTE*>(ote);
-					const MWORD lastPointer = otePointers->pointersSize();
+					const size_t lastPointer = otePointers->pointersSize();
 					VariantObject* varObj = otePointers->m_location;
 					for (unsigned f = 0; f < lastPointer; f++)
 					{
@@ -435,8 +435,8 @@ void ObjectMemory::addVMRefs()
 
 	void ObjectMemory::checkPools()
 	{
-		const unsigned loopEnd = m_nOTSize;
-		for (unsigned i=OTBase;i<loopEnd;i++)
+		const size_t loopEnd = m_nOTSize;
+		for (size_t i=OTBase;i<loopEnd;i++)
 		{
 			OTE& ote = m_pOT[i];
 			if (!ote.isFree())
@@ -444,7 +444,7 @@ void ObjectMemory::addVMRefs()
 				OTEFlags::Spaces space = ote.heapSpace();
 				if (space == OTEFlags::PoolSpace)
 				{
-					unsigned size = ote.sizeOf();
+					size_t size = ote.sizeOf();
 					if (size > MaxSizeOfPoolObject)
 					{
 						if (size <= MaxSmallObjectSize)
@@ -467,7 +467,7 @@ void ObjectMemory::addVMRefs()
 			HARDASSERT(m_pools[j].isValid());
 	}
 
-	int ObjectMemory::CountFreeOTEs()
+	size_t ObjectMemory::CountFreeOTEs()
 	{
 		OTE*	p = m_pFreePointerList;
 		int		count = 0;
@@ -541,8 +541,8 @@ void ObjectMemory::addVMRefs()
 		int errors=0;
 		BYTE* currentRefs = new BYTE[m_nOTSize];
 		{
-			const unsigned loopEnd = m_nOTSize;
-			for (unsigned i=OTBase; i < loopEnd; i++)
+			const size_t loopEnd = m_nOTSize;
+			for (size_t i=OTBase; i < loopEnd; i++)
 			{
 				// Count and free bit should both be zero, or both non-zero
 				/*if (m_pOT[i].m_flags.m_free ^ (m_pOT[i].m_flags.m_count == 0))
@@ -586,8 +586,8 @@ void ObjectMemory::addVMRefs()
 		Interpreter::ReincrementVMReferences();
 
 		int refCountTooSmall = 0;
-		const unsigned loopEnd = m_nOTSize;
-		for (unsigned i=OTBase; i < loopEnd; i++)
+		const size_t loopEnd = m_nOTSize;
+		for (size_t i=OTBase; i < loopEnd; i++)
 		{
 			OTE* ote = &m_pOT[i];
 			if (currentRefs[i] < OTE::MAXCOUNT)
@@ -653,8 +653,8 @@ void ObjectMemory::addVMRefs()
 				if (ote->isPointers())
 				{
 					VariantObject* obj = reinterpret_cast<PointersOTE*>(ote)->m_location;
-					int size = ote->pointersSize();
-					for (int i = 0; i < size; i++)
+					size_t size = ote->pointersSize();
+					for (size_t i = 0; i < size; i++)
 					{
 						HARDASSERT(isValidOop(obj->m_fields[i]));
 					}
@@ -697,8 +697,8 @@ void ObjectMemory::addVMRefs()
 		{
 			PointersOTE* otePointers = reinterpret_cast<PointersOTE*>(ote);
 			VariantObject* varObj = otePointers->m_location;
-			const MWORD lastPointer = otePointers->pointersSize();
-			for (MWORD i = 0; i < lastPointer; i++)
+			const size_t lastPointer = otePointers->pointersSize();
+			for (size_t i = 0; i < lastPointer; i++)
 			{
 				Oop fieldPointer = varObj->m_fields[i];
 				// The reason we don't use an ASSERT here is that, ASSERT throws

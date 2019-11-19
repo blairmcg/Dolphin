@@ -45,7 +45,7 @@ private:
 	int output_buffer()
 	{
 		charT* pb = pbase();
-		long count = pptr() - pb;
+		ptrdiff_t count = pptr() - pb;
 		if (count != 0)
 		{
 			pb[count] = 0;
@@ -53,7 +53,7 @@ private:
 		}
 		
 		// Empty the put area
-		pbump(-count);
+		pbump(static_cast<int>(-count));
 		return 0;
 	}
 	

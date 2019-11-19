@@ -169,32 +169,32 @@ STDMETHODIMP_(POTE) CDolphinSmalltalk::NewString(
         /* [in] */ LPCSTR szValue,
         /* [in] */ int len)
 {
-	return (POTE)AnsiString::New(szValue, len=-1?strlen(szValue):len);
+	return (POTE)AnsiString::New(szValue, len = -1 ? strlen(szValue) : static_cast<size_t>(len));
 }
     
 STDMETHODIMP_(POTE) CDolphinSmalltalk::NewUtf8String(
 	/* [in] */ LPCSTR szValue,
 	/* [in] */ int len)
 {
-	return (POTE)Utf8String::New(szValue, len = -1 ? strlen(szValue) : len);
+	return (POTE)Utf8String::New(szValue, len = -1 ? strlen(szValue) : static_cast<size_t>(len));
 }
 
 STDMETHODIMP_(Oop) CDolphinSmalltalk::NewSignedInteger( 
         /* [in] */ SDWORD value)
 {
-	return Integer::NewSigned32(value);
+	return Integer::NewSigned(static_cast<int32_t>(value));
 }
     
 STDMETHODIMP_(Oop) CDolphinSmalltalk::NewUnsignedInteger( 
         /* [in] */ DWORD value)
 {
-	return Integer::NewUnsigned32(value);
+	return Integer::NewUnsigned(static_cast<uint32_t>(value));
 }
     
 STDMETHODIMP_(POTE) CDolphinSmalltalk::NewCharacter( 
         /* [in] */ DWORD codePoint)
 {
-	return (POTE)Character::NewUnicode(static_cast<MWORD>(codePoint));
+	return (POTE)Character::NewUnicode(static_cast<char32_t>(codePoint));
 }
     
 STDMETHODIMP_(POTE) CDolphinSmalltalk::NewArray( 

@@ -23,12 +23,12 @@
 #pragma auto_inline(off)
 
 // Answer the index of the last occuppied OT entry
-unsigned __stdcall ObjectMemory::lastOTEntry()
+size_t __stdcall ObjectMemory::lastOTEntry()
 {
 	HARDASSERT(m_pOT);
 //	HARDASSERT(m_nInCritSection > 0);
 
-	unsigned i = m_nOTSize-1;
+	size_t i = m_nOTSize-1;
 	const OTE* pOT = m_pOT;
 	while (pOT[i].isFree())
 	{
@@ -54,8 +54,8 @@ void ObjectMemory::compactObject(OTE* ote)
 	if (ote->isPointers())
 	{
 		VariantObject* varObj = static_cast<VariantObject*>(ote->m_location);
-		const MWORD lastPointer = ote->pointersSize();
-		for (MWORD i = 0; i < lastPointer; i++)
+		const size_t lastPointer = ote->pointersSize();
+		for (size_t i = 0; i < lastPointer; i++)
 		{
 			// This will get nicely optimised by the Compiler
 			Oop fieldPointer = varObj->m_fields[i];
@@ -168,6 +168,8 @@ size_t ObjectMemory::compact(Oop* const sp)
 #endif
 
 	SIZE_T bytesToDecommit = reinterpret_cast<ULONG_PTR>(m_pOT + m_nOTSize) - reinterpret_cast<ULONG_PTR>(end);
+	// Note that we don't release the pages here, we keep them reserved so the OT can grow into them again
+	#pragma warning (suppress : 6250)
 	::VirtualFree(end, bytesToDecommit, MEM_DECOMMIT);
 	m_nOTSize = end - m_pOT;
 
@@ -187,7 +189,7 @@ size_t ObjectMemory::compact(Oop* const sp)
 
 	HeapCompact();
 
-	TRACE(L"... OT compacted, size %d, free %d.\n", m_nOTSize, end - m_pFreePointerList);
+	TRACE(L"... OT compacted, size %Iu, free %Id.\n", m_nOTSize, end - m_pFreePointerList);
 
 	Interpreter::scheduleFinalization();
 

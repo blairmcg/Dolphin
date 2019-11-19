@@ -33,14 +33,14 @@ namespace ST
 
 	public:
 		// Various constructors
-		static Oop __fastcall NewSigned32(int32_t value);
-		static Oop __fastcall NewSigned32WithRef(int32_t value);
-		static Oop __fastcall NewUnsigned32(uint32_t value);
-		static Oop __fastcall NewUnsigned32WithRef(uint32_t value);
-		static Oop __stdcall NewSigned64(int64_t value);
-		static Oop __stdcall NewUnsigned64(uint64_t value);
-		static Oop __fastcall NewIntPtr(INT_PTR value);
-		static Oop __fastcall NewUIntPtr(UINT_PTR value);
+		static Oop __fastcall NewSigned(intptr_t value);
+		static Oop __fastcall NewSignedWithRef(intptr_t value);
+		static Oop __fastcall NewUnsigned(uintptr_t value);
+		static Oop __fastcall NewUnsignedWithRef(uintptr_t value);
+#ifdef _M_IX86
+		static Oop __stdcall NewSigned(int64_t value);
+		static Oop __stdcall NewUnsigned(uint64_t value);
+#endif
 	};
 
 	// Large integer is a variable byte subclass of Integer (it contains
@@ -54,14 +54,10 @@ namespace ST
 		int32_t	sign(const LargeIntegerOTE* oteLI) const { return 1 | (signDigit(oteLI) >> 31); }
 		int32_t	signBit(const LargeIntegerOTE* oteLI) const { return signDigit(oteLI) >> 31; }
 
-		static LargeIntegerOTE* NewWithLimbs(MWORD limbs);
+		static LargeIntegerOTE* NewWithLimbs(size_t limbs);
 
-		// Answer a signed 32 or 64-bit LargeInteger from the unsigned 32-bit argument
-		static LargeIntegerOTE* __fastcall liNewUnsigned(uint32_t value);
-		static LargeIntegerOTE* __fastcall liNewUnsigned(uint64_t value);
-		// Answer a 32-bit LargeInteger from the signed 32-bit argument
-		static LargeIntegerOTE* __fastcall liNewSigned32(int32_t value);
-		static LargeIntegerOTE* __fastcall liNewSigned64(int64_t value);
+		static LargeIntegerOTE* __fastcall liNewUnsigned(uintptr_t value);
+		static LargeIntegerOTE* __fastcall liNewSigned(intptr_t value);
 
 		static Oop __fastcall Normalize(LargeIntegerOTE* oteLI);
 		static void DeallocateIntermediateResult(LargeIntegerOTE* liOte);
@@ -69,19 +65,19 @@ namespace ST
 
 		static Oop Negate(const LargeIntegerOTE* oteLI);
 
-		static LargeIntegerOTE* Add(const LargeIntegerOTE* oteOp1, SMALLINTEGER op2);
+		static LargeIntegerOTE* Add(const LargeIntegerOTE* oteOp1, int32_t op2);
 		static LargeIntegerOTE* Add(const LargeIntegerOTE* oteOp1, const LargeIntegerOTE* oteOp2);
 
-		static LargeIntegerOTE* Sub(const LargeIntegerOTE * oteLI, SMALLINTEGER operand);
+		static LargeIntegerOTE* Sub(const LargeIntegerOTE * oteLI, int32_t operand);
 		static LargeIntegerOTE* Sub(const LargeIntegerOTE * oteLI, const LargeIntegerOTE * oteOperand);
 
-		static liDiv_t Divide(const LargeIntegerOTE* oteOp1, SMALLINTEGER op2);
+		static liDiv_t Divide(const LargeIntegerOTE* oteOp1, int32_t op2);
 
-		static Oop Mul(const LargeIntegerOTE * oteInner, SMALLINTEGER outerDigit);
-		static Oop Mul(const LargeInteger* liOuter, const MWORD outerSize, const LargeInteger* liInner, const MWORD innerSize);
+		static Oop Mul(const LargeIntegerOTE * oteInner, int32_t outerDigit);
+		static Oop Mul(const LargeInteger* liOuter, const size_t outerSize, const LargeInteger* liInner, const size_t innerSize);
 
 		static Oop BitAnd(const LargeIntegerOTE * oteA, const LargeIntegerOTE * oteB);
-		static Oop BitAnd(const LargeIntegerOTE * oteA, SMALLINTEGER mask);
+		static Oop BitAnd(const LargeIntegerOTE * oteA, int32_t mask);
 		static LargeIntegerOTE * BitOr(const LargeIntegerOTE * oteA, const LargeIntegerOTE * oteB);
 		static LargeIntegerOTE * BitOr(const LargeIntegerOTE * oteA, SMALLINTEGER mask);
 		static LargeIntegerOTE * BitXor(const LargeIntegerOTE * oteA, const LargeIntegerOTE * oteB);
@@ -89,26 +85,26 @@ namespace ST
 	};
 
 
-	// Answer a Large or SmallInteger, whichever is the smallest representation
-	// for the specified signed value
-	inline Oop __fastcall Integer::NewSigned32(int32_t value)
+// Answer a Large or SmallInteger, whichever is the smallest representation
+// for the specified signed value
+	inline Oop __fastcall Integer::NewSigned(intptr_t value)
 	{
 		if (ObjectMemoryIsIntegerValue(value))
 			return ObjectMemoryIntegerObjectOf(value);
 		else
-			return Oop(LargeInteger::liNewSigned32(value));
+			return Oop(LargeInteger::liNewSigned(value));
 	}
 
 	// Answer a Large or SmallInteger, whichever is the smallest representation
 	// for the specified signed value. If large then the new object already has
 	// a ref. count of 1.
-	inline Oop __fastcall Integer::NewSigned32WithRef(int32_t value)
+	inline Oop __fastcall Integer::NewSignedWithRef(intptr_t value)
 	{
 		if (ObjectMemoryIsIntegerValue(value))
 			return ObjectMemoryIntegerObjectOf(value);
 		else
 		{
-			LargeIntegerOTE* oteNew = LargeInteger::liNewSigned32(value);
+			LargeIntegerOTE* oteNew = LargeInteger::liNewSigned(value);
 			oteNew->m_count = 1;
 			return reinterpret_cast<Oop>(oteNew);
 		}
@@ -116,19 +112,19 @@ namespace ST
 
 	// Answer a Large or SmallInteger, whichever is the smallest representation
 	// for the specified unsigned value
-	inline Oop __fastcall Integer::NewUnsigned32(uint32_t value)
+	inline Oop __fastcall Integer::NewUnsigned(uintptr_t value)
 	{
 		if (ObjectMemoryIsPositiveIntegerValue(value))
 			return ObjectMemoryIntegerObjectOf(value);
 		else
-			// N.B. Answer may have 64-bits!
+			// N.B. Answer may have an extra zero sign limb if needed to keep it positive
 			return reinterpret_cast<Oop>(LargeInteger::liNewUnsigned(value));
 	}
 
 	// Answer a Large or SmallInteger, whichever is the smallest representation
 	// for the specified unsigned value. If a LargeInteger then the new object
 	// already has a ref. count of 1
-	inline Oop __fastcall Integer::NewUnsigned32WithRef(uint32_t value)
+	inline Oop __fastcall Integer::NewUnsignedWithRef(uintptr_t value)
 	{
 		if (ObjectMemoryIsPositiveIntegerValue(value))
 			return ObjectMemoryIntegerObjectOf(value);
@@ -141,27 +137,27 @@ namespace ST
 		}
 	}
 
-	// Answer a Large or SmallInteger, whichever is the smallest representation
-	// for the specified unsigned value
-	inline Oop __fastcall Integer::NewUIntPtr(UINT_PTR value)
-	{
-#ifdef _WIN64
-		return NewUnsigned64(value);
-#else
-		return NewUnsigned32(static_cast<uint32_t>(value));
-#endif
-	}
-
-	// Answer a Large or SmallInteger, whichever is the smallest representation
-	// for the specified signed value
-	inline Oop __fastcall Integer::NewIntPtr(INT_PTR value)
-	{
-#ifdef _WIN64
-		return NewSigned64(value);
-#else
-		return NewSigned32(static_cast<int32_t>(value));
-#endif
-	}
+//	// Answer a Large or SmallInteger, whichever is the smallest representation
+//	// for the specified unsigned value
+//	inline Oop __fastcall Integer::NewUIntPtr(UINT_PTR value)
+//	{
+//#ifdef _M_X64
+//		return NewUnsigned(value);
+//#else
+//		return NewUnsigned(static_cast<uint32_t>(value));
+//#endif
+//	}
+//
+//	// Answer a Large or SmallInteger, whichever is the smallest representation
+//	// for the specified signed value
+//	inline Oop __fastcall Integer::NewIntPtr(INT_PTR value)
+//	{
+//#ifdef _M_X64
+//		return NewSigned(value);
+//#else
+//		return NewSigned(static_cast<int32_t>(value));
+//#endif
+//	}
 
 	inline void LargeInteger::DeallocateIntermediateResult(LargeIntegerOTE* liOte)
 	{

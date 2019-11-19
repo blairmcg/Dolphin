@@ -87,7 +87,7 @@ Oop* __fastcall Interpreter::primitiveAnyMask(Oop* const sp, primargcount_t)
 			{
 				if (r < 0)
 				{
-					for (MWORD i = oteArg->getWordSize()-1; i > 0; i--)
+					for (size_t i = oteArg->getWordSize()-1; i > 0; i--)
 					{
 						if (digits[i] != 0)
 						{
@@ -137,7 +137,11 @@ Oop* __fastcall Interpreter::primitiveLowBit(Oop* const sp, primargcount_t)
 {
 	SMALLINTEGER value = *(sp) ^ 1;
 	unsigned long index;
+#ifdef _M_IX86
 	_BitScanForward(&index, value);
+#else
+	_BitScanForward64(&index, value);
+#endif
 	*sp = ObjectMemoryIntegerObjectOf(index);
 	return sp;
 }
@@ -149,7 +153,11 @@ Oop* __fastcall Interpreter::primitiveHighBit(Oop* const sp, primargcount_t)
 	if (value >= 0)
 	{
 		unsigned long index;
+#ifdef _M_IX86
 		_BitScanReverse(&index, value);
+#else
+		_BitScanReverse64(&index, value);
+#endif
 		*sp = ObjectMemoryIntegerObjectOf(index);
 		return sp;
 	}
@@ -280,7 +288,7 @@ Oop* __fastcall Interpreter::primitiveAdd(Oop* const sp, primargcount_t)
 		SMALLINTEGER r = ObjectMemoryIntegerValueOf(receiver);
 		SMALLINTEGER a = ObjectMemoryIntegerValueOf(arg);
 
-		StoreSigned32()(sp - 1, r + a);
+		StoreIntPtr()(sp - 1, r + a);
 		return sp - 1;
 	}
 }
@@ -309,7 +317,7 @@ Oop* __fastcall Interpreter::primitiveSubtract(Oop* const sp, primargcount_t)
 				else
 				{
 					// Overflowed
-					LargeIntegerOTE* oteResult = LargeInteger::liNewSigned32(result);
+					LargeIntegerOTE* oteResult = LargeInteger::liNewSigned(result);
 					*(sp - 1) = reinterpret_cast<Oop>(oteResult);
 					ObjectMemory::AddToZct(reinterpret_cast<OTE*>(oteResult));
 					return sp - 1;
@@ -358,7 +366,7 @@ Oop* __fastcall Interpreter::primitiveSubtract(Oop* const sp, primargcount_t)
 
 		SMALLINTEGER r = ObjectMemoryIntegerValueOf(receiver);
 		SMALLINTEGER a = ObjectMemoryIntegerValueOf(arg);
-		StoreSigned32()(sp - 1, r - a);
+		StoreIntPtr()(sp - 1, r - a);
 		return sp - 1;
 	}
 }
@@ -405,11 +413,14 @@ Oop* __fastcall Interpreter::primitiveMultiply(Oop* const sp, primargcount_t)
 		// However this doesn't matter much because this code path is only ever used when #perform'ing SmallInteger>>*
 		// Usually SmallInteger multiplication is performed inline in the bytecode interpreter
 
+#ifdef _M_X64
+		// TODO: 64-bit multiply with 128-bit result
+#else
 		SMALLINTEGER r = ObjectMemoryIntegerValueOf(receiver);
 		SMALLINTEGER a = ObjectMemoryIntegerValueOf(arg);
 		int64_t result = __emul(r, a);
-
-		Oop oopResult = Integer::NewSigned64(result);
+#endif
+		Oop oopResult = Integer::NewSigned(result);
 		*(sp - 1) = oopResult;
 		ObjectMemory::AddOopToZct(oopResult);
 		return sp - 1;
@@ -473,7 +484,7 @@ Oop* __fastcall Interpreter::primitiveDivide(Oop* const sp, primargcount_t)
 
 		if (rem == 0)
 		{
-			StoreSigned32()(sp - 1, quot);
+			StoreIntPtr()(sp - 1, quot);
 			return sp - 1;
 		}
 	}
@@ -575,12 +586,12 @@ Oop* __fastcall Interpreter::primitiveDiv(Oop* const sp, primargcount_t)
 
 		if (quo > 0 || rem == 0 || !((a ^ rem) < 0))
 		{
-			StoreSigned32()(sp - 1, quo);
+			StoreIntPtr()(sp - 1, quo);
 			return sp - 1;
 		}
 		else
 		{
-			StoreSigned32()(sp - 1, quo - 1);
+			StoreIntPtr()(sp - 1, quo - 1);
 			return sp - 1;
 		}
 	}
@@ -614,7 +625,7 @@ Oop* __fastcall Interpreter::primitiveQuo(Oop* const sp, primargcount_t)
 		SMALLINTEGER r = ObjectMemoryIntegerValueOf(receiver);
 		SMALLINTEGER a = ObjectMemoryIntegerValueOf(arg);
 
-		StoreSigned32()(sp - 1, r / a);
+		StoreIntPtr()(sp - 1, r / a);
 		return sp - 1;
 	}
 	else

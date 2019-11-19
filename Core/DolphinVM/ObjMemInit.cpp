@@ -59,25 +59,25 @@ void ObjectMemory::FixedSizePool::Initialize()
 HRESULT ObjectMemory::Initialize()
 {
 	// Assembler will need to be modified if these are not the case
-	ASSERT(sizeof(MWORD) == sizeof(DWORD));
-	ASSERT(sizeof(InstanceSpecification) == sizeof(MWORD));
+	ASSERT(sizeof(Oop) == sizeof(uint32_t));
+	ASSERT(sizeof(InstanceSpecification) == sizeof(Oop));
 	ASSERT(sizeof(OTE) == 16);
 	ASSERT(sizeof(OTEFlags) == 1);
 	ASSERT(sizeof(count_t) == 1);
 	ASSERT(sizeof(hash_t) == 2);
-	ASSERT(sizeof(STMethodHeader) == sizeof(MWORD));
+	ASSERT(sizeof(STMethodHeader) == sizeof(Oop));
 	ASSERT(OTEFlags::NumSpaces <= 8);
 	ASSERT(Context::FixedSize == 2);
 	ASSERT(BlockClosure::FixedSize == 5);
-	ASSERT(sizeof(BlockCopyExtension) == sizeof(DWORD));
-	ASSERT(PoolGranularity >= sizeof(DWORD));
-	ASSERT(_ROUND2(PoolGranularity,sizeof(DWORD)) == PoolGranularity);
+	ASSERT(sizeof(BlockCopyExtension) == sizeof(uint32_t));
+	ASSERT(PoolGranularity >= sizeof(Oop));
+	ASSERT(_ROUND2(PoolGranularity,sizeof(Oop)) == PoolGranularity);
 	//ASSERT(sizeof(Object) == ObjectHeaderSize*sizeof(MWORD));
 	ASSERT(sizeof(VMPointers) == (150*sizeof(Oop)+ObjectByteSize));
 	// Check that the const objects segment is still exactly one page
 	ASSERT((sizeof(VMPointers)
 			+ ((FirstCharacterIdx - FirstBuiltInIdx) * ObjectByteSize)
-			+ (sizeof(DWORD)*2)	// To round up the strings
+			+ (sizeof(Oop)*2)	// To round up the strings
 			+ (256 * sizeof(Character))
 			+ 2464	// Padding allocated in the assembler, see constobj.asm
 			) == dwPageSize);
@@ -127,7 +127,7 @@ HRESULT ObjectMemory::Initialize()
 	}
 
 	// Certain spaces contain byte objects
-	m_spaceOTEBits[OTEFlags::DWORDSpace].m_pointer	= FALSE;
+	m_spaceOTEBits[OTEFlags::IntPtrSpace].m_pointer	= FALSE;
 	m_spaceOTEBits[OTEFlags::HeapSpace].m_pointer	= FALSE;
 	m_spaceOTEBits[OTEFlags::FloatSpace].m_pointer	= FALSE;
 
@@ -152,18 +152,30 @@ HRESULT ObjectMemory::Initialize()
 	m_pConstObjs = &_Pointers;
 	ProtectConstSpace(PAGE_READWRITE);
 
-	if (!m_hHeap)
+	if (m_hHeap == nullptr)
 	{
 		// Reinitialize the heaps each time through as gets deleted on terminate
 		m_hHeap = ::HeapCreate(HEAP_NO_SERIALIZE|HEAP_GENERATE_EXCEPTIONS, HEAPINITPAGES*dwPageSize, 0);
-		if (!m_hHeap)
-			::RaiseException(STATUS_NO_MEMORY, EXCEPTION_NONCONTINUABLE, 0, NULL);
-		_crtheap = m_hHeap;
-		// Allocates a header block from the heap for the small block heap
-		__sbh_heap_init(MAX_ALLOC_DATA_SIZE);
+		if (m_hHeap != nullptr)
+		{
+			_crtheap = m_hHeap;
+			// Allocates a header block from the heap for the small block heap
+			if (__sbh_heap_init(MAX_ALLOC_DATA_SIZE))
+			{
+				hr = S_OK;
+			}
+			else
+			{
+				hr = E_OUTOFMEMORY;
+			}
+		}
+		else
+		{
+			hr = HRESULT_FROM_WIN32(GetLastError());
+		}
 	}
 
-	return S_OK;
+	return hr;
 }
 
 void ObjectMemory::InitializeMemoryManager()

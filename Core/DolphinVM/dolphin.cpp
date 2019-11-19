@@ -96,7 +96,7 @@ static long __stdcall ignoreUnwindsFilter(EXCEPTION_POINTERS *pExceptionInfo)
 	case SE_VMCALLBACKEXIT:
 		{
 			tracelock lock(TRACESTREAM);
-			TRACESTREAM<< L"Warning: Ignoring extraneous unwind " << std::hex << PVOID(exceptionCode) << std::endl;
+			TRACESTREAM<< L"Warning: Ignoring extraneous unwind " << std::hex << std::setw(8) << exceptionCode << std::endl;
 		}
 		return EXCEPTION_CONTINUE_EXECUTION;
 	
@@ -249,7 +249,7 @@ int APIENTRY VMRun(DWORD dwArg)
 		_set_invalid_parameter_handler(outerInvalidParamHandler);
 
 		if (exRec.ExceptionCode == SE_VMEXIT)
-			exitCode = exRec.ExceptionInformation[0];
+			exitCode = static_cast<int>(exRec.ExceptionInformation[0]);
 		else
 			FatalException(exRec);
 	}

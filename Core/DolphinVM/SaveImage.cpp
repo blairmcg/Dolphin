@@ -210,7 +210,7 @@ bool __stdcall ObjectMemory::SaveObjectTable(obinstream& imageFile, const ImageH
 	return imageFile.write(m_pOT, sizeof(OTE)*pHeader->nTableSize);
 }
 
-template <MWORD ImageNullTerms> bool __stdcall ObjectMemory::SaveObjects(obinstream& imageFile, const ImageHeader* pHeader)
+template <size_t ImageNullTerms> bool __stdcall ObjectMemory::SaveObjects(obinstream& imageFile, const ImageHeader* pHeader)
 {
 	#ifdef _DEBUG
 		unsigned numObjects = 0;
@@ -235,11 +235,11 @@ template <MWORD ImageNullTerms> bool __stdcall ObjectMemory::SaveObjects(obinstr
 				VirtualObjectHeader* pObjHeader = vObj->getHeader();
 
 				// We only write the max allocation size from the header. The rest of the info (fxstate) is not preserved across image saves.
-				imageFile.write(pObjHeader, sizeof(MWORD));
-				dwDataSize += sizeof(MWORD);
+				imageFile.write(pObjHeader, sizeof(VirtualObjectHeader::m_dwMaxAlloc));
+				dwDataSize += sizeof(VirtualObjectHeader::m_dwMaxAlloc);
 			}
 
-			MWORD bytesToWrite = ote->getSize() + (ote->isNullTerminated() * ImageNullTerms);
+			size_t bytesToWrite = ote->getSize() + (ote->isNullTerminated() * ImageNullTerms);
 			imageFile.write(obj, bytesToWrite);
 
 			if (imageFile.good() == 0)

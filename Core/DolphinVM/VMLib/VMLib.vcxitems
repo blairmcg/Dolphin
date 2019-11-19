@@ -28,6 +28,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\exports.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\extcall.cpp">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VM Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\fatalerror.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\finalize.cpp" />
@@ -159,11 +162,31 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="$(MSBuildThisFileDirectory)..\byteasm.asm" />
-    <MASM Include="$(MSBuildThisFileDirectory)..\constobj.asm" />
-    <MASM Include="$(MSBuildThisFileDirectory)..\ExternalCall.asm" />
-    <None Include="$(MSBuildThisFileDirectory)..\istasm.inc" />
-    <MASM Include="$(MSBuildThisFileDirectory)..\primasm.asm" />
+    <MASM Include="$(MSBuildThisFileDirectory)..\byteasm.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VM Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </MASM>
+    <MASM Include="$(MSBuildThisFileDirectory)..\constobj.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VM Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </MASM>
+    <MASM Include="$(MSBuildThisFileDirectory)..\ExternalCall.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VM Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </MASM>
+    <None Include="$(MSBuildThisFileDirectory)..\istasm.inc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VM Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
+    <MASM Include="$(MSBuildThisFileDirectory)..\primasm.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VM Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="$(MSBuildThisFileDirectory)..\ActiveXHost.idl">

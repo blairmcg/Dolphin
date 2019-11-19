@@ -3169,7 +3169,7 @@ notSmallInteger:
 	
 	add		edx, edx								; Convert to byte size (already *2 since SmallInteger)
 	sub		eax, edx								; Calculate length of variable part in bytes
-	shr		eax, 1									; Divide byte size by 2 to get MWORD size as SmallInteger
+	shr		eax, 1									; Divide byte size by 2 to get word size as SmallInteger
 	or		eax, 1									; Add SmallInteger flag
 	MPrefetch
 	mov		[_SP], eax								; Replace stack top with indexed pointer size

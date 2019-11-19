@@ -45,36 +45,36 @@ namespace ST
 		enum { OuterIndex = ObjectFixedSize, MethodIndex, InitialIPIndex, InfoIndex, ReceiverIndex, FixedSize };
 		enum { TempFrameStart = FixedSize };
 
-		static BlockOTE* __fastcall New(unsigned copiedValuesCount);
+		static BlockOTE* __fastcall New(size_t copiedValuesCount);
 
-		unsigned initialIP() const
+		size_t initialIP() const
 		{
 			return integerValueOf(m_initialIP);
 		}
 
-		unsigned copiedValuesCount(BlockOTE* myOTE) const
+		size_t copiedValuesCount(BlockOTE* myOTE) const
 		{
 			return myOTE->pointersSize() - FixedSize;
 		}
 
-		unsigned stackTempsCount() const
+		uint8_t stackTempsCount() const
 		{
 			return m_info.stackTempsCount;
 		}
 
-		unsigned envTempsCount() const
+		uint8_t envTempsCount() const
 		{
 			return m_info.envTempsCount;
 		}
 
-		unsigned argumentCount() const
+		uint8_t argumentCount() const
 		{
 			return m_info.argumentCount;
 		}
 
 		bool isClean(BlockOTE* ote) const
 		{
-			return m_receiver == Oop(Pointers.Nil) && m_outer == Pointers.Nil
+			return m_receiver == (Oop)(uintptr_t)Pointers.Nil && m_outer == Pointers.Nil
 				&& copiedValuesCount(ote) == 0 && envTempsCount() == 0;
 		}
 	};

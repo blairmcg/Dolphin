@@ -11,9 +11,9 @@
 ******************************************************************************/
 #pragma once
 
-enum { ObjectFixedSize = 0 };
-enum { ObjectHeaderSize = 0 };
-enum { ObjectByteSize = ObjectHeaderSize*sizeof(MWORD) };
+constexpr size_t ObjectFixedSize = 0;
+constexpr size_t ObjectHeaderSize = 0;
+constexpr size_t ObjectByteSize = ObjectHeaderSize*sizeof(uintptr_t);
 
 // Turn off warning about zero length arrays
 #pragma warning ( disable : 4200)

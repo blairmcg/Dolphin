@@ -27,14 +27,14 @@ public:
 	{
 		m_pBuf = cch < _countof(m_wcsBuf) ? m_wcsBuf : reinterpret_cast<WCHAR*>(malloc((cch + 1) * sizeof(WCHAR)));
 
-		m_cwch = static_cast<size_t>(::MultiByteToWideChar(cp, 0, psz, cch, m_pBuf, cch));
+		m_cwch = static_cast<size_t>(::MultiByteToWideChar(cp, 0, psz, static_cast<int>(cch), m_pBuf, static_cast<int>(cch)));
 		ASSERT(m_cwch <= cch);
 		m_pBuf[m_cwch] = 0;
 	}
 
 	size_t ToUtf8(uint8_t* pDest = nullptr, size_t cchDest = 0) const
 	{
-		int cch = ::WideCharToMultiByte(CP_UTF8, 0, m_pBuf, m_cwch, reinterpret_cast<LPSTR>(pDest), cchDest, nullptr, nullptr);
+		int cch = ::WideCharToMultiByte(CP_UTF8, 0, m_pBuf, m_cwch, reinterpret_cast<LPSTR>(pDest), static_cast<int>(cchDest), nullptr, nullptr);
 		ASSERT(cch >= 0);
 		return static_cast<size_t>(cch);
 	}

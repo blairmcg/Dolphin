@@ -115,8 +115,11 @@ namespace ST
 		static POTE __fastcall New(LPCWSTR wsz)
 		{
 			int cch = ::WideCharToMultiByte(CodePage(), 0, wsz, -1, nullptr, 0, nullptr, nullptr);
+			if (cch <= 0)
+				return reinterpret_cast<POTE>(Pointers.EmptyString);
+
 			// Length includes null terminator since input is null terminated
-			OTE* stringPointer = reinterpret_cast<OTE*>(ObjectMemory::newUninitializedNullTermObject<MyType>((cch - 1)*sizeof(CU)));
+			OTE* stringPointer = reinterpret_cast<OTE*>(ObjectMemory::newUninitializedNullTermObject<MyType>((static_cast<size_t>(cch) - 1)*sizeof(CU)));
 			CU* psz = stringPointer->m_location->m_characters;
 			int cch2 = ::WideCharToMultiByte(CodePage(), 0, wsz, -1, reinterpret_cast<LPSTR>(psz), cch, nullptr, nullptr);
 			UNREFERENCED_PARAMETER(cch2);

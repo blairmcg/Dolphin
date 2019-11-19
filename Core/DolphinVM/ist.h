@@ -74,6 +74,7 @@
 #include <vector>
 #pragma warning(pop)
 #include <functional>
+#include <cstdint>
 
 typedef _Return_type_success_(return >= 0) int32_t NTSTATUS;
 #define NTSTATUS_DEFINED
@@ -86,18 +87,16 @@ typedef int16_t		SWORD;
 typedef int32_t		SDWORD;
 
 // The basic word size of the machine
-typedef uintptr_t	MWORD;
-typedef intptr_t 	SMALLINTEGER;	// Optimized SmallInteger; same size as MWORD
-typedef MWORD		SMALLUNSIGNED;	// Unsigned optimized SmallInteger; same size as MWORD	
-typedef MWORD		Oop;
-
-typedef _Return_type_success_(return >= 0) SDWORD NTSTATUS;
+typedef intptr_t 	SMALLINTEGER;	// Optimized SmallInteger; same size as an Oop
+typedef uintptr_t	SMALLUNSIGNED;	// Unsigned optimized SmallInteger; same size as an Oop	
+typedef uintptr_t	Oop;
 
 // Define this is using a 16-bit word
 // as it conditionally compiles in MethodHeaderExtension which
 // can otherwise be held in the MethodHeader itself
 //#define SMALLWORD
-#define MWORDBITS	(sizeof(MWORD)*8)		// Number of bits in an MWORD
+#define MWORDBITS (sizeof(uintptr_t)*8)		// Number of bits in a machine word
+#define MNIBBLES (sizeof(uintptr_t)<<1)			// Number of nibbles in a machine word
 
 class ObjectMemory;
 class Interpreter;

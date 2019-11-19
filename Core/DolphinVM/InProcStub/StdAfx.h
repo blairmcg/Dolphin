@@ -12,6 +12,7 @@
 #ifdef _DEBUG
 #define _ATL_DEBUG_INTERFACES
 #endif
+#include <stdint.h>
 
 #include <stdint.h>
 

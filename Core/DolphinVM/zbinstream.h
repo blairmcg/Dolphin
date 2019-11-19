@@ -25,8 +25,8 @@ enum {ASCII_FLAG  = 0x01 /* bit 0 set: file probably ascii text */
 class zibinstream : public ibinstream
 {
 protected:
-	BYTE* m_pBytes;
-	UINT m_cBytes;
+	uint8_t* m_pBytes;
+	size_t m_cBytes;
 	z_stream m_stream;
     int m_z_err;
 	long m_crc;
@@ -146,10 +146,10 @@ protected:
 		m_z_err = eof() ? Z_DATA_ERROR : Z_OK;
 	}
 
-	int initialize(void* pBytes, UINT cBytes)
+	int initialize(void* pBytes, size_t cBytes)
 	{
 		// Initialize the buffer pointer and size
-		m_pBytes = static_cast<BYTE*>(pBytes);
+		m_pBytes = static_cast<uint8_t*>(pBytes);
 		m_cBytes = cBytes;
 
 		// Initialize the zlib stream block
@@ -188,7 +188,7 @@ protected:
 	}
 
 public:
-	zibinstream(void *pBytes, UINT cBytes)
+	zibinstream(void *pBytes, size_t cBytes)
 	{
 		initialize(pBytes, cBytes);
 	}

@@ -36,7 +36,7 @@ using namespace DolphinX;
 #include "STBlockClosure.h"
 
 static AnsiStringOTE* (__fastcall *ForceNonInlineNewByteStringFromUtf16)(LPCWSTR) = &AnsiString::New;
-static AnsiStringOTE* (__fastcall *ForceNonInlineNewByteStringWithLen)(const char * __restrict, MWORD) = &AnsiString::New;
+static AnsiStringOTE* (__fastcall *ForceNonInlineNewByteStringWithLen)(const char * __restrict, uint32_t) = &AnsiString::New;
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -125,9 +125,9 @@ AddressOTE* __fastcall NewBSTR(const char16_t* pChars, size_t len)
 {
 	AddressOTE* resultPointer = reinterpret_cast<AddressOTE*>(ObjectMemory::newByteObject<false, false>(Pointers.ClassBSTR, sizeof(BYTE*)));
 	ExternalAddress* extAddress = resultPointer->m_location;
-	if (len > 0)
+	if (len < UINT_MAX)
 	{
-		extAddress->m_pointer = reinterpret_cast<BYTE*>(::SysAllocStringLen((const OLECHAR*)pChars, len));
+		extAddress->m_pointer = reinterpret_cast<BYTE*>(::SysAllocStringLen((const OLECHAR*)pChars, static_cast<UINT>(len)));
 		resultPointer->beFinalizable();
 	}
 	else
@@ -221,8 +221,8 @@ unsigned Interpreter::pushArgsAt(const ExternalDescriptor* descriptor, BYTE* lpP
 {
 	DescriptorOTE* oteTypes = descriptor->m_descriptor;
 	const DescriptorBytes* types = oteTypes->m_location;
-	const unsigned argsLen = types->argsLen(oteTypes);
-	unsigned i=0;
+	const size_t argsLen = types->argsLen(oteTypes);
+	size_t i=0;
 	while (i<argsLen)
 	{
 		BYTE arg = types->m_args[i++];
@@ -232,7 +232,7 @@ unsigned Interpreter::pushArgsAt(const ExternalDescriptor* descriptor, BYTE* lpP
 			case ExtCallArgType::Void:					// Not a valid argument
 				HARDASSERT(FALSE);
 				pushNil();
-				lpParms += sizeof(MWORD);
+				lpParms += sizeof(intptr_t);
 				break;
 
 			case ExtCallArgType::LPVoid:
@@ -241,45 +241,45 @@ unsigned Interpreter::pushArgsAt(const ExternalDescriptor* descriptor, BYTE* lpP
 				break;
 
 			case ExtCallArgType::Char:
-				pushObject((OTE*)Character::NewUnicode(*reinterpret_cast<MWORD*>(lpParms)));
-				lpParms += sizeof(MWORD);
+				pushObject((OTE*)Character::NewUnicode(*reinterpret_cast<char32_t*>(lpParms)));
+				lpParms += sizeof(intptr_t);
 				break;
 
 			case ExtCallArgType::UInt8:
 				pushSmallInteger(*lpParms);
-				lpParms += sizeof(MWORD);
+				lpParms += sizeof(intptr_t);
 				break;
 
 			case ExtCallArgType::Int8:
 				pushSmallInteger(*reinterpret_cast<char*>(lpParms));
-				lpParms += sizeof(MWORD);
+				lpParms += sizeof(intptr_t);
 				break;
 			
 			case ExtCallArgType::UInt16:
-				pushSmallInteger(*reinterpret_cast<WORD*>(lpParms));
-				lpParms += sizeof(MWORD);
+				pushSmallInteger(*reinterpret_cast<uint16_t*>(lpParms));
+				lpParms += sizeof(intptr_t);
 				break;
 
 			case ExtCallArgType::Int16:
-				pushSmallInteger(*reinterpret_cast<SWORD*>(lpParms));
-				lpParms += sizeof(MWORD);
+				pushSmallInteger(*reinterpret_cast<int16_t*>(lpParms));
+				lpParms += sizeof(intptr_t);
 				break;
 
 			case ExtCallArgType::UInt32:
-				pushUnsigned32(*reinterpret_cast<DWORD*>(lpParms));
-				lpParms += sizeof(DWORD);
+				pushUnsigned(*reinterpret_cast<uint32_t*>(lpParms));
+				lpParms += sizeof(intptr_t);
 				break;
 
 			case ExtCallArgType::Int32:
 			case ExtCallArgType::HResult:
 			case ExtCallArgType::NTStatus:
-				pushSigned32(*reinterpret_cast<SDWORD*>(lpParms));
-				lpParms += sizeof(SDWORD);
+				pushSigned(*reinterpret_cast<int32_t*>(lpParms));
+				lpParms += sizeof(intptr_t);
 				break;
 
 			case ExtCallArgType::Bool:
 				pushBool(*reinterpret_cast<BOOL*>(lpParms));
-				lpParms += sizeof(MWORD);
+				lpParms += sizeof(intptr_t);
 				break;
 
 			case ExtCallArgType::Handle:
@@ -322,13 +322,13 @@ unsigned Interpreter::pushArgsAt(const ExternalDescriptor* descriptor, BYTE* lpP
 				break;
 				
 			case ExtCallArgType::UInt64:
-				push(Integer::NewUnsigned64(*reinterpret_cast<ULONGLONG*>(lpParms)));
-				lpParms += sizeof(ULARGE_INTEGER);
+				push(Integer::NewUnsigned(*reinterpret_cast<uint64_t*>(lpParms)));
+				lpParms += sizeof(uint64_t);
 				break;
 				
 			case ExtCallArgType::Int64:
-				push(Integer::NewSigned64(*reinterpret_cast<LONGLONG*>(lpParms)));
-				lpParms += sizeof(LONGLONG);
+				push(Integer::NewSigned(*reinterpret_cast<int64_t*>(lpParms)));
+				lpParms += sizeof(int64_t);
 				break;
 			
 			case ExtCallArgType::Bstr:
@@ -348,7 +348,7 @@ unsigned Interpreter::pushArgsAt(const ExternalDescriptor* descriptor, BYTE* lpP
 
 			case ExtCallArgType::VarBool:
 				pushBool(*reinterpret_cast<VARIANT_BOOL*>(lpParms));
-				lpParms += sizeof(MWORD);				// Note passes as 32-bit
+				lpParms += sizeof(intptr_t);				// Note passes as 32-bit
 				break;
 
 			case ExtCallArgType::Guid:
@@ -357,13 +357,13 @@ unsigned Interpreter::pushArgsAt(const ExternalDescriptor* descriptor, BYTE* lpP
 				break;
 
 			case ExtCallArgType::UIntPtr:
-				pushUIntPtr(*reinterpret_cast<UINT_PTR*>(lpParms));
-				lpParms += sizeof(UINT_PTR);
+				pushUIntPtr(*reinterpret_cast<uintptr_t*>(lpParms));
+				lpParms += sizeof(uintptr_t);
 				break;
 
 			case ExtCallArgType::IntPtr:
-				pushIntPtr(*reinterpret_cast<INT_PTR*>(lpParms));
-				lpParms += sizeof(INT_PTR);
+				pushIntPtr(*reinterpret_cast<intptr_t*>(lpParms));
+				lpParms += sizeof(intptr_t);
 				break;
 
 			case ExtCallArgType::Struct:
@@ -506,7 +506,7 @@ Oop* __fastcall Interpreter::primitiveValueWithArgsAt(Oop* const sp, primargcoun
 	BlockOTE* oteBlock = reinterpret_cast<BlockOTE*>(*(sp-2));
 	HARDASSERT(ObjectMemory::fetchClassOf(Oop(oteBlock)) == Pointers.ClassBlockClosure);
 	BlockClosure* block = oteBlock->m_location;
-	const MWORD blockArgumentCount = block->m_info.argumentCount;
+	const uint8_t blockArgumentCount = block->m_info.argumentCount;
 
 	const ExternalDescriptor* descriptor = static_cast<ExternalDescriptor*>(descriptorPointer->m_location);
 	const DescriptorBytes* types = static_cast<DescriptorBytes*>(descriptor->m_descriptor->m_location);
@@ -531,9 +531,9 @@ Oop* __fastcall Interpreter::primitiveValueWithArgsAt(Oop* const sp, primargcoun
 
 	Oop* localSp = m_registers.m_stackPointer + 1;
 
-	const unsigned copiedValues = block->copiedValuesCount(oteBlock);
+	const size_t copiedValues = block->copiedValuesCount(oteBlock);
 	{
-		for (unsigned i=0;i<copiedValues;i++)
+		for (size_t i=0;i<copiedValues;i++)
 		{
 			Oop oopCopied = block->m_copiedValues[i];
 			*localSp++ = oopCopied;
@@ -595,7 +595,7 @@ Oop* __fastcall Interpreter::primitiveValueWithArgsAt(Oop* const sp, primargcoun
 
 	extern "C" {
 
-		__declspec(dllexport) DWORD __stdcall answerArg(DWORD intParm)
+		__declspec(dllexport) uint32_t __stdcall answerArg(uint32_t intParm)
 		{
 			return intParm;
 		}
@@ -610,7 +610,7 @@ Oop* __fastcall Interpreter::primitiveValueWithArgsAt(Oop* const sp, primargcoun
 			return fParm;
 		}
 
-		__declspec(dllexport) double __stdcall answerDoubleFromInt(SDWORD intParm)
+		__declspec(dllexport) double __stdcall answerDoubleFromInt(int32_t intParm)
 		{
 			return intParm;
 		}
@@ -675,45 +675,46 @@ void doBlah()
 
 		CompiledMethod& method = *m_registers.m_oopNewMethod->m_location;
 
-		OTE* objectPointer = *(sp - argCount);
+		Oop objectPointer = *(sp - argCount);
 
 		#ifdef _DEBUG
 			// SmallIntegers are not valid receivers
 			if (ObjectMemoryIsIntegerObject(objectPointer))
-				return primitiveFailure(0);		// invalid receiver
+				return primitiveFailure(_PrimitiveFailureCode::AssertionFailure);		// invalid receiver
 		#endif
 
+		OTE* ote = reinterpret_cast<OTE*>(objectPointer);
 		if (ote->isPointers())
 		{
 			// If a pointer object, may be OK if the first byte is a byte object >= 4 bytes
 			objectPointer = static_cast<VariantObject*>(ote->m_location)->m_fields[0];
 			if (ObjectMemory::isPointers(objectPointer))
-				return primitiveFailure(0);		// invalid receiver
+				return primitiveFailure(_PrimitiveFailureCode::DataTypeMismatch);		// invalid receiver
 		}
 
-		ByteArray* receiverBytes = reinterpretcast<ByteArray*>(ote->m_location);
-		if (ObjectMemory::fetchByteLengthOf(receiverBytes) < 4)
-			return primitiveFailure(0);			// invalid receiver
+		ByteArray* receiverBytes = reinterpret_cast<ByteArray*>(ote->m_location);
+		if (ote->bytesSize() < 4)
+			return primitiveFailure(_PrimitiveFailureCode::DataTypeMismatch);			// invalid receiver
 
 		BYTE* thisPointer;
-		if (ObjectMemory::isIndirect(receiverBytes.m_class))
+		if (ote->m_oteClass->m_location->isIndirect())
 		{
-			thisPointer = static_cast<ExternalAddress*>(receiverBytes)->m_pointer;
+			thisPointer = static_cast<BYTE*>(reinterpret_cast<ExternalAddress*>(receiverBytes)->m_pointer);
 		}
 		else
-			thisPointer = receiverBytes.m_elements;
+			thisPointer = receiverBytes->m_elements;
 
   		// We must leave arguments on the stack until after the call to
 		// ensure that any callbacks to Smalltalk don't overwrite them
 		// prematurely.
 		//
-		OTE* arrayPointer = method.m_aLiterals[LibCallArgArray];
+		OTE* arrayPointer = reinterpret_cast<OTE*>(method.m_aLiterals[LibCallArgArray]);
 		ByteArray* argTypes = static_cast<ByteArray*>(arrayPointer->m_location);
 
 		// Compiler should have generated a literal array of argument types
-		ASSERT(arrayPointer->isNil() || argTypes->m_class == Pointers.ClassByteArray);
+		ASSERT(arrayPointer->isNil() || arrayPointer->m_oteClass == Pointers.ClassByteArray);
 
-		FARPROC pVirtualProc = reinterpret_cast<FARPROC*>(reinterpret_cast<DWORD*>(thisPointer)->[argTypes->m_elements[VirtualCallOffset]]);
+		FARPROC pVirtualProc = reinterpret_cast<FARPROC*>(reinterpret_cast<uintptr_t*>(thisPointer)[argTypes->m_elements[0]]);
 			
 		return ::callExternalFunction(pVirtualProc, argCount, argTypes->m_elements, TRUE);
 	}
@@ -729,7 +730,7 @@ void doBlah()
 	// This primitive does not check that enough types are specified, because it
 	// assumes that the compiler does this.
 	//
-	BOOL __fastcall Interpreter::primitiveDLL32Call(Oop* const sp, primargcount_t argCount)
+	Oop* __fastcall Interpreter::primitiveDLL32Call(Oop* const sp, primargcount_t argCount)
 	{
 		CompiledMethod& method = *m_registers.m_oopNewMethod->m_location;
 
@@ -743,27 +744,28 @@ void doBlah()
 		// prematurely.
 		//
 		Oop arrayPointer = method.m_aLiterals[LibCallArgArray];
-		ByteArray* argTypes = static_cast<ByteArray*>(ObjectMemory::GetObj(arrayPointer));
+		ByteArrayOTE* oteBytes = reinterpret_cast<ByteArrayOTE*>(arrayPointer);
+		ByteArray* argTypes = oteBytes->m_location;
 
 		// Compiler should have generated a literal array of argument types
-		ASSERT(arrayPointer->isNil() || argTypes.m_class == Pointers.ClassByteArray);
+		ASSERT(arrayPointer->isNil() || arrayPointer->m_oteClass == Pointers.ClassByteArray);
 
 		// Try the cached address
-		FARPROC pLibProc = *reinterpret_cast<FARPROC*>(argTypes.m_elements);
+		FARPROC pLibProc = *reinterpret_cast<FARPROC*>(argTypes->m_elements);
 		if (!pLibProc)
 		{
 			unsigned procNameOffset = argCount+ExtCallArgStart;
 			#ifdef _DEBUG
 				// Compiler should have ensured number of arg types = argumentCount
-				unsigned argsLength = ObjectMemory::fetchByteLengthOf(arrayPointer);
+				intptr_t argsLength = oteBytes->bytesSize();
 				ASSERT(argsLength > procNameOffset);
 				// Compiler allocates space for a null terminator
-				ASSERT(argTypes.m_elements[argsLength-1] == 0);
+				ASSERT(argTypes->m_elements[argsLength-1] == 0);
 			#endif
-			char* procName = reinterpret_cast<char*>(argTypes.m_elements)+procNameOffset;
+			char* procName = reinterpret_cast<char*>(argTypes->m_elements)+procNameOffset;
 
 			OTE* handlePointer = *(sp - argCount);
-			ASSERT(!ObjectMemory::isBytes(handlePointer));
+			ASSERT(!handlePointer->isBytes());
 			handlePointer = reinterpret_cast<OTE*>(ObjectMemory::fetchPointerOfObject(0, handlePointer));
 			HMODULE hModule = static_cast<HMODULE>((static_cast<ExternalHandle*>(handlePointer->m_location)->m_handle);
 
@@ -772,13 +774,13 @@ void doBlah()
 			pLibProc = ::GetProcAddress(hModule, ordinal?(LPCSTR)ordinal:procName);
 
 			// Cache the value back in the method for later use
-			*reinterpret_cast<FARPROC*>(argTypes.m_elements) = pLibProc;
+			*reinterpret_cast<FARPROC*>(argTypes->m_elements) = pLibProc;
 		}
 
 		if (pLibProc)
 		{
 			TODO("Implement thiscall and fastcall");
-			ASSERT(argTypes.m_elements[ExtCallConvention] < ExtCallThisCall);
+			ASSERT(argTypes.m_elements[ExtCallConvention] < ThisCall);
 			//TRACE((char*)(argTypes).m_elements+argCount+6); TRACESTREAM<< L"\n";
 			return ::callExternalFunction(pLibProc, argCount, argTypes.m_elements, FALSE);
 		}
@@ -813,11 +815,11 @@ void doBlah()
 			arg = stackPointer[i];
 			switch (argTypes[ExtCallArgStart+i])
 			{
-				case ExtCallArgVOID:
+				case ExtCallArgType::Void:
 					// Compiler should not generate this
 					goto preCallFail;
 
-				case ExtCallArgLPSTR:
+				case ExtCallArgType::LPStr:
 					_asm 
 					{
 						mov		eax, DWORD PTR [arg]	// Load Oop
@@ -839,7 +841,7 @@ void doBlah()
 					}
 					break;
 
-				case ExtCallArgLPVOID:
+				case ExtCallArgType::LPVoid:
 					_asm 
 					{
 						mov		eax, DWORD PTR [arg]	// Load Oop
@@ -879,7 +881,7 @@ void doBlah()
 					}
 					break;
 
-				case ExtCallArgCHAR:
+				case ExtCallArgType::Char:
 					_asm
 					{
 						mov		eax, DWORD PTR [arg]		// Load Oop
@@ -895,7 +897,7 @@ void doBlah()
 					}
 					break;					
 
-				case ExtCallArgBYTE:
+				case ExtCallArgType::UInt8:
 					_asm 
 					{
 						mov		eax, DWORD PTR [arg]	// Load Oop
@@ -908,7 +910,7 @@ void doBlah()
 					}
 					break;
 
-				case ExtCallArgSBYTE:
+				case ExtCallArgType::Int8:
 					_asm 
 					{
 						mov		eax, DWORD PTR [arg]	// Load Oop
@@ -924,7 +926,7 @@ void doBlah()
 					}
 					break;
 
-				case ExtCallArgWORD:
+				case ExtCallArgType::UInt16:
 					_asm 
 					{
 						mov		eax, DWORD PTR [arg]	// Load Oop
@@ -947,7 +949,7 @@ void doBlah()
 					}
 					break;
 
-				case ExtCallArgSWORD:
+				case ExtCallArgType::Int16:
 					_asm 
 					{
 						mov		eax, DWORD PTR [arg]	// Load Oop
@@ -970,11 +972,11 @@ void doBlah()
 					}
 					break;
 
-				case ExtCallArgHANDLE:
-				case ExtCallArgSDWORD:
-				case ExtCallArgDWORD:
-				case ExtCallArgHRESULT:
-				case ExtCallArgNTSTATUS:
+				case ExtCallArgType::Handle:
+				case ExtCallArgType::Int32:
+				case ExtCallArgType::UInt32:
+				case ExtCallArgType::HResult:
+				case ExtCallArgType::NTStatus:
 					_asm 
 					{
 						mov		eax, DWORD PTR [arg]	// Load Oop
@@ -1002,7 +1004,7 @@ void doBlah()
 						_asm push	0x00000000
 					break;
 
-				case ExtCallArgBOOL:
+				case ExtCallArgType::Bool:
 					_asm 
 					{
 						mov		eax, DWORD PTR [arg]	// Load Oop
@@ -1028,7 +1030,7 @@ void doBlah()
 					}
 					break;
 
-				case ExtCallArgOOP:
+				case ExtCallArgType::Oop:
 					_asm
 					{
 						mov		eax, DWORD PTR[arg]
@@ -1036,8 +1038,8 @@ void doBlah()
 					}
 					break;
 
-				case ExtCallArgDATE:
-				case ExtCallArgDOUBLE:
+				case ExtCallArgType::Date:
+				case ExtCallArgType::Double:
 					_asm
 					{
 						//inc		[dwordsToPop]
@@ -1064,7 +1066,7 @@ void doBlah()
 					}
 					break;
 
-				case ExtCallArgFLOAT:
+				case ExtCallArgType::Float:
 					_asm
 					{
 						mov		eax, DWORD PTR[arg]
@@ -1089,7 +1091,7 @@ void doBlah()
 					}
 					break;
 
-				case ExtCallArgLPPVOID:
+				case ExtCallArgType::LPPVoid:
 					_asm {
 						mov		eax, DWORD PTR [arg]	// Load Oop
 						test	al, 1					// Is it a SmallInteger?
@@ -1167,24 +1169,24 @@ void doBlah()
 			// value causes the method to answer self.
 			switch(argTypes[ExtCallReturnType])
 			{
-				case ExtCallArgLPPVOID:
+				case ExtCallArgType::LPPVoid:
 					// Compiler should not generate as a return type, but if it does, treat as lpvoid
-				case ExtCallArgLPVOID:
+				case ExtCallArgType::LPVoid:
 					pop(argCount);
 					replaceStackTopObjectWithNewObject(NewExternalAddress(reinterpret_cast<BYTE*>(dwValue));
 					break;
 
-				case ExtCallArgCHAR:
+				case ExtCallArgType::Char:
 					pop(argCount);
 					replaceStackTopObjectNoRefCnt(NewChar(static_cast<char>(dwValue)));
 					break;
 
-				case ExtCallArgBYTE:
+				case ExtCallArgType::UInt8:
 					pop(argCount);
-					replaceStackTopObjectNoRefCnt(ObjectMemoryIntegerObjectOf(static_cast<BYTE>(dwValue));
+					replaceStackTopObjectNoRefCnt(ObjectMemoryIntegerObjectOf(static_cast<uint8_t>(dwValue));
 					break;
 
-				case ExtCallArgSBYTE:
+				case ExtCallArgType::Int8:
 				{
 					pop(argCount);
 					char signedChar = static_cast<char>(dwValue);
@@ -1192,12 +1194,12 @@ void doBlah()
 					break;
 				}
 
-				case ExtCallArgWORD:
+				case ExtCallArgType::UInt16:
 					pop(argCount);
 					replaceStackTopObjectNoRefCnt(ObjectMemoryIntegerObjectOf(static_cast<WORD>(dwValue));
 					break;
 
-				case ExtCallArgSWORD:
+				case ExtCallArgType::Int16:
 				{
 					pop(argCount);
 					SWORD signedWord = static_cast<SWORD>(dwValue);
@@ -1205,8 +1207,8 @@ void doBlah()
 					break;
 				}
 
-				case ExtCallArgHRESULT:
-				case ExtCallArgNTSTATUS:
+				case ExtCallArgType::HResult:
+				case ExtCallArgType::NTStatus:
 				{
 					HRESULT hresult = static_cast<HRESULT>(dwValue);
 					if (FAILED(hresult))
@@ -1214,22 +1216,22 @@ void doBlah()
 				}
 				// Deliberately drop through, so handled same as #dword
 
-				case ExtCallArgDWORD:
+				case ExtCallArgType::UInt32:
 					pop(argCount);
 					replaceObjectAtStackTopWith(NewUnsigned(dwValue));
 					break;
 
-				case ExtCallArgSDWORD:
+				case ExtCallArgType::Int32:
 					pop(argCount);
 					replaceObjectAtStackTopWith(NewSigned(dwValue));
 					break;
 
-				case ExtCallArgBOOL:
+				case ExtCallArgType::Bool:
 					pop(argCount);
 					replaceStackTopObjectNoRefCnt(dwValue ? Pointers.True : Pointers.False);
 					break;
 
-				case ExtCallArgHANDLE:
+				case ExtCallArgType::Handle:
 					pop(argCount);
 					if (!dwValue)
 						replaceStackTopObjectNoRefCnt(Pointers.Nil);
@@ -1237,9 +1239,9 @@ void doBlah()
 						replaceStackTopObjectWithNewObject(NewExternalHandle(static_cast<HANDLE>(dwValue)));
 					break;
 
-				case ExtCallArgDATE:
-				case ExtCallArgDOUBLE:
-				case ExtCallArgFLOAT:
+				case ExtCallArgType::Date:
+				case ExtCallArgType::Double:
+				case ExtCallArgType::Float:
 				{
 					double fResult;
 					_asm fstp	QWORD PTR [fResult]
@@ -1248,7 +1250,7 @@ void doBlah()
 					break;
 				}
 
-				case ExtCallArgLPSTR:
+				case ExtCallArgType::LPStr:
 					pop(argCount);
 					if (!dwValue)
 						replaceStackTopObjectNoRefCnt(Pointers.Nil);
@@ -1257,13 +1259,13 @@ void doBlah()
 					break;
 
 				// For future use with User Primitive Kit
-				case ExtCallArgOOP:
+				case ExtCallArgType::Oop:
 					pop(argCount);
 					ASSERT(!ObjectMemoryIsIntegerObject(dwValue));
 					*m_registers.m_stackPointer = dwValue;
 					break;
 
-				case ExtCallArgVOID:
+				case ExtCallArgType::Void:
 					// Do nothing - leaving receiver on stack
 				default:
 					pop(argCount);

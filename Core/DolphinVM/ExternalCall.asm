@@ -40,15 +40,15 @@ extern NewBSTR:near32
 NewGUID EQU ?NewGUID@@YIPAV?$TOTE@VVariantByteObject@ST@@@@PAU_GUID@@@Z
 extern NewGUID:near32
 
-NewSigned64 EQU ?NewSigned64@Integer@ST@@SGI_J@Z
+NewSigned64 EQU ?NewSigned@Integer@ST@@SGI_J@Z
 extern NewSigned64:near32
-NewUnsigned64 EQU ?NewUnsigned64@Integer@ST@@SGI_K@Z
+NewUnsigned64 EQU ?NewUnsigned@Integer@ST@@SGI_K@Z
 extern NewUnsigned64:near32
 
 REQUESTCOMPLETION EQU ?OnCallReturned@OverlappedCall@@AAEXXZ
 extern REQUESTCOMPLETION:near32
 
-CharacterGetCodePoint EQU ?getCodePoint@Character@ST@@QBEIXZ
+CharacterGetCodePoint EQU ?getCodePoint@Character@ST@@QBE_UXZ
 extern CharacterGetCodePoint:near32
 
 ; We need to test the structure type specially

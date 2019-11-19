@@ -23,7 +23,7 @@ Oop * __fastcall Interpreter::primitiveAddressOf(Oop * const sp, primargcount_t 
 Oop * __fastcall Interpreter::primitiveBytesIsNull(Oop * const sp, primargcount_t argCount)
 {
 	AddressOTE* oteBytes = reinterpret_cast<AddressOTE*>(*sp);
-	MWORD size = oteBytes->bytesSize();
+	size_t size = oteBytes->bytesSize();
 	if (size == sizeof(uintptr_t))
 	{
 		*sp = reinterpret_cast<Oop>(oteBytes->m_location->m_pointer == nullptr ? Pointers.True : Pointers.False);
@@ -87,9 +87,9 @@ Oop * __fastcall Interpreter::primitiveDWORDAtPut(Oop * const sp, primargcount_t
 
 	if (ObjectMemoryIsIntegerObject(oopOffset))
 	{
-		const int size = oteReceiver->bytesSizeForUpdate();
+		const ptrdiff_t size = oteReceiver->bytesSizeForUpdate();
 		SMALLINTEGER offset = ObjectMemoryIntegerValueOf(oopOffset);
-		if (offset >= 0 && static_cast<int>(offset + sizeof(uint32_t)) <= size)
+		if (offset >= 0 && static_cast<ptrdiff_t>(offset + sizeof(uint32_t)) <= size)
 		{
 			// Store into byte object
 			Oop oopValue = *sp;
@@ -109,7 +109,7 @@ Oop * __fastcall Interpreter::primitiveDWORDAtPut(Oop * const sp, primargcount_t
 				uint32_t* valueFields = oteValue->m_location->m_fields;
 				if (oteValue->isBytes())
 				{
-					MWORD argSize = oteValue->bytesSize();
+					size_t argSize = oteValue->bytesSize();
 
 					// The primitive has traditionally been lenient and accepts any 4 byte object, or any 8 byte object
 					// where the top 32-bits are zero. This is to allow positive argeIntegers in the interval [0x7FFFFFFF, 0xFFFFFFFF]
@@ -167,7 +167,7 @@ Oop * __fastcall Interpreter::primitiveIndirectDWORDAtPut(Oop * const sp, primar
 			uint32_t* valueFields = oteValue->m_location->m_fields;
 			if (oteValue->isBytes())
 			{
-				MWORD argSize = oteValue->bytesSize();
+				size_t argSize = oteValue->bytesSize();
 
 				// The primitive has traditionally been lenient and accepts any 4 byte object, or any 8 byte object
 				// where the top 32-bits are zero. This is to allow positive argeIntegers in the interval [0x7FFFFFFF, 0xFFFFFFFF]
@@ -190,16 +190,16 @@ Oop * __fastcall Interpreter::primitiveIndirectDWORDAtPut(Oop * const sp, primar
 	}
 }
 
-Oop * __fastcall Interpreter::primitiveSDWORDAtPut(Oop * const sp, unsigned)
+Oop * __fastcall Interpreter::primitiveSDWORDAtPut(Oop * const sp, uintptr_t)
 {
 	BytesOTE* oteReceiver = reinterpret_cast<BytesOTE*>(*(sp - 2));
 	Oop oopOffset = *(sp - 1);
 
 	if (ObjectMemoryIsIntegerObject(oopOffset))
 	{
-		const int size = oteReceiver->bytesSizeForUpdate();
+		const ptrdiff_t size = oteReceiver->bytesSizeForUpdate();
 		SMALLINTEGER offset = ObjectMemoryIntegerValueOf(oopOffset);
-		if (offset >= 0 && static_cast<int>(offset + sizeof(int32_t)) <= size)
+		if (offset >= 0 && static_cast<ptrdiff_t>(offset + sizeof(int32_t)) <= size)
 		{
 			// Store into byte object
 			Oop oopValue = *sp;
@@ -219,7 +219,7 @@ Oop * __fastcall Interpreter::primitiveSDWORDAtPut(Oop * const sp, unsigned)
 				int32_t* pValue = reinterpret_cast<int32_t*>(oteValue->m_location->m_fields);
 				if (oteValue->isBytes())
 				{
-					MWORD argSize = oteValue->bytesSize();
+					size_t argSize = oteValue->bytesSize();
 
 					// The primitive has traditionally been lenient and accepts any 4 byte object 
 					if (argSize == sizeof(int32_t))
@@ -262,10 +262,21 @@ Oop * __fastcall Interpreter::primitiveIndirectSDWORDAtPut(Oop * const sp, prima
 		int32_t* pBuf = reinterpret_cast<int32_t*>(static_cast<uint8_t*>(oteReceiver->m_location->m_pointer) + offset);
 		if (ObjectMemoryIsIntegerObject(oopValue))
 		{
-			const int32_t newValue = ObjectMemoryIntegerValueOf(oopValue);
+			const SMALLINTEGER newValue = ObjectMemoryIntegerValueOf(oopValue);
+#ifdef _M_X64
+			if (newValue >= INT32_MIN && newValue <= INT32_MAX)
+			{
+				*pBuf = newValue & UINT32_MAX;
+				*(sp - 2) = oopValue;
+				return sp - 2;
+			}
+			else
+				return primitiveFailure(_PrimitiveFailureCode::InvalidParameter2);
+#else
 			*pBuf = newValue;
 			*(sp - 2) = oopValue;
 			return sp - 2;
+#endif
 		}
 		else
 		{
@@ -275,7 +286,7 @@ Oop * __fastcall Interpreter::primitiveIndirectSDWORDAtPut(Oop * const sp, prima
 			int32_t* pValue = reinterpret_cast<int32_t*>(oteValue->m_location->m_fields);
 			if (oteValue->isBytes())
 			{
-				MWORD argSize = oteValue->bytesSize();
+				size_t argSize = oteValue->bytesSize();
 
 				// The primitive has traditionally been lenient and accepts any 4 byte object 
 				if (argSize == sizeof(int32_t))

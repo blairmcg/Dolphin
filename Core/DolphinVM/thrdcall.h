@@ -223,7 +223,7 @@ private:
 
 	void TerminateThread();
 
-	bool Initiate(CompiledMethod* pMethod, unsigned nArgCount);
+	bool Initiate(CompiledMethod* pMethod, size_t nArgCount);
 	DWORD WaitForRequest();
 	int ProcessRequests();
 	bool PerformCall();
@@ -246,6 +246,7 @@ private:
 	bool NotifyInterpreterOfTermination();
 	void WaitForInterpreter();
 
+	void OnTerminated();
 	void RemoveFromPendingTerminations();
 
 	bool QueueForInterpreter(PAPCFUNC pfnAPC);
@@ -259,7 +260,7 @@ public:
 	static void Uninitialize();
 
 	static OverlappedCallPtr GetActiveProcessOverlappedCall();
-	static OverlappedCallPtr Do(CompiledMethod* pMethod, unsigned argCount);
+	static OverlappedCallPtr Do(CompiledMethod* pMethod, size_t argCount);
 
 	static Semaphore* pendingTerms();
 
@@ -284,10 +285,10 @@ private:
 	static int MainExceptionFilter(LPEXCEPTION_POINTERS pExInfo);
 
 	// APC functions (APCs are used to queue messages between threads)
-	static void __stdcall SuspendAPC(DWORD dwParam);
-	static void __stdcall TerminatedAPC(DWORD dwParam);
-	static OverlappedCallPtr BeginAPC(DWORD dwParam);
-	static OverlappedCallPtr BeginMainThreadAPC(DWORD dwParam);
+	static void __stdcall SuspendAPC(ULONG_PTR dwParam);
+	static void __stdcall TerminatedAPC(ULONG_PTR dwParam);
+	static OverlappedCallPtr BeginAPC(ULONG_PTR dwParam);
+	static OverlappedCallPtr BeginMainThreadAPC(ULONG_PTR dwParam);
 
 	static void CompactCallsOnList(OverlappedCallList& list);
 	void compact();
@@ -319,7 +320,7 @@ public:
 
 	// Method causing this overlapped call to start executing
 	CompiledMethod*			m_pMethod;
-	unsigned				m_nArgCount;
+	size_t				m_nArgCount;
 	volatile States			m_state;
 private:
 	SHAREDLONG				m_nSuspendCount;

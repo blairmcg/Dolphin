@@ -9,27 +9,27 @@ Dolphin Instruction Set
 ///////////////////////
 // Instruction Set
 
-enum { NumShortPushInstVars = 16 };
-enum { NumShortPushTemps = 8 };
-enum { NumPushContextTemps = 2 };
-enum { NumPushOuterTemps = 2 };
-enum { NumShortPushConsts = 16 };
-enum { NumShortPushStatics = 12 };
-enum { NumShortPushSelfAndTemps = 4 };
-enum { NumShortStoreTemps = 4 };
-enum { NumPopStoreContextTemps = 2};
-enum { NumPopStoreOuterTemps = 2};
-enum { NumShortPopStoreInstVars = 8 };
-enum { NumShortPopStoreTemps = 8 };
-enum { NumShortJumps = 8 };
-enum { NumShortJumpsIfFalse = 8 };
-enum { NumArithmeticSelectors = 16 };
-enum { NumCommonSelectors = 16 };
-enum { NumSpecialSelectors = NumArithmeticSelectors+NumCommonSelectors };
-enum { NumShortSendsWithNoArgs = 13 };
-enum { NumShortSendSelfWithNoArgs = 5 };
-enum { NumShortSendsWith1Arg = 14 };
-enum { NumShortSendsWith2Args = 8 };
+constexpr uint8_t NumShortPushInstVars = 16;
+constexpr uint8_t NumShortPushTemps = 8;
+constexpr uint8_t NumPushContextTemps = 2;
+constexpr uint8_t NumPushOuterTemps = 2;
+constexpr uint8_t NumShortPushConsts = 16;
+constexpr uint8_t NumShortPushStatics = 12;
+constexpr uint8_t NumShortPushSelfAndTemps = 4;
+constexpr uint8_t NumShortStoreTemps = 4;
+constexpr uint8_t NumPopStoreContextTemps = 2;
+constexpr uint8_t NumPopStoreOuterTemps = 2;
+constexpr uint8_t NumShortPopStoreInstVars = 8;
+constexpr uint8_t NumShortPopStoreTemps = 8;
+constexpr uint8_t NumShortJumps = 8;
+constexpr uint8_t NumShortJumpsIfFalse = 8;
+constexpr uint8_t NumArithmeticSelectors = 16;
+constexpr uint8_t NumCommonSelectors = 16;
+constexpr uint8_t NumSpecialSelectors = NumArithmeticSelectors+NumCommonSelectors;
+constexpr uint8_t NumShortSendsWithNoArgs = 13;
+constexpr uint8_t NumShortSendSelfWithNoArgs = 5;
+constexpr uint8_t NumShortSendsWith1Arg = 14;
+constexpr uint8_t NumShortSendsWith2Args = 8;
 
 // N.B. These sizes are offsets from the instruction FOLLOWING the jump (the IP is assumed to
 // have advanced to the next instruction by the time the offset is added to IP)
@@ -38,11 +38,10 @@ static constexpr int MaxForwardsLongJump = INT16_MAX;
 static constexpr int MaxBackwardsNearJump = INT8_MIN;
 static constexpr int MaxForwardsNearJump = INT8_MAX;
 
-enum { 
-	FirstSingleByteInstruction = 0, 
-	FirstDoubleByteInstruction = 204, 
-	FirstTripleByteInstruction = 234,
-	FirstMultiByteInstruction = 252 };
+constexpr uint8_t FirstSingleByteInstruction = 0;
+constexpr uint8_t FirstDoubleByteInstruction = 204;
+constexpr uint8_t FirstTripleByteInstruction = 234;
+constexpr uint8_t FirstMultiByteInstruction = 252;
 
 enum {	Break = FirstSingleByteInstruction,
 		FirstShortPush };
@@ -252,26 +251,28 @@ enum {
 #define MAXFORBITS(n) ((1 << (n)) - 1)
 
 // Consts for Single extended send instructions
-enum { SendXArgCountBits 	= 3 };
-enum { SendXMaxArgs	 		= MAXFORBITS(SendXArgCountBits) };
-enum { SendXLiteralBits 	= 8 - SendXArgCountBits };
-enum { SendXMaxLiteral 		= MAXFORBITS(SendXLiteralBits) };
+constexpr int SendXArgCountBits 	= 3;
+constexpr int SendXMaxArgs	 		= MAXFORBITS(SendXArgCountBits);
+constexpr int SendXLiteralBits 		= 8 - SendXArgCountBits;
+constexpr int SendXMaxLiteral 		= MAXFORBITS(SendXLiteralBits);
 
 // Consts for double extended send instructions
-enum { Send2XArgCountBits	= 8 };
-enum { Send2XMaxArgs		= MAXFORBITS(Send2XArgCountBits) };
-enum { Send2XLiteralBits 	= 8 };
-enum { Send2XMaxLiteral		= MAXFORBITS(Send2XLiteralBits) };
+constexpr int Send2XArgCountBits	= 8;
+constexpr int Send2XMaxArgs			= MAXFORBITS(Send2XArgCountBits);
+constexpr int Send2XLiteralBits 	= 8;
+constexpr int Send2XMaxLiteral		= MAXFORBITS(Send2XLiteralBits);
 
-enum { Send3XArgCountBits	= 8 };
-enum { Send3XMaxArgs		= MAXFORBITS(Send3XArgCountBits) };
-enum { Send3XLiteralBits 	= 16 };
-enum { Send3XMaxLiteral		= MAXFORBITS(Send3XLiteralBits) };
+constexpr int Send3XArgCountBits	= 8;
+constexpr int Send3XMaxArgs			= MAXFORBITS(Send3XArgCountBits);
+constexpr int Send3XLiteralBits 	= 16;
+constexpr int Send3XMaxLiteral		= MAXFORBITS(Send3XLiteralBits);
 
-enum { OuterTempIndexBits	= 5 };
-enum { OuterTempMaxIndex	= MAXFORBITS(OuterTempIndexBits) };
-enum { OuterTempDepthBits	= 3 };
-enum { OuterTempMaxDepth	= MAXFORBITS(OuterTempDepthBits) };
+constexpr int OuterTempIndexBits	= 5;
+constexpr int OuterTempMaxIndex		= MAXFORBITS(OuterTempIndexBits);
+constexpr int OuterTempDepthBits	= 3;
+constexpr int OuterTempMaxDepth		= MAXFORBITS(OuterTempDepthBits);
+
+constexpr int BlockCopyMaxArgs = 255;
 
 #pragma warning(disable:4201)
 struct BlockCopyExtension
@@ -286,7 +287,7 @@ struct BlockCopyExtension
 
 enum { ExLongPushImmediateInstructionSize = 5, BlockCopyInstructionSize = 7 };
 
-inline int lengthOfByteCode(uint8_t opCode)
+inline size_t lengthOfByteCode(uint8_t opCode)
 {
 	return opCode < FirstDoubleByteInstruction ? 1 : 
 				opCode < FirstTripleByteInstruction ? 2 : 

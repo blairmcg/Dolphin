@@ -51,7 +51,7 @@ namespace ST
 		enum { OuterIndex = ObjectFixedSize, BlockIndex, FixedSize };
 		enum { TempFrameStart = FixedSize };
 
-		static ContextOTE* __fastcall New(unsigned tempCount, Oop oopOuter);
+		static ContextOTE* __fastcall New(size_t tempCount, Oop oopOuter);
 	};
 
 	///////////////////////////////////////////////////////////////////////////////

@@ -42,8 +42,8 @@ void Interpreter::initializeVMReferences()
 	ASSERT(m_nMaxVMRefs >= VMREFSINITIAL);
 
 	// Now set up the free list
-	const int loopEnd = m_nMaxVMRefs;
-	for (int i=0;i<loopEnd;i++)
+	const size_t loopEnd = m_nMaxVMRefs;
+	for (size_t i=0;i<loopEnd;i++)
 		m_pVMRefs[i] = ObjectMemoryIntegerObjectOf(i+1);
 	m_nFreeVMRef = 0;
 #else
@@ -99,7 +99,7 @@ void Interpreter::initializeVMReferences()
 	ObjectMemory::addVMRefs();
 }
 
-void Interpreter::sendStartup(const wchar_t* szImagePath, DWORD dwArg)
+void Interpreter::sendStartup(const wchar_t* szImagePath, uintptr_t dwArg)
 {
 	// Boost the priority so runs to exclusion of other processes (except timing and weak
 	// collection repair)
@@ -111,7 +111,7 @@ void Interpreter::sendStartup(const wchar_t* szImagePath, DWORD dwArg)
 	Utf16StringOTE* string = Utf16String::New(szImagePath);
 	args->m_elements[0] = reinterpret_cast<Oop>(string);
 	string->m_count = 1;
-	args->m_elements[1] = Integer::NewUnsigned32(dwArg);
+	args->m_elements[1] = Integer::NewUnsigned(dwArg);
 	ObjectMemory::countUp(args->m_elements[1]);
 	// We no longer need to ref. count things we push on the stack, sendVMInterrupt will count
 	// down the argument after it has pushed it on the stack, possibly causing its addition to the Zct

@@ -433,7 +433,7 @@ void Interpreter::Yield()
 
 // Yield to the Processes of the same or higher priority than the current active process
 // Answers whether a process switch occurred
-Oop* __fastcall Interpreter::primitiveYield(Oop* const, unsigned)
+Oop* __fastcall Interpreter::primitiveYield(Oop* const, primargcount_t)
 {
 	Yield();
 	return m_registers.m_stackPointer;
@@ -447,9 +447,9 @@ ProcessOTE* Interpreter::wakeHighestPriority()
 	ProcessorScheduler* scheduler = (ProcessorScheduler*)Pointers.Scheduler->m_location;
 	ArrayOTE* oteLists = scheduler->m_processLists;
 	HARDASSERT(oteLists->m_oteClass == Pointers.ClassArray);
-	unsigned highestPriority = oteLists->pointersSize();
+	size_t highestPriority = oteLists->pointersSize();
 	Array* processLists = oteLists->m_location;
-	unsigned index = highestPriority;
+	size_t index = highestPriority;
 	LinkedList* pProcessList;
 	do
 	{
@@ -884,7 +884,7 @@ BOOL Interpreter::CheckProcessSwitch()
 
 #ifdef _DEBUG
 // Return the priority of the highest priority waiting process
-int Interpreter::highestWaitingPriority()
+size_t Interpreter::highestWaitingPriority()
 {
 	ProcessorScheduler* scheduler = schedulerPointer()->m_location;
 
@@ -892,8 +892,8 @@ int Interpreter::highestWaitingPriority()
 	ArrayOTE* oteLists = scheduler->m_processLists;
 	Array* processLists = oteLists->m_location;
 
-	unsigned highestPriority = oteLists->pointersSize();
-	unsigned index = highestPriority;
+	size_t highestPriority = oteLists->pointersSize();
+	size_t index = highestPriority;
 	LinkedList* pProcessList;
 	do
 	{
@@ -968,7 +968,7 @@ LinkedListOTE* Interpreter::ResuspendProcessOn(ProcessOTE* oteProcess, LinkedLis
 		// to avoid incorrectly suspending the process
 		Semaphore* sem = static_cast<Semaphore*>(oteList->m_location);
 		HARDASSERT(ObjectMemoryIsIntegerObject(sem->m_excessSignals));
-		int excessSignals = ObjectMemoryIntegerValueOf(sem->m_excessSignals);
+		SMALLINTEGER excessSignals = ObjectMemoryIntegerValueOf(sem->m_excessSignals);
 
 		if (excessSignals > 0)
 		{
@@ -1072,8 +1072,8 @@ ProcessOTE* Interpreter::resume(ProcessOTE* aProcess)
 	}
 
 #ifdef _DEBUG
-	int newActivePriority = activeProcess()->Priority();
-	int highestPriorityWaiting = highestWaitingPriority();
+	SMALLUNSIGNED newActivePriority = activeProcess()->Priority();
+	size_t highestPriorityWaiting = highestWaitingPriority();
  	HARDASSERT(newActivePriority >= highestPriorityWaiting);
 #endif
 
@@ -1290,7 +1290,7 @@ Oop* __fastcall Interpreter::primitiveWait(Oop* const sp, primargcount_t)
 	// needs to access the suspended stack pointer in order to update value holder in v3.
 	m_registers.PrepareToSuspendProcess();
 
-	int nAnswer = sem->Wait(thisReceiver, actualActiveProcessPointer(), timeout);
+	NTSTATUS nAnswer = sem->Wait(thisReceiver, actualActiveProcessPointer(), timeout);
 
 	Oop oopAnswer = ObjectMemoryIntegerObjectOf(nAnswer);
 
@@ -1363,7 +1363,7 @@ OTE* Semaphore::New(int initSignals)
 }
 */
 
-DWORD Semaphore::Wait(SemaphoreOTE* oteThis, ProcessOTE* oteProcess, int timeout)
+NTSTATUS Semaphore::Wait(SemaphoreOTE* oteThis, ProcessOTE* oteProcess, intptr_t timeout)
 {
 	if (!ObjectMemoryIsIntegerObject(m_excessSignals))
 	{
@@ -1373,7 +1373,7 @@ DWORD Semaphore::Wait(SemaphoreOTE* oteThis, ProcessOTE* oteProcess, int timeout
 
 	SMALLINTEGER excessSignals = ObjectMemoryIntegerValueOf(m_excessSignals);
 
-	DWORD dwAnswer;
+	NTSTATUS dwAnswer;
 	if (excessSignals > 0)
 	{
 		m_excessSignals -= 2;
@@ -1384,7 +1384,7 @@ DWORD Semaphore::Wait(SemaphoreOTE* oteThis, ProcessOTE* oteProcess, int timeout
 	}
 	else
 	{
-		if (timeout == INFINITE)
+		if (timeout == static_cast<int32_t>(INFINITE))
 		{
 			Interpreter::QueueProcessOn(oteProcess, reinterpret_cast<LinkedListOTE*>(oteThis));
 			if (Interpreter::schedule() == oteProcess)
@@ -1478,7 +1478,7 @@ Oop* __fastcall Interpreter::primitiveSingleStep(Oop* const sp, primargcount_t a
 
 	// We must kill the sampling timer to prevent it upsetting results
 	CancelSampleTimer();
-	m_nInputPollCounter = -steps;
+	m_nInputPollCounter = static_cast<int32_t>(-steps);
 
 	LinkedListOTE* oteList = proc->SuspendingList();
 
@@ -1631,7 +1631,7 @@ Oop* __fastcall Interpreter::primitiveTerminateProcess(Oop* const sp, primargcou
 	return primitiveSuccess(0);
 }
 
-Oop* __fastcall Interpreter::primitiveUnwindInterrupt(Oop* const, unsigned)
+Oop* __fastcall Interpreter::primitiveUnwindInterrupt(Oop* const, uintptr_t)
 {
 	// Terminate any overlapped call outstanding for the process, this may need to suspend the process
 	// and so this may cause a context switch

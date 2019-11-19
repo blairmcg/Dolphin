@@ -53,6 +53,13 @@ namespace ST
 		DWORD m_dwValue;
 	};
 
+	// Really a subclass of ByteArray
+	class UintPtrBytes : public Object
+	{
+	public:
+		uintptr_t m_value;
+	};
+
 	class ExternalHandle : public Object
 	{
 		// ExternalHandle is really a variable byte subclass of length 4
@@ -94,7 +101,7 @@ namespace ST
 		BYTE	m_returnClass;
 		BYTE	m_args[];
 
-		static unsigned argsLen(DescriptorOTE* ote) { return ote->getSize() - offsetof(DescriptorBytes, m_args); }
+		static size_t argsLen(DescriptorOTE* ote) { return ote->getSize() - offsetof(DescriptorBytes, m_args); }
 	};
 
 	class ExternalDescriptor : public Object

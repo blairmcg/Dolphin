@@ -28,11 +28,22 @@ wostream& operator<<(wostream& stream, const CONTEXT* pCtx)
 	wostream::char_type cFill = stream.fill('0');
 	stream.setf(ios::uppercase);
 	stream << std::hex 
+#ifdef _M_X64
+		<< L"RAX = " << setw(16) << pCtx->Rax << L" RBX = " << setw(16) << pCtx->Rbx << L" RCX = " << setw(16) << pCtx->Rcx << std::endl
+		<< L"RSI = " << setw(16) << pCtx->Rsi << L" EDI = " << setw(16) << pCtx->Rdi << L" R8 = " << setw(16) << pCtx->R8 << std::endl
+		<< L"R9 = " << setw(16) << pCtx->R9 << L" R10 = " << setw(16) << pCtx->R10 << L" R11 = " << setw(16) << pCtx->R11 << std::endl
+		<< L"R12 = " << setw(16) << pCtx->R12 << L" R13 = " << setw(16) << pCtx->R13 << L" R14 = " << setw(16) << pCtx->R14 << std::endl
+		<< L"R15 = " << setw(16) << pCtx->R15 << std::endl
+		<< L"RIP = " << setw(16) << pCtx->Rip << L"RSP = " << setw(16) << pCtx->Rsp << L" RBP = " << setw(16) << pCtx->Rbp << L" EFL = " << setw(8) << pCtx->EFlags << std::endl
+		<< L"CS = " << setw(4) << pCtx->SegCs << L" SS = " << setw(4) << pCtx->SegSs << L" DS = " << setw(4) << pCtx->SegDs << std::endl
+		<< L"ES = " << setw(4) << pCtx->SegEs << L" FS = " << setw(4) << pCtx->SegFs << L" GS = " << setw(4) << pCtx->SegGs << std::endl;
+#else
 		<< L"EAX = " << setw(8) << pCtx->Eax<< L" EBX = " << setw(8) << pCtx->Ebx<< L" ECX = " << setw(8) << pCtx->Ecx << std::endl
 		<< L"ESI = " << setw(8) << pCtx->Esi<< L" EDI = " << setw(8) << pCtx->Edi<< L" EIP = " << setw(8) << pCtx->Eip << std::endl
 		<< L"ESP = " << setw(8) << pCtx->Esp<< L" EBP = " << setw(8) << pCtx->Ebp<< L" EFL = " << setw(8) << pCtx->EFlags << std::endl
 		<< L"CS = " << setw(4) << pCtx->SegCs<< L" SS = " << setw(4) << pCtx->SegSs<< L" DS = " << setw(4) << pCtx->SegDs << std::endl
 		<< L"ES = " << setw(4) << pCtx->SegEs<< L" FS = " << setw(4) << pCtx->SegFs<< L" GS = " << setw(4) << pCtx->SegGs << std::endl;
+#endif
 	stream.fill(cFill);
 	stream.unsetf(ios::uppercase);
 	return stream;
@@ -71,7 +82,7 @@ void CrashDump(EXCEPTION_POINTERS *pExceptionInfo, wostream* pStream, DWORD nSta
 	*pStream << std::endl << std::endl << stNow
 		<< L": " << szFileName
 		<< L" caused an unhandled Win32 Exception " 
-		<< PVOID(exceptionCode) << std::endl
+		<< hex << setw(8) << exceptionCode << std::endl
 		<< L"at " << pExRec->ExceptionAddress;
 
 	// Determine the module in which it occurred
@@ -92,9 +103,9 @@ void CrashDump(EXCEPTION_POINTERS *pExceptionInfo, wostream* pStream, DWORD nSta
 		*pStream << std::hex;
 		for (unsigned i=0;i<NumParms;i++)
 		{
-			DWORD dwParm = pExRec->ExceptionInformation[i];
-			*pStream << setw(8) << dwParm<< L"	";
-			BYTE* pBytes = reinterpret_cast<BYTE*>(dwParm);
+			uintptr_t parm = pExRec->ExceptionInformation[i];
+			*pStream << hex << setw(MNIBBLES) << parm<< L"	";
+			BYTE* pBytes = reinterpret_cast<BYTE*>(parm);
 			if (!IsBadReadPtr(pBytes, MAXDUMPPARMCHARS))
 			{
 				wchar_t buf[MAXDUMPPARMCHARS+1];
@@ -152,13 +163,17 @@ void CrashDump(EXCEPTION_POINTERS *pExceptionInfo, wostream* pStream, DWORD nSta
 			if (::GetThreadContext(hMain, &ctxMain))
 			{
 				*pStream << &ctxMain << std::endl;
-
-				::VirtualQuery(reinterpret_cast<void*>(ctxMain.Eip), &mbi, sizeof(mbi));
+#ifdef _M_X64
+				uintptr_t ip = ctxMain.Rip;
+#else
+				uintptr_t ip = ctxMain.Eip;
+#endif
+				::VirtualQuery(reinterpret_cast<void*>(ip), &mbi, sizeof(mbi));
 				hMod = HMODULE(mbi.AllocationBase);
 
 				wcscpy_s(szModule, L"<UNKNOWN>");
 				::GetModuleFileNameW(hMod, szModule, _MAX_PATH);
-				*pStream<< L"In module " << hMod<< L" (" << szModule<< L")" << std::endl << std::endl;
+				*pStream<< L"In module " << hex << setw(MNIBBLES) << hMod << L" (" << szModule<< L")" << std::endl << std::endl;
 			}
 			else
 				*pStream << std::endl<< L"*** Unable to access main interpter thread context (" 
@@ -243,9 +258,9 @@ void __cdecl DebugCrashDump(const wchar_t* szFormat, ...)
 	::StringCbVPrintfW(buf, sizeof(buf), szFormat, args);
 	va_end(args);
 
-	DWORD dwArgs[1];
-	dwArgs[0] = reinterpret_cast<DWORD>(&buf);
-	RaiseException(SE_VMDUMPSTATUS, 0, 1, dwArgs);
+	ULONG_PTR exceptionArgs[1];
+	exceptionArgs[0] = reinterpret_cast<uintptr_t>(&buf);
+	::RaiseException(SE_VMDUMPSTATUS, 0, 1, exceptionArgs);
 }
 
 void __stdcall Dump2(const wchar_t* szMsg, wostream* pStream, int nStackDepth, int nWalkbackDepth)

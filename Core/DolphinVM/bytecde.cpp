@@ -196,7 +196,7 @@ inline BOOL Interpreter::sampleInput()
 	// Prevent further sampling by resetting the poll counter
 	ResetInputPollCounter();
 
-	if ((SDWORD)m_nInputPollInterval > 0)
+	if (m_nInputPollInterval > 0)
 	{
 		// Look for any input in the queue, not just for new stuff
 		if (((::GetQueueStatus(m_dwQueueStatusMask) >> 16) & m_dwQueueStatusMask) != 0)
@@ -246,10 +246,10 @@ bool Interpreter::IsUserBreakRequested()
 	// so we don't want to early out just because one of the required keys has not
 	// been pressed.
 
-	int hotkey = integerValueOf(Pointers.InterruptHotKey);
-	int vk = hotkey & 0x1FF;
+	uint32_t hotkey = integerValueOf(Pointers.InterruptHotKey) & UINT_MAX;
+	uint32_t vk = hotkey & 0x1FF;
 	bool interrupt = (::GetAsyncKeyState(vk) & 0x8001) != 0;
-	int modifiers = (hotkey >> 9);
+	uint32_t modifiers = (hotkey >> 9);
 	if (modifiers & FSHIFT)
 	{
 		interrupt &= (::GetAsyncKeyState(VK_SHIFT) & 0x8001) != 0;
@@ -302,7 +302,7 @@ BOOL __stdcall Interpreter::MsgSendPoll()
 
 #pragma code_seg(INTERP_SEG)
 
-Interpreter::MethodCacheEntry* __fastcall Interpreter::findNewMethodInClass(BehaviorOTE* classPointer, const unsigned argCount)
+Interpreter::MethodCacheEntry* __fastcall Interpreter::findNewMethodInClass(BehaviorOTE* classPointer, const uintptr_t argCount)
 {
 	ASSERT(ObjectMemory::isBehavior(Oop(classPointer)));
 
@@ -335,7 +335,7 @@ Interpreter::MethodCacheEntry* __fastcall Interpreter::findNewMethodInClass(Beha
 
 #pragma code_seg(INTERP_SEG)
 
-Interpreter::MethodCacheEntry* __stdcall Interpreter::findNewMethodInClassNoCache(BehaviorOTE* classPointer, const unsigned argCount)
+Interpreter::MethodCacheEntry* __stdcall Interpreter::findNewMethodInClassNoCache(BehaviorOTE* classPointer, const uintptr_t argCount)
 {
 	HARDASSERT(argCount < 256);
 
@@ -421,7 +421,7 @@ Interpreter::MethodCacheEntry* __stdcall Interpreter::findNewMethodInClassNoCach
 #pragma code_seg(INTERP_SEG)
 
 // Translate args on stack to a message containing an array of arguments
-void __fastcall Interpreter::createActualMessage(const unsigned argCount)
+void __fastcall Interpreter::createActualMessage(const size_t argCount)
 {
 	MessageOTE* messagePointer = Message::NewUninitialized();
 	Message* message = messagePointer->m_location;
@@ -434,8 +434,8 @@ void __fastcall Interpreter::createActualMessage(const unsigned argCount)
 	Oop* const sp = m_registers.m_stackPointer - argCount + 1;
 
 	// Transfer the arguments off the stack to the array
-	const unsigned loopEnd = argCount;
-	for (unsigned i=0;i<loopEnd;i++)
+	const size_t loopEnd = argCount;
+	for (size_t i=0;i<loopEnd;i++)
 	{
 		Oop oopArg = sp[i];
 		ObjectMemory::countUp(oopArg);
@@ -449,7 +449,7 @@ void __fastcall Interpreter::createActualMessage(const unsigned argCount)
 
 #pragma code_seg(INTERP_SEG)
 
-Interpreter::MethodCacheEntry* __fastcall Interpreter::messageNotUnderstood(BehaviorOTE* classPointer, const unsigned argCount)
+Interpreter::MethodCacheEntry* __fastcall Interpreter::messageNotUnderstood(BehaviorOTE* classPointer, const uintptr_t argCount)
 {
 	#if defined(_DEBUG)
 	{
@@ -460,7 +460,7 @@ Interpreter::MethodCacheEntry* __fastcall Interpreter::messageNotUnderstood(Beha
 
 	// Check for recursive not understood error
 	if (m_oopMessageSelector == Pointers.DoesNotUnderstandSelector)
-		RaiseFatalError(IDP_RECURSIVEDNU, 2, reinterpret_cast<DWORD>(classPointer), reinterpret_cast<DWORD>(m_oopMessageSelector->m_location));
+		RaiseFatalError(IDP_RECURSIVEDNU, 2, reinterpret_cast<uintptr_t>(classPointer), reinterpret_cast<uintptr_t>(m_oopMessageSelector->m_location));
 
 	createActualMessage(argCount);
 	m_oopMessageSelector = Pointers.DoesNotUnderstandSelector;
@@ -470,7 +470,7 @@ Interpreter::MethodCacheEntry* __fastcall Interpreter::messageNotUnderstood(Beha
 
 #pragma code_seg(INTERP_SEG)
 
-ContextOTE* __fastcall Context::New(unsigned tempCount, Oop oopOuter)
+ContextOTE* __fastcall Context::New(size_t tempCount, Oop oopOuter)
 {
 	ContextOTE* newContext;
 
@@ -506,7 +506,7 @@ ContextOTE* __fastcall Context::New(unsigned tempCount, Oop oopOuter)
 	{
 		// Can allocate from pool of contexts
 
-		newContext = reinterpret_cast<ContextOTE*>(Interpreter::m_otePools[Interpreter::CONTEXTPOOL].newPointerObject(Pointers.ClassContext, 
+		newContext = reinterpret_cast<ContextOTE*>(Interpreter::m_otePools[(size_t)Interpreter::Pools::CONTEXTPOOL].newPointerObject(Pointers.ClassContext, 
 										FixedSize + MaxEnvironmentTemps, OTEFlags::ContextSpace));
 		pContext = newContext->m_location;
 
@@ -514,16 +514,16 @@ ContextOTE* __fastcall Context::New(unsigned tempCount, Oop oopOuter)
 		pContext->m_block = reinterpret_cast<BlockOTE*>(Pointers.Nil);
 
 		// Nil out the old frame up to the required number of temps
-		const unsigned loopEnd = tempCount;
-		for (unsigned i=0;i<loopEnd;i++)
+		const size_t loopEnd = tempCount;
+		for (size_t i=0;i<loopEnd;i++)
 			pContext->m_tempFrame[i] = nil;
 
-		newContext->setSize(SizeOfPointers(FixedSize+tempCount));
+		newContext->setSize(SizeOfPointers(tempCount + FixedSize));
 	}
 	else
 	{
 		// Too large for context pool, so allocate as if a normal object
-		newContext = reinterpret_cast<ContextOTE*>(ObjectMemory::newPointerObject(Pointers.ClassContext, FixedSize + tempCount));
+		newContext = reinterpret_cast<ContextOTE*>(ObjectMemory::newPointerObject(Pointers.ClassContext, tempCount + FixedSize));
 		pContext = newContext->m_location;
 	}
 
@@ -533,7 +533,7 @@ ContextOTE* __fastcall Context::New(unsigned tempCount, Oop oopOuter)
 	return newContext;
 }
 
-BlockOTE* __fastcall BlockClosure::New(unsigned copiedValuesCount)
+BlockOTE* __fastcall BlockClosure::New(size_t copiedValuesCount)
 {
 	BlockOTE* newBlock;
 	
@@ -541,7 +541,7 @@ BlockOTE* __fastcall BlockClosure::New(unsigned copiedValuesCount)
 	{
 		// Can allocate from pool of contexts
 
-		newBlock = reinterpret_cast<BlockOTE*>(Interpreter::m_otePools[Interpreter::BLOCKPOOL].newPointerObject(Pointers.ClassBlockClosure, 
+		newBlock = reinterpret_cast<BlockOTE*>(Interpreter::m_otePools[(size_t)Interpreter::Pools::BLOCKPOOL].newPointerObject(Pointers.ClassBlockClosure, 
 										FixedSize + MaxCopiedValues, OTEFlags::BlockSpace));
 		BlockClosure* pClosure = newBlock->m_location;
 

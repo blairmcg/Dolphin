@@ -19,7 +19,10 @@ Exports from the VM (mainly used by the image)
 // This little function allows us to make use of the powerful external
 // call type conversion facilities!
 //
-__declspec(naked) DWORD __stdcall AnswerDWORD(DWORD /*arg*/)
+
+#ifdef _M_IX86
+
+ __declspec(naked) DWORD __stdcall AnswerDWORD(DWORD /*arg*/)
 {
 	_asm
 	{
@@ -42,6 +45,21 @@ __declspec(naked) __int64 __stdcall AnswerQWORD(DWORD /*dw1*/, DWORD /*dw2*/)
 		ret		8
 	}
 }
+
+#else
+
+DWORD __stdcall AnswerDWORD(DWORD arg)
+{
+	return arg;
+}
+
+__int64 __stdcall AnswerQWORD(DWORD dw1, DWORD dw2)
+{
+	_LARGE_INTEGER li = { dw1, static_cast<LONG>(dw2) };
+	return li.QuadPart;
+}
+
+#endif
 
 // In this case we get better code generation if we do use a constructor, and
 // since this struct is >8 bytes long, the compiler only has one option about
@@ -124,7 +142,7 @@ extern "C" HANDLE __stdcall RegisterAsEventSource(const wchar_t* szSource)
 									(KEY_READ|KEY_WRITE)) == ERROR_SUCCESS)
 		{
 			wchar_t vmFileName[MAX_PATH+1];
-			::GetModuleFileNameW(_AtlBaseModule.GetModuleInstance(), vmFileName, sizeof(vmFileName) - 1);
+			::GetModuleFileNameW(_AtlBaseModule.GetModuleInstance(), vmFileName, _countof(vmFileName) - 1);
 			rkeyRegistered.SetStringValue(L"EventMessageFile", vmFileName);
 			rkeyRegistered.SetDWORDValue(L"TypesSupported", (EVENTLOG_SUCCESS|EVENTLOG_ERROR_TYPE|
 												EVENTLOG_WARNING_TYPE|EVENTLOG_INFORMATION_TYPE));
