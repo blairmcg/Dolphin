@@ -12246,6 +12246,7 @@ initialize
 				at: #text put: (self immutableCopyOfCollection: self txtTextStyles);
 				at: #smalltalk put: (self immutableCopyOfCollection: self smalltalkTextStyles);
 				at: #markdown put: (self immutableCopyOfCollection: self markdownTextStyles);
+				at: #yaml put: (self immutableCopyOfCollection: self yamlTextStyles);
 				shrink;
 				isImmutable: true;
 				yourself).
@@ -12744,7 +12745,76 @@ xmlTextStyles
 							g: 0
 							b: 102);
 				yourself).
-	^styles! !
+	^styles!
+
+yamlTextStyles
+	"Answer the default Markdown text style settings to be used for new instances of the receiver.
+	These are the styles used as the defaults for yaml files in Scite."
+
+	| commentFont baseFont textFont |
+	baseFont := Font name: 'Verdana' pointSize: 9.4.
+	commentFont := Font name: 'Georgia' pointSize: 10.1.
+	textFont := Font name: 'Times new Roman' pointSize: 11.
+	^self defaultTextStyles
+		add: ((ScintillaTextStyle name: #normal)
+					id: 0;
+					font: textFont;
+					forecolor: Color black;
+					yourself);
+		add: ((ScintillaTextStyle name: #comment)
+					id: 1;
+					font: commentFont;
+					forecolor: (Color fromHTMLSpec: '#008800');
+					yourself);
+		add: ((ScintillaTextStyle name: #identifier)
+					id: 2;
+					forecolor: (Color fromHTMLSpec: '#000088');
+					font: baseFont;
+					isBold: true;
+					yourself);
+		add: ((ScintillaTextStyle name: #keyword)
+					id: 3;
+					forecolor: (Color fromHTMLSpec: '880088');
+					font: baseFont;
+					yourself);
+		add: ((ScintillaTextStyle name: #number)
+					id: 4;
+					forecolor: (Color fromHTMLSpec: '#880000');
+					font: baseFont;
+					yourself);
+		add: ((ScintillaTextStyle name: #reference)
+					id: 5;
+					forecolor: (Color fromHTMLSpec: '#008888');
+					font: baseFont;
+					yourself);
+		add: ((ScintillaTextStyle name: #delimitingLine)
+					id: 6;
+					forecolor: Color white;
+					backcolor: (Color fromHTMLSpec: '#008888');
+					font: commentFont;
+					isBold: true;
+					isBackcolorExtendedToEndOfLine: true;
+					yourself);
+		add: ((ScintillaTextStyle name: #textBlock)
+					id: 7;
+					forecolor: (Color fromHTMLSpec: '#333366');
+					font: textFont;
+					yourself);
+		add: ((ScintillaTextStyle name: #syntaxError)
+					id: 8;
+					forecolor: Color white;
+					backcolor: Color red;
+					font: textFont;
+					isBold: true;
+					isItalic: true;
+					isBackcolorExtendedToEndOfLine: true;
+					yourself);
+		add: ((ScintillaTextStyle name: #operator)
+					id: 10;
+					forecolor: (Color fromHTMLSpec: '#518C34');
+					isBold: true;
+					yourself);
+		yourself! !
 !ScintillaView class categoriesFor: #annotationModes!constants!public! !
 !ScintillaView class categoriesFor: #autoCompletionSortModes!constants!private! !
 !ScintillaView class categoriesFor: #caretStyles!constants!public! !
@@ -12782,4 +12852,5 @@ xmlTextStyles
 !ScintillaView class categoriesFor: #winClassName!constants!private! !
 !ScintillaView class categoriesFor: #wrapIndentModes!constants!public! !
 !ScintillaView class categoriesFor: #xmlTextStyles!constants!public!style definition! !
+!ScintillaView class categoriesFor: #yamlTextStyles!constants!public!style definition! !
 
