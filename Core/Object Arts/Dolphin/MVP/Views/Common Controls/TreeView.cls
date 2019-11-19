@@ -49,14 +49,7 @@ addNonVirtualItems: aCollection insertStruct: aTVINSERTSTRUCT
 					tvItem
 						text: (getText value: each) displayString;
 						children: (self model hasChildren: each) asParameter.
-					getImage notNil
-						ifTrue: 
-							[(getImage value: each)
-								ifNotNil: 
-									[:index |
-									tvItem
-										image: index - 1;
-										selectedImage: index - 1]].
+					getImage notNil ifTrue: [(getImage value: each) ifNotNil: [:index | tvItem images: index - 1]].
 					hItem := UserLibrary default
 								sendMessageU: handle
 								msg: TVM_INSERTITEMW
@@ -175,14 +168,7 @@ basicRefresh: anObject handle: hItem
 				text: (self getTextBlock value: anObject) displayString;
 				children: (self model hasChildren: anObject) asParameter.
 			self getImageBlock
-				ifNotNil: 
-					[:getImage |
-					(getImage value: anObject)
-						ifNotNil: 
-							[:index |
-							tvItem
-								image: index - 1;
-								selectedImage: index - 1]]].
+				ifNotNil: [:getImage | (getImage value: anObject) ifNotNil: [:index | tvItem images: index - 1]]].
 	self tvmSetItem: tvItem!
 
 basicRefreshContents
@@ -660,7 +646,7 @@ onDestroyed
 	self newMaps.
 	^super onDestroyed!
 
-onDisplayDetailsRequired: aTVITEM 
+onDisplayDetailsRequired: aTVITEM
 	"Private - Get the display info for the requested <TVITEM>."
 
 	| object requestMask saveDetails |
@@ -669,21 +655,16 @@ onDisplayDetailsRequired: aTVITEM
 	object isNil ifTrue: [^0].
 	requestMask := aTVITEM mask.
 	saveDetails := tvFlags anyMask: UpdateModeMask.
-	((requestMask allMask: TVIF_IMAGE) and: [self hasIcons]) 
+	((requestMask allMask: TVIF_IMAGE) and: [self hasIcons])
 		ifTrue: 
-			[self getImageBlock ifNotNil: 
-					[:getImage | 
-					(getImage value: object) ifNotNil: 
-							[:index | 
-							aTVITEM
-								image: index - 1;
-								selectedImage: index - 1]]].
-	(requestMask allMask: TVIF_CHILDREN) 
+			[self getImageBlock
+				ifNotNil: [:getImage | (getImage value: object) ifNotNil: [:index | aTVITEM images: index - 1]]].
+	(requestMask allMask: TVIF_CHILDREN)
 		ifTrue: 
 			[aTVITEM children: (self model hasChildren: object) asParameter.
 			"If only requesting children details, tell it to not ask again, regardless of updateMode"
 			requestMask = TVIF_CHILDREN ifTrue: [saveDetails := true]].
-	(requestMask allMask: TVIF_TEXT) 
+	(requestMask allMask: TVIF_TEXT)
 		ifTrue: 
 			[aTVITEM textInBuffer: (self getTextBlock value: object) displayString.
 			"There appears to be a bug in the tree view such that if it asks for text in combination with

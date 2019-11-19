@@ -133,6 +133,14 @@ iImage: anInteger
 
 	bytes sdwordAtOffset: _OffsetOf_iImage put: anInteger!
 
+images: anInteger
+	"Set the normal and selected image to that corresponding to the specified index in the image list"
+
+	bytes
+		sdwordAtOffset: _OffsetOf_iImage put: anInteger;
+		sdwordAtOffset: _OffsetOf_iSelectedImage put: anInteger.
+	self maskIn: ##(TVIF_IMAGE | TVIF_SELECTEDIMAGE)!
+
 iSelectedImage
 	"Answer the <Integer> value of the receiver's 'iSelectedImage' field."
 
@@ -211,6 +219,7 @@ textPointerOffset
 !TVITEMW categoriesFor: #hItem:!**compiled accessors**!public! !
 !TVITEMW categoriesFor: #iImage!**compiled accessors**!public! !
 !TVITEMW categoriesFor: #iImage:!**compiled accessors**!public! !
+!TVITEMW categoriesFor: #images:!accessing!public! !
 !TVITEMW categoriesFor: #iSelectedImage!**compiled accessors**!public! !
 !TVITEMW categoriesFor: #iSelectedImage:!**compiled accessors**!public! !
 !TVITEMW categoriesFor: #isStateExpandedOnce!public!testing! !
