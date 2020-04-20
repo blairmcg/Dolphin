@@ -1,86 +1,80 @@
 ﻿| package |
 package := Package name: 'Dolphin MVP Tests'.
-package paxVersion: 1;
+package paxVersion: 2;
 	preDeclareClassesOnLoad: false;
 	basicComment: ''.
 
 
-package classNames
-	add: #AbstractContainerViewTest;
-	add: #AcceleratorTableTest;
-	add: #ARGBTest;
-	add: #BorderLayoutTest;
-	add: #BrushTest;
-	add: #CanvasTest;
-	add: #ChoicePresenterTest;
-	add: #ClipboardTest;
-	add: #ColorDialogTest;
-	add: #ColorTest;
-	add: #CommandDescriptionTest;
-	add: #ContainerViewTest;
-	add: #EvaluationConverterTest;
-	add: #FileDialogTest;
-	add: #FlowLayoutTest;
-	add: #FolderTest;
-	add: #FramingLayoutTest;
-	add: #GridLayoutTest;
-	add: #IconTest;
-	add: #LayoutManagerTest;
-	add: #LinkButtonTest;
-	add: #ListBoxTest;
-	add: #ListControlTest;
-	add: #ListPresenterTest;
-	add: #ListViewTest;
-	add: #MockScintillaView;
-	add: #MoenTreeViewTest;
-	add: #MoenTreeViewTest2;
-	add: #MultilineTextEditTest;
-	add: #MultipleSelectionListBoxTest;
-	add: #MultipleSelectionListViewTest;
-	add: #MultiSelectListBoxTest;
-	add: #MultiSelectListViewTest;
-	add: #Point3DTest;
-	add: #PointTest;
-	add: #PresenterTest;
-	add: #ProportionalLayoutTest;
-	add: #PushButtonTest;
-	add: #RadioButtonSetPresenterTest;
-	add: #RectangleTest;
-	add: #ReferenceViewTest;
-	add: #ResourceIdentifierTest;
-	add: #RichTextEditTest;
-	add: #ScintillaViewTest;
-	add: #ScrollingDecoratorTest;
-	add: #SelectableItemsTest;
-	add: #SelectableListItemsTest;
-	add: #SelectableTreeItemsTest;
-	add: #SingleSelectListBoxTest;
-	add: #SingleSelectListViewTest;
-	add: #SliderTest;
-	add: #StaticPathTest;
-	add: #StStyler;
-	add: #StyledContainerTest;
-	add: #TabViewTest;
-	add: #TextEditTest;
-	add: #TreePresenterTest;
-	add: #TreeViewTest;
-	add: #TypeConverterTest;
-	add: #ValueConverterTest;
-	add: #ViewTest;
-	add: #WindowsEventTest;
-	yourself.
+package setClassNames: #(
+	#{AbstractContainerViewTest}
+	#{AcceleratorTableTest}
+	#{ARGBTest}
+	#{BorderLayoutTest}
+	#{BrushTest}
+	#{CanvasTest}
+	#{ChoicePresenterTest}
+	#{ClipboardTest}
+	#{ColorDialogTest}
+	#{ColorTest}
+	#{CommandDescriptionTest}
+	#{ContainerViewTest}
+	#{EvaluationConverterTest}
+	#{FileDialogTest}
+	#{FlowLayoutTest}
+	#{FolderTest}
+	#{FramingLayoutTest}
+	#{GridLayoutTest}
+	#{IconTest}
+	#{LayoutManagerTest}
+	#{LinkButtonTest}
+	#{ListBoxTest}
+	#{ListControlTest}
+	#{ListPresenterTest}
+	#{ListViewTest}
+	#{MockScintillaView}
+	#{MoenTreeViewTest}
+	#{MoenTreeViewTest2}
+	#{MultilineTextEditTest}
+	#{MultipleSelectionListBoxTest}
+	#{MultipleSelectionListViewTest}
+	#{MultiSelectListBoxTest}
+	#{MultiSelectListViewTest}
+	#{Point3DTest}
+	#{PointTest}
+	#{PresenterTest}
+	#{ProportionalLayoutTest}
+	#{PushButtonTest}
+	#{RadioButtonSetPresenterTest}
+	#{RectangleTest}
+	#{ReferenceViewTest}
+	#{ResourceIdentifierTest}
+	#{RichTextEditTest}
+	#{ScintillaViewTest}
+	#{ScrollingDecoratorTest}
+	#{SelectableItemsTest}
+	#{SelectableListItemsTest}
+	#{SelectableTreeItemsTest}
+	#{SingleSelectListBoxTest}
+	#{SingleSelectListViewTest}
+	#{SliderTest}
+	#{StaticPathTest}
+	#{StStyler}
+	#{StyledContainerTest}
+	#{TabViewTest}
+	#{TextEditTest}
+	#{TreePresenterTest}
+	#{TreeViewTest}
+	#{TypeConverterTest}
+	#{ValueConverterTest}
+	#{ViewTest}
+	#{WindowsEventTest}
+).
 
-package methodNames
-	add: #STLFilerTest -> #testRectangleReadWrite;
-	add: #STLFilerTest -> #testResourceReadWrite;
-	add: #STLFilerTest -> #testShellReadWrite;
-	yourself.
-
-package binaryGlobalNames: (Set new
-	yourself).
-
-package globalAliases: (Set new
-	yourself).
+package setMethodNames: #(
+	#(#{STLFilerTest} #testRectangleReadWrite)
+	#(#{STLFilerTest} #testResourceReadWrite)
+	#(#{STLFilerTest} #testShellReadWrite)
+).
 
 package setPrerequisites: #(
 	'..\IDE\Base\Development System'
@@ -114,7 +108,8 @@ package setPrerequisites: #(
 	'Presenters\Tree\Dolphin Tree Presenter'
 	'Type Converters\Dolphin Type Converters'
 	'Models\Value\Dolphin Value Models'
-	'..\System\Compiler\Smalltalk Parser').
+	'..\System\Compiler\Smalltalk Parser'
+).
 
 package!
 
@@ -430,9 +425,6 @@ MultilineTextEditTest subclass: #ScintillaViewTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-
-"Global Aliases"!
-
 
 "Loose Methods"!
 

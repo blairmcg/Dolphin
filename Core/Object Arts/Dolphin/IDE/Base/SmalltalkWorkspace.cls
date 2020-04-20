@@ -184,7 +184,7 @@ classForToken: anAssociation
 	style == #literalPseudo
 		ifTrue: 
 			[| lookup |
-			lookup := ##((LookupTable new)
+			lookup := ##(LookupTable new
 						at: 'nil' put: nil class;
 						at: 'false' put: false class;
 						at: 'true' put: true class;
@@ -195,8 +195,13 @@ classForToken: anAssociation
 	style == #literalString ifTrue: [^String].
 	style == #literalSymbol ifTrue: [^Symbol].
 	style == #literalCharacter ifTrue: [^Character].
-	(style == #specialCharacter and: [(view characterAt: anAssociation key stop) == $]])
-		ifTrue: [^BlockClosure].
+	style == #literalBindingReference ifTrue: [^ContextualBindingReference].
+	style == #specialCharacter
+		ifTrue: 
+			[| ch |
+			ch := text last.
+			ch == $] ifTrue: [^BlockClosure].
+			ch == $} ifTrue: [^Array]].
 	style == #unaryMessage
 		ifTrue: 
 			[text = 'class'
@@ -303,7 +308,7 @@ compileRange: anInterval ifFail: failBlock debug: aBoolean
 	pools := self allPools.
 	result := compiler
 				compileForEvaluation: source
-				in: context basicClass
+				in: (context ifNotNil: [context basicClass])
 				evaluationPools: pools
 				flags: f]
 			on: compiler warningClass
@@ -887,13 +892,13 @@ maybeShowCompletionList
 		at: last
 		maxItems: self maxAutoCompletionListSize)
 			ifNil: 
-				["If a space is typed after certain identifiers e.g. an instance
+				[| char |
+				"If a space is typed after certain identifiers e.g. an instance
 				 variable in the debugger, or when certain special characters are
 				 typed, we can show a sensible auto-completion list."
-				| char |
 				char := view characterAt: last.
 				((char == $^ and: [styleName == #specialCharacter])
-					or: [char == $\x20and: [(view styleIdAt: last) = (view idOfStyleNamed: #whitespace)]])
+					or: [char == $\x20 and: [(view styleIdAt: last) = (view idOfStyleNamed: #whitespace)]])
 						ifTrue: 
 							[self showCompletionListAfterToken: (self tokenBefore: last) maxItems: self maxAutoCompletionListSize]]!
 
@@ -1315,7 +1320,7 @@ showCompletionListAfterToken: anAssociation maxItems: anInteger
 			[self showCompletionList: (self identifiersStartingWith: '' maxItems: anInteger) prefixLength: 0.
 			^self].
 	((#(#identifier #unaryMessage #literalString #literalNumber #literalCharacter #literalPseudo #literalSymbol) 
-		identityIncludes: styleName) or: [self isSpecialToken: anAssociation oneOf: '])']) 
+		identityIncludes: styleName) or: [self isSpecialToken: anAssociation oneOf: '])}']) 
 		ifTrue: 
 			[self showCompletionList: (self 
 						messagesForToken: anAssociation
@@ -1958,6 +1963,10 @@ defaultTextStyles
 		add: ((ScintillaTextStyle name: #literalBytes)
 					description: 'Literal byte arrays, e.g. #[0 1 2]';
 					forecolor: Color olive;
+					yourself);
+		add: ((ScintillaTextStyle name: #literalBindingReference)
+					description: 'Literal binding references, e.g. #{Object}';
+					isItalic: true;
 					yourself);
 		add: ((ScintillaTextStyle name: #assignment)
 					description: 'Assignment operation, i.e. :=';

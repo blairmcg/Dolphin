@@ -28,7 +28,7 @@ compilationWarningClass
 	^CompilerWarningNotification!
 
 compileExpression: aString 
-	^self compileExpression: aString in: UndefinedObject!
+	^self compileExpression: aString in: nil!
 
 compileExpression: aString in: class 
 	| result |
@@ -537,7 +537,7 @@ testIfNilifNotNilNoArg
 	self assertBlocksOptimized: compiled!
 
 testIfNilifNotNilNoArgUnused
-	| compiled expected actual |
+	| compiled |
 	compiled := self compileExpression: 'key ifNil: [value+3] ifNotNil: [value+2]. value'
 				in: Association.
 	self assert: (compiled method value: nil -> 4 withArguments: #()) equals: 4.
@@ -854,7 +854,7 @@ testLiteralArray
 	self assert: (Compiler evaluate: '#(- 1)') equals: (Array with: #- with: 1)!
 
 testLiteralStringEncoding
-	"The compiler should produce AnsiString instances for literals that are entirely Ascii, otherwise UTF-8."
+	"The compiler should now always produce Utf8String instances for literals, whether they are entirely Ascii or not."
 
 	{'abc' asAnsiString.
 		'1234' asAnsiString.
@@ -866,11 +866,11 @@ testLiteralStringEncoding
 				| actual array |
 				actual := Compiler evaluate: each printString.
 				self assert: actual equals: each.
-				self assert: actual isKindOf: each class.
+				self assert: actual isKindOf: Utf8String.
 				array := '#(' , each printString , ')'.
 				actual := (Compiler evaluate: array) first.
 				self assert: actual equals: each.
-				self assert: actual isKindOf: each class]!
+				self assert: actual isKindOf: Utf8String]!
 
 testNestedCopyingBlocks
 	| method value value2 |

@@ -52,6 +52,8 @@ package classNames
 	add: #StParseNodeVisitor;
 	add: #StPrimitiveNode;
 	add: #StProgramNode;
+	add: #StQualifiedReferenceNode;
+	add: #StQualifiedReferenceToken;
 	add: #StReturnNode;
 	add: #StSelfVariableNode;
 	add: #StSequenceNode;
@@ -240,6 +242,11 @@ StLiteralNode subclass: #StLiteralValueNode
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+StLiteralNode subclass: #StQualifiedReferenceNode
+	instanceVariableNames: 'pathString start stop'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 StToken subclass: #StAssignmentToken
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -252,6 +259,11 @@ StToken subclass: #StEofToken
 	classInstanceVariableNames: ''!
 StToken subclass: #StOptimizedToken
 	instanceVariableNames: 'stopPosition'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+StToken subclass: #StQualifiedReferenceToken
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

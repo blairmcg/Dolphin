@@ -936,7 +936,13 @@ Oop* __fastcall Interpreter::primitiveSetImmutable(Oop* const sp, primargcount_t
 
 		if (!ObjectMemoryIsIntegerObject(receiver))
 		{
-			reinterpret_cast<OTE*>(receiver)->beImmutable();
+			OTE* ote = reinterpret_cast<OTE*>(receiver);
+			*(sp - 1) = reinterpret_cast<Oop>(ote->isImmutable() ? Pointers.True : Pointers.False);
+			ote->beImmutable();
+		}
+		else
+		{
+			*(sp - 1) = reinterpret_cast<Oop>(Pointers.True);
 		}
 		return sp - 1;
 	}
@@ -947,7 +953,9 @@ Oop* __fastcall Interpreter::primitiveSetImmutable(Oop* const sp, primargcount_t
 		// Marking object as mutable - cannot do this for SmallIntegers as these are always immutable
 		if (!ObjectMemoryIsIntegerObject(receiver))
 		{
-			reinterpret_cast<OTE*>(receiver)->beMutable();
+			OTE* ote = reinterpret_cast<OTE*>(receiver);
+			*(sp - 1) = reinterpret_cast<Oop>(ote->isImmutable() ? Pointers.True : Pointers.False);
+			ote->beMutable();
 			return sp - 1;
 		}
 		else

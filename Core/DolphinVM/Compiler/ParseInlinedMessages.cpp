@@ -25,8 +25,8 @@ template bool Compiler::ParseWhileLoopBlock<false>(const ip_t, const TEXTRANGE&,
 ///////////////////////////////////////////////////////////////////////////////
 // When inlining code the compiler sometimes has to generate temporaries. It prefixes
 // these with a space so that the names cannot possibly clash with user defined temps
-static const uint8_t eachTempName[] = GENERATEDTEMPSTART "each";
-static const uint8_t valueTempName[] = GENERATEDTEMPSTART "value";
+static const char8_t eachTempName[] = GENERATEDTEMPSTART u8"each";
+static const char8_t valueTempName[] = GENERATEDTEMPSTART u8"value";
 
 ///////////////////////////////////////////////////////////////////////////////
 

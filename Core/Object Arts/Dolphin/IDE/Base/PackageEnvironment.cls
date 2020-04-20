@@ -13,7 +13,7 @@ Instance Variables:
 !PackageEnvironment categoriesForClass!Refactoring-Environment! !
 !PackageEnvironment methodsFor!
 
-classesDo: aBlock 
+classesDo: aBlock
 	"Note that the classes of the loose methods and the package's owned classes are non-overlapping sets, however since
 	we (potentially) have multiple packages we have to be careful not to enumerate classes more than once as a result
 	of them being both owned by a package in the environment, and having loose methods in another package in the
@@ -22,30 +22,30 @@ classesDo: aBlock
 	| seen |
 	seen := Set new: 20.
 	packages do: 
-			[:eachPackage | 
+			[:eachPackage |
 			eachPackage behaviorsDo: 
-					[:each | 
-					(environment includesClass: each) 
+					[:each |
+					(environment includesClass: each)
 						ifTrue: 
-							[seen add: each name.	"#1324"
+							[seen add: each fullyQualifiedReference.
 							aBlock value: each]].
 			eachPackage methodNames do: 
-					[:each | 
+					[:each |
 					| className |
-					className := each key.
-					(seen includes: className) 
+					className := each className.
+					(seen includes: className)
 						ifFalse: 
 							[| class |
-							class := (eachPackage behaviorFromName: className ifAbsent: []) instanceClass.
-							(class notNil and: [environment includesClass: class]) 
+							class := className valueOrNil ifNotNil: [:behavior | behavior instanceClass].
+							(class notNil and: [environment includesClass: class])
 								ifTrue: 
 									["Both class and metaclass must be in the environment, regardless of the where loose methods reside."
 									aBlock
 										value: class;
 										value: class class].
 							seen
-								add: class name;
-								add: class class name]]]!
+								add: className instance;
+								add: className meta]]]!
 
 defaultLabel
 	| stream |
@@ -55,17 +55,13 @@ defaultLabel
 	^stream contents!
 
 definesClass: aClass
-	^packages anySatisfy: [:each | each includesClass: aClass]!
+	^packages identityIncludes: aClass owningPackage!
 
-definesLooseMethodsInClass: aClass 
-	| class className metaclassName |
-	class := aClass instanceClass.
-	className := class name.
-	metaclassName := class class name.
-	^packages anySatisfy: 
-			[:eachPackage | 
-			eachPackage methodNames 
-				anySatisfy: [:each | each key == className or: [each key = metaclassName]]]!
+definesLooseMethodsInClass: aClass
+	| className |
+	className := aClass instanceClass fullyQualifiedReference.
+	^packages
+		anySatisfy: [:eachPackage | eachPackage methodNames anySatisfy: [:each | each className instance = className]]!
 
 includesClass: aClass 
 	^(super includesClass: aClass) 
@@ -115,13 +111,13 @@ selectorsForClass: aClass do: aBlock
 
 	"#1325: Must enumerate any loose methods, regardless of whether one of the packages in this
 	environment defines the class."
-	name := aClass name.
+	name := aClass fullyQualifiedReference.
 	packages do: 
 			[:eachPackage | 
 			eachPackage methodNames do: 
 					[:each | 
-					each key = name 
-						ifTrue: [(environment includesSelector: each value in: aClass) ifTrue: [aBlock value: each value]]]]!
+					each className = name 
+						ifTrue: [(environment includesSelector: each selector in: aClass) ifTrue: [aBlock value: each selector]]]]!
 
 storeOn: aStream
 	aStream nextPut: $(.

@@ -25,6 +25,11 @@ Object subclass: #Behavior
 	classVariableNames: '_BasicSpecMask _BytesSubMask _FundamentalShapeMask _IndirectMask _MournerMask _NonInstantiableMask _NullMethodDictionary _NullTermMask _PointersMask _ShapeMask _SizeMask _VariableMask'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+Object subclass: #BindingReference
+	instanceVariableNames: 'pathString path binding'
+	classVariableNames: 'Undeclared'
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 Object variableSubclass: #BlockClosure
 	instanceVariableNames: 'outer method initialIP info receiver'
 	classVariableNames: ''
@@ -205,6 +210,11 @@ Object subclass: #MessageSequenceAbstract
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+Object subclass: #MethodName
+	instanceVariableNames: 'className selector'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 Object subclass: #MethodProtocol
 	instanceVariableNames: 'name comment selectors flags'
 	classVariableNames: 'ANSIMask Protocols ReadOnlyMask StubAddedSignal'
@@ -231,12 +241,12 @@ Object subclass: #ObjectRegistry
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #Package
-	instanceVariableNames: 'name packagePathname comment classNames methodNames globalNames prerequisiteNames events scripts doNotReuse imageStripperBytes aboutBlock packageVersion manualPrerequisites timestamp untracedGlobals changeIndex properties preDeclareClassesOnLoad'
+	instanceVariableNames: 'name packagePathname comment classNames methodNames variableNames prerequisiteNames events scripts doNotReuse imageStripperBytes aboutBlock packageVersion manualPrerequisites timestamp untracedVariables changeIndex properties preDeclareClassesOnLoad'
 	classVariableNames: '_Uncommitted BinaryPacLoader ChangedIcon CheckTimestamps ClashSignal PreDeclareClassesOnLoad SourcePackageIcon UnsaveableSignal'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #PackageManager
-	instanceVariableNames: 'packages processEvents packagedGlobals looseMethods events defaultPackage basePackages'
+	instanceVariableNames: 'packages processEvents packagedVariables looseMethods events defaultPackage basePackages'
 	classVariableNames: 'Current DuplicatePackageSignal PackageNotFoundSignal PrerequisiteNotFoundSignal SystemPackage'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -328,6 +338,11 @@ Object subclass: #STBProxy
 Object subclass: #Stream
 	instanceVariableNames: ''
 	classVariableNames: 'EndOfStreamSignal'
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #UndeclaredVariable
+	instanceVariableNames: ''
+	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #UndefinedObject
@@ -517,6 +532,26 @@ ClassDescription subclass: #Class
 	classInstanceVariableNames: ''!
 ClassDescription subclass: #Metaclass
 	instanceVariableNames: 'instanceClass'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+BindingReference subclass: #AbsoluteBindingReference
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+BindingReference subclass: #ContextualBindingReference
+	instanceVariableNames: 'context'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+AbsoluteBindingReference subclass: #AbsoluteMetaBindingReference
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ContextualBindingReference subclass: #ContextualMetaBindingReference
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

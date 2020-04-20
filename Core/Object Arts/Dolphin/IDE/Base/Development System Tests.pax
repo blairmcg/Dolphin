@@ -1,37 +1,31 @@
 ﻿| package |
 package := Package name: 'Development System Tests'.
-package paxVersion: 1;
+package paxVersion: 2;
 	preDeclareClassesOnLoad: false;
 	basicComment: ''.
 
 
-package classNames
-	add: #AbstractParserErrorTest;
-	add: #CompiledMethodTest;
-	add: #CompilerErrorTest;
-	add: #CompilerTest;
-	add: #CompilerTestClasses;
-	add: #DolphinCompilerTestMethods;
-	add: #DolphinCompilerTestMethodsSubclass;
-	add: #KeyedAspectTest;
-	add: #PackageEnvironmentTest;
-	add: #PluggableEnvironmentTest;
-	add: #ProductReleaseTest;
-	add: #RegKeyTest;
-	add: #RewriteTestCase;
-	add: #SmalltalkParserErrorTest;
-	add: #SmalltalkParserTest;
-	add: #SmalltalkSystemTest;
-	add: #VersionResourceTest;
-	add: #VMTest;
-	add: #XMLDOMNodeTest;
-	yourself.
-
-package binaryGlobalNames: (Set new
-	yourself).
-
-package globalAliases: (Set new
-	yourself).
+package setClassNames: #(
+	#{AbstractParserErrorTest}
+	#{CompiledMethodTest}
+	#{CompilerErrorTest}
+	#{CompilerTest}
+	#{CompilerTestClasses}
+	#{DolphinCompilerTestMethods}
+	#{DolphinCompilerTestMethodsSubclass}
+	#{KeyedAspectTest}
+	#{PackageEnvironmentTest}
+	#{PluggableEnvironmentTest}
+	#{ProductReleaseTest}
+	#{RegKeyTest}
+	#{RewriteTestCase}
+	#{SmalltalkParserErrorTest}
+	#{SmalltalkParserTest}
+	#{SmalltalkSystemTest}
+	#{VersionResourceTest}
+	#{VMTest}
+	#{XMLDOMNodeTest}
+).
 
 package setPrerequisites: #(
 	'..\Community Edition\ActiveX Automation Development'
@@ -54,7 +48,8 @@ package setPrerequisites: #(
 	'..\..\..\..\Contributions\Refactory\Refactoring Browser\Tests\RBTests'
 	'..\..\System\Compiler\Smalltalk Parser'
 	'..\..\..\..\Contributions\Camp Smalltalk\SUnit\SUnit'
-	'..\..\ActiveX\Components\XML DOM\XML DOM').
+	'..\..\ActiveX\Components\XML DOM\XML DOM'
+).
 
 package!
 
@@ -76,7 +71,7 @@ TestCase subclass: #RewriteTestCase
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 DolphinTest subclass: #AbstractParserErrorTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'errors'
 	classVariableNames: ''
 	poolDictionaries: 'SmalltalkParseErrorCodes'
 	classInstanceVariableNames: ''!
@@ -155,11 +150,6 @@ DolphinTestClassResource subclass: #CompilerTestClasses
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-
-"Global Aliases"!
-
-
-"Loose Methods"!
 
 "End of package definition"!
 
