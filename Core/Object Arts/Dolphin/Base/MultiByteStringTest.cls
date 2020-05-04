@@ -93,15 +93,28 @@ testEncodeOnPut
 						self assert: stream atEnd.
 						self assert: actual equals: each]]!
 
+testIdentityIncludes
+	| subject pound dolphin foreign |
+	super testIdentityIncludes.
+	pound := Character value: 163.
+	dolphin := self collectionClass with: Character dolphin.
+	subject := 'a' , dolphin , 'b' , pound asString , 'c'.
+	{$a. Character dolphin. $\x1F42C. $b. pound. $c}
+		do: [:each | self assert: (subject identityIncludes: each)].
+	"Should include all the surrogates too"
+	dolphin do: [:each | self assert: (subject identityIncludes: each)].
+	foreign := self collectionClass == Utf8String
+				ifTrue: [dolphin asUtf16String]
+				ifFalse: [dolphin asUtf8String].
+	foreign do: [:each | self deny: (subject identityIncludes: each)]!
+
 testIncludes
 	| subject pound dolphin foreign |
 	super testIncludes.
 	pound := Character value: 163.
 	dolphin := self collectionClass with: Character dolphin.
 	subject := 'a' , dolphin , 'b' , pound asString , 'c'.
-	self assert: (subject includes: $b).
-	self assert: (subject includes: pound).
-	self assert: (subject includes: Character dolphin).
+	{$a. Character dolphin. $\x1F42C. $b. pound. $c} do: [:each | self assert: (subject includes: each)].
 	dolphin do: [:each | self assert: (subject includes: each)].
 	foreign := self collectionClass == Utf8String
 				ifTrue: [dolphin asUtf16String]
@@ -123,6 +136,7 @@ withAllTestCases
 !MultiByteStringTest categoriesFor: #testBeginsWith!public!unit tests! !
 !MultiByteStringTest categoriesFor: #testBeginsWithIgnoreCase!public!unit tests! !
 !MultiByteStringTest categoriesFor: #testEncodeOnPut!public!unit tests! !
+!MultiByteStringTest categoriesFor: #testIdentityIncludes!public!unit tests! !
 !MultiByteStringTest categoriesFor: #testIncludes!public!unit tests! !
 !MultiByteStringTest categoriesFor: #testReverseComposites!public!unit tests! !
 !MultiByteStringTest categoriesFor: #withAllTestCases!constants!private! !

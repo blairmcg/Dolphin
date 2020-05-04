@@ -593,7 +593,24 @@ hash
 	"FNV1a"
 	1 to: utf8 size do: [:i | hash := (hash bitXor: (utf8 basicAt: i)) * 16777619 bitAnd: 16rFFFFFFFF].
 	"Fold to 30 bits so is always positive SmallInteger"
-	^(hash bitShift: -30) bitXor: (hash bitAnd: 16r3FFFFFFF)!
+	^(hash bitShift: VMConstants.SmallIntegerMax highBit negated)
+		bitXor: (hash bitAnd: VMConstants.SmallIntegerMax)!
+
+identityIncludes: aCharacter
+	"Answer whether the <Character> argument is one of the elements of the receiver."
+
+	^(self
+		nextIdentityIndexOf: aCharacter
+		from: 1
+		to: self size) ~~ 0!
+
+includes: aCharacter
+	"Answer whether the <Character> argument is one of the elements of the receiver."
+
+	^(self
+		nextIndexOf: aCharacter
+		from: 1
+		to: self size) ~~ 0!
 
 indexOfAnyOf: aCollectionOfCharacters startingAt: anInteger 
 	"Answer the one-based integer index of the first encountered element of the receiver which
@@ -1226,6 +1243,8 @@ withNormalizedLineDelimiters
 !String categoriesFor: #formatWith:with:with:with:!printing!public! !
 !String categoriesFor: #formatWithArguments:!printing!public! !
 !String categoriesFor: #hash!comparing!public! !
+!String categoriesFor: #identityIncludes:!public!searching! !
+!String categoriesFor: #includes:!public!searching! !
 !String categoriesFor: #indexOfAnyOf:startingAt:!public!searching! !
 !String categoriesFor: #indexOfSubCollection:startingAt:!public!searching! !
 !String categoriesFor: #isLiteral!public!testing! !
