@@ -1,15 +1,23 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
-AbstractRectangleTest subclass: #RectangleTest
+Graphics.Tests.AbstractRectangleTest subclass: #'Graphics.Tests.RectangleTest'
 	instanceVariableNames: ''
 	classVariableNames: ''
-	poolDictionaries: ''
+	imports: #()
 	classInstanceVariableNames: ''
 	classConstants: {}!
-RectangleTest guid: (GUID fromString: '{aceafc61-24f9-482c-a8e7-0aff0e7fcc85}')!
-RectangleTest comment: ''!
-!RectangleTest categoriesForClass!Unclassified! !
-!RectangleTest methodsFor!
+Graphics.Tests.RectangleTest guid: (Core.GUID fromString: '{aceafc61-24f9-482c-a8e7-0aff0e7fcc85}')!
+Graphics.Tests.RectangleTest comment: ''!
+!Graphics.Tests.RectangleTest categoriesForClass!Unclassified! !
+!Graphics.Tests.RectangleTest methodsFor!
+
+setUp
+	"Note that desktop is always a fixed size to make writing the tests easier"
+	desktop := Rectangle origin: 0@0 corner: 1280@1024.
+
+	oddDesktop := Rectangle origin: 0@0 corner: 1279@1023.
+
+	unary := Rectangle origin: 0@0 extent: 1@1!
 
 subjectClass
 	^Rectangle!
@@ -36,6 +44,15 @@ testAreasOutside
 	self assert: ((100 @ 100 corner: 200 @ 200) areasOutside: (200 @ 200 corner: 400 @ 400))
 		equals: {100 @ 100 corner: 200 @ 200}!
 
+testCenter
+	self assert: desktop center equals: 640 @ 512.
+	self assert: oddDesktop center equals: 639 @ 511.
+	self assert: unary center equals: 0 @ 0!
+
+testCenterX
+	self assert: desktop centerX equals: 640.
+	self assert: oddDesktop centerX equals: 639!
+
 testInsetBy
 	self assert: (desktop insetBy: 1) equals: (1 @ 1 corner: 1279 @ 1023).
 	self assert: (desktop insetBy: 2) equals: (2 @ 2 corner: 1278 @ 1022).
@@ -44,7 +61,10 @@ testInsetBy
 	self assert: (desktop insetBy: 1 @ 2) equals: (1 @ 2 corner: 1279 @ 1022).
 	self assert: ((1 @ 2 corner: 3 @ 4) insetBy: (2 @ 0 corner: 0 @ 0)) equals: (3 @ 2 corner: 3 @ 4).
 	#todo	"Add more insetBy: <Rectangle> tests"! !
-!RectangleTest categoriesFor: #subjectClass!constants!private! !
-!RectangleTest categoriesFor: #testAreasOutside!public!unit tests! !
-!RectangleTest categoriesFor: #testInsetBy!public!unit tests! !
+!Graphics.Tests.RectangleTest categoriesFor: #setUp!public!Running! !
+!Graphics.Tests.RectangleTest categoriesFor: #subjectClass!constants!private! !
+!Graphics.Tests.RectangleTest categoriesFor: #testAreasOutside!public!unit tests! !
+!Graphics.Tests.RectangleTest categoriesFor: #testCenter!public!unit tests! !
+!Graphics.Tests.RectangleTest categoriesFor: #testCenterX!public!unit tests! !
+!Graphics.Tests.RectangleTest categoriesFor: #testInsetBy!public!unit tests! !
 
