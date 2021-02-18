@@ -6,6 +6,8 @@ package paxVersion: 2.1;
 
 package setVariableNames: #(
 	#{Smalltalk.InternetAddress}
+	#{Smalltalk.ServerSocket2}
+	#{Smalltalk.Socket2}
 	#{Smalltalk.SocketClosed}
 	#{Smalltalk.SocketError}
 	#{Smalltalk.SocketReadStream}
@@ -16,6 +18,8 @@ package setVariableNames: #(
 
 package setAliasVariableNames: #(
 	#{Smalltalk.InternetAddress}
+	#{Smalltalk.ServerSocket2}
+	#{Smalltalk.Socket2}
 	#{Smalltalk.SocketClosed}
 	#{Smalltalk.SocketError}
 	#{Smalltalk.SocketReadStream}
@@ -33,6 +37,10 @@ package!
 "Variable Aliases"!
 
 Smalltalk.InternetAddress := Net.InternetAddress!
+
+Smalltalk.ServerSocket2 := Net.ServerSocket!
+
+Smalltalk.Socket2 := Net.Socket!
 
 Smalltalk.SocketClosed := Net.SocketClosed!
 

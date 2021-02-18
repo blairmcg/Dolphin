@@ -46,7 +46,7 @@ acceptCalls
 	"Private - Monitor the port for a connection request. If the port is already in use then we'll
 	receive an error and can display an 'Unable to receive calls' status message."
 
-	acceptSocket := [Net.ServerSocket2 port: self incomingPort backlog: 0] on: Net.SocketError
+	acceptSocket := [Net.ServerSocket port: self incomingPort backlog: 0] on: Net.SocketError
 				do: [:ex | nil].
 	self setAcceptStatus.
 	acceptSocket isNil ifFalse: [self forkAccepter]!
@@ -105,7 +105,7 @@ connect
 	until some response is received from the connection request."
 
 	| sock |
-	sock := Net.Socket2 port: self outgoingPort address: self calleeAddress.
+	sock := Net.Socket port: self outgoingPort address: self calleeAddress.
 	self status: #connecting.
 	self invalidateUserInterface.
 	self forkConnector: sock!
