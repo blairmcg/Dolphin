@@ -504,8 +504,8 @@ modifyImportsOf: aClass
 	newImports fullPrintString = aClass imports fullPrintString
 		ifFalse: 
 			[| reason |
-			reason := 'Recompilation required to update imports of ' , aClass name , ' from :'
-						, aClass imports fullPrintString , ', to:'
+			reason := 'Recompilation required to update imports of ' , aClass name , ' from: '
+						, aClass imports fullPrintString , ', to: '
 						, newImports fullPrintString.
 			aClass imports: newImports.
 			self recompilationRequired: true reason: reason]!
