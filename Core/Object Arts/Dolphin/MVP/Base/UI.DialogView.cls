@@ -52,6 +52,22 @@ cancel
 
 	self destroy!
 
+centerInOwner: aView
+	"Private - Position the dialog so that it's client area is centered as closely as possible to the centre of the owner client area."
+
+	| position clientExtent workArea rect |
+	clientExtent := self clientExtent.
+	rect := self
+				calcRectangleFromClientRectangle: ((aView clientExtent - clientExtent) // 2 extent: clientExtent).
+	"We are assuming here that the creationParent will always be the DesktopView."
+	position := aView mapPointToScreen: rect origin.
+	"Ensure the dialog does not stray out of bounds, favouring keeping the top-left corner visible if it is too large"
+	workArea := SystemMetrics current virtualScreenRectangle.
+	position := (position min: workArea bottomRight - rect extent) max: workArea topLeft.
+	"Probably unnecessary, since the creationParent is always the desktop anyway, in which case this is a no-op"
+	position := creationParent mapScreenToClient: position.
+	self position: position!
+
 defaultBackcolor
 	"Private - Answer the default colour for the receiver's background"
 
@@ -214,9 +230,10 @@ onInitDialog
 	parent here"
 	UserLibrary default setParent: self asParameter hWndNewParent: creationParent asParameter.
 
-	"If the dialog does not have a caption, assume it is a property page in a tabbed dialog"
 	(self isPropertyPage and: [self isThemed])
-		ifTrue: [ThemeLibrary default enableThemeDialogTexture: self asParameter dwFlags: ETDT_ENABLETAB].
+		ifTrue: [
+			"Property pages in tabbed dialogs require a specific theme"
+			ThemeLibrary default enableThemeDialogTexture: self asParameter dwFlags: ETDT_ENABLETAB].
 
 	"Tell Windows NOT to set the focus. We set focus later after we have populated the dialog
 	(though subclasses loaded from a Windows dialog template resource may wish to return true
@@ -326,8 +343,7 @@ showModalTo: aView
 	(enableOwningView := owningView isEnabled) ifTrue: [owningView isEnabled: false].
 	
 	["Only now can we adjust the position of the dialog (if required)."
-	self isInitiallyCentered
-		ifTrue: [self position: (self centerExtent: self extent within: creationParent)].
+	self isInitiallyCentered ifTrue: [self centerInOwner: owningView].
 	self
 		layout;
 		show.
@@ -383,6 +399,7 @@ wmInitDialog: message wParam: wParam lParam: lParam
 !UI.DialogView categoriesFor: #answer:!accessing!not an aspect!public! !
 !UI.DialogView categoriesFor: #basicCreateAt:extent:!private!realizing/unrealizing! !
 !UI.DialogView categoriesFor: #cancel!commands!public! !
+!UI.DialogView categoriesFor: #centerInOwner:!geometry!private! !
 !UI.DialogView categoriesFor: #defaultBackcolor!colors!constants!private! !
 !UI.DialogView categoriesFor: #defaultWindowProcessing:wParam:lParam:!dispatching!private! !
 !UI.DialogView categoriesFor: #defaultWindowStyle!constants!private! !

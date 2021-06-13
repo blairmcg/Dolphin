@@ -37,6 +37,7 @@ package setClassNames: #(
 	#{UI.Tests.ColorDialogTest}
 	#{UI.Tests.CommandDescriptionTest}
 	#{UI.Tests.ContainerViewTest}
+	#{UI.Tests.DialogViewTest}
 	#{UI.Tests.DifferencesPresenterTest}
 	#{UI.Tests.DisplayMonitorTest}
 	#{UI.Tests.EvaluationConverterTest}
@@ -118,6 +119,7 @@ package setPrerequisites: #(
 	'..\System\Filer\Dolphin Literal Filer Tests'
 	'Metafiles\Dolphin Metafile Records'
 	'Views\MoenTree\Dolphin MoenTree View'
+	'Monitors\Dolphin Multiple Display Monitors'
 	'Base\Dolphin MVP Base'
 	'Presenters\Number\Dolphin Number Presenter'
 	'Views\Buttons\Dolphin Push Buttons'
@@ -220,6 +222,12 @@ Core.Tests.DolphinTest subclass: #'Graphics.Tests.ColorTest'
 	classConstants: {}!
 Core.Tests.DolphinTest subclass: #'UI.Tests.CommandDescriptionTest'
 	instanceVariableNames: 'savedKeyboardLayout'
+	classVariableNames: ''
+	imports: #()
+	classInstanceVariableNames: ''
+	classConstants: {}!
+Core.Tests.DolphinTest subclass: #'UI.Tests.DialogViewTest'
+	instanceVariableNames: 'owner'
 	classVariableNames: ''
 	imports: #()
 	classInstanceVariableNames: ''
