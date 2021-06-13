@@ -94,6 +94,7 @@ contents
 		add: #('Core\Object Arts\Dolphin\System\Random\Dolphin Random Stream.pax' #plain #imageBased);
 		add: #('Core\Object Arts\Dolphin\MVP\Base\Dolphin Basic Geometry.pax' #plain #imageBased);
 		add: #('Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base.pax' #plain #imageBased);
+		add: #('Core\Object Arts\Dolphin\MVP\Monitors\Dolphin Multiple Display Monitors.pax' #plain #imageBased);
 		add: #('Core\Object Arts\Dolphin\MVP\Dialogs\Common\Dolphin Common Dialogs.pax' #plain #imageBased);
 		add: #('Core\Object Arts\Dolphin\MVP\Dialogs\Common\Dolphin Common Print Dialog.pax' #plain #imageBased);
 		add: #('Core\Object Arts\Dolphin\MVP\Presenters\Text\Dolphin Text Presenter.pax' #plain #imageBased);

@@ -1,0 +1,180 @@
+﻿| package |
+package := Package name: 'Dolphin Multiple Display Monitors'.
+package paxVersion: 2.1;
+	basicComment: 'Dolphin Multiple Display Monitors support
+Copyright (c) Object Arts Ltd. 2021.'.
+
+
+package setClassNames: #(
+	#{OS.DISPLAY_DEVICEW}
+	#{OS.MONITORINFO}
+	#{OS.MONITORINFOEXW}
+	#{UI.DisplayMonitor}
+).
+
+package setMethodNames: #(
+	#(#{OS.SystemMetrics} #monitorCount)
+	#(#{OS.UserLibrary} #enumDisplayDevices:iDevNum:lpDisplayDevice:dwFlags:)
+	#(#{OS.UserLibrary} #enumDisplayMonitors:lprcClip:lpfnEnum:dwData:)
+	#(#{OS.UserLibrary} #getMonitorInfo:lpmi:)
+	#(#{OS.UserLibrary} #monitorFromPoint:dwFlags:)
+	#(#{OS.UserLibrary} #monitorFromRect:dwFlags:)
+	#(#{OS.UserLibrary} #monitorFromWindow:dwFlags:)
+	#(#{UI.View} #displayMonitor)
+).
+
+package setPrerequisites: #(
+	'..\..\Base\Dolphin'
+	'..\Base\Dolphin Basic Geometry'
+	'..\Base\Dolphin MVP Base'
+).
+
+package!
+
+"Class Definitions"!
+
+Core.Object subclass: #'UI.DisplayMonitor'
+	instanceVariableNames: 'handle info devices'
+	classVariableNames: ''
+	imports: #()
+	classInstanceVariableNames: ''
+	classConstants: {
+		'MONITOR_DEFAULTTONEAREST' -> 16r2.
+		'MONITOR_DEFAULTTONULL' -> 16r0.
+		'MONITOR_DEFAULTTOPRIMARY' -> 16r1
+	}!
+OS.Win32Structure subclass: #'OS.DISPLAY_DEVICEW'
+	instanceVariableNames: ''
+	classVariableNames: ''
+	imports: #()
+	classInstanceVariableNames: ''
+	classConstants: {
+		'_OffsetOf_DeviceID' -> 16r148.
+		'_OffsetOf_DeviceKey' -> 16r248.
+		'_OffsetOf_DeviceName' -> 16r4.
+		'_OffsetOf_DeviceString' -> 16r44.
+		'_OffsetOf_dwSize' -> 16r0.
+		'_OffsetOf_StateFlags' -> 16r144.
+		'DISPLAY_DEVICE_ATTACHED_TO_DESKTOP' -> 16r1.
+		'DISPLAY_DEVICE_MIRRORING_DRIVER' -> 16r8.
+		'DISPLAY_DEVICE_MULTI_DRIVER' -> 16r2.
+		'DISPLAY_DEVICE_PRIMARY_DEVICE' -> 16r4.
+		'DISPLAY_DEVICE_VGA_COMPATIBLE' -> 16r10
+	}!
+OS.Win32Structure subclass: #'OS.MONITORINFO'
+	instanceVariableNames: ''
+	classVariableNames: ''
+	imports: #()
+	classInstanceVariableNames: ''
+	classConstants: {
+		'_OffsetOf_dwFlags' -> 16r24.
+		'_OffsetOf_dwSize' -> 16r0.
+		'_OffsetOf_rcMonitor' -> 16r4.
+		'_OffsetOf_rcWork' -> 16r14.
+		'MONITORINFOF_PRIMARY' -> 16r1
+	}!
+OS.MONITORINFO subclass: #'OS.MONITORINFOEXW'
+	instanceVariableNames: ''
+	classVariableNames: ''
+	imports: #()
+	classInstanceVariableNames: ''
+	classConstants: {
+		'_OffsetOf_szDevice' -> 16r28
+	}!
+
+"Loose Methods"!
+
+!OS.SystemMetrics methodsFor!
+
+monitorCount
+	"Answer the number of monitors currently attached."
+
+	^self getMetric: SM_CMONITORS! !
+!OS.SystemMetrics categoriesFor: #monitorCount!accessing!public! !
+
+!OS.UserLibrary methodsFor!
+
+enumDisplayDevices: lpDevice iDevNum: iDevNum lpDisplayDevice: lpDisplayDevice dwFlags: dwFlags
+	"Invoke the EnumDisplayDevices() function of the module wrapped by the receiver.
+	Helpstring: Queries information about the display devices in the current session.
+
+		BOOL __stdcall EnumDisplayDevices(
+			[in]LPCWSTR lpDevice,
+			[in]DWORD iDevNum,
+			[in, out]DISPLAY_DEVICEW* lpDisplayDevice,
+			[in]DWORD dwFlags);"
+
+	<stdcall: bool EnumDisplayDevicesW lpwstr dword DISPLAY_DEVICEW* dword>
+	^self invalidCall: _failureCode!
+
+enumDisplayMonitors: hDC lprcClip: lprcClip lpfnEnum: lpfnEnum dwData: dwData
+	"Invoke the EnumDisplayMonitors() function of the module wrapped by the receiver.
+	Helpstring: Enumerates display monitors (including invisible pseudo-monitors associated with the mirroring drivers) that intersect a region formed by the intersection of a specified clipping rectangle and the visible region of a device context.
+
+		BOOL __stdcall EnumDisplayMonitors(
+			[in]wireHDC hDC,
+			[in]RECT* lprcClip,
+			[in]LPVOID lpfnEnum,
+			[in]LONG_PTR dwData);"
+
+	<stdcall: bool EnumDisplayMonitors handle RECTL* void* intptr>
+	^self invalidCall: _failureCode!
+
+getMonitorInfo: hmonitor lpmi: lpmi
+	"Invoke the GetMonitorInfo() function of the module wrapped by the receiver.
+	Helpstring: Retrieves a handle to the display monitor that has the largest area of intersection with the bounding rectangle of a specified window.
+
+		BOOL __stdcall GetMonitorInfo(
+			[in]HMONITOR HMONITOR,
+			[in, out]MONITORINFO* lpmi);"
+
+	<stdcall: bool GetMonitorInfoW handle MONITORINFO*>
+	^self invalidCall: _failureCode!
+
+monitorFromPoint: pt dwFlags: dwFlags
+	"Invoke the MonitorFromPoint() function of the module wrapped by the receiver.
+	Helpstring: Retrieves a handle to the display monitor that contains a specified point.
+
+		HMONITOR __stdcall MonitorFromPoint(
+			[in]POINTL pt,
+			[in]DWORD dwFlags);"
+
+	<stdcall: handle MonitorFromPoint POINTL dword>
+	^self invalidCall: _failureCode!
+
+monitorFromRect: lprc dwFlags: dwFlags
+	"Invoke the MonitorFromRect() function of the module wrapped by the receiver.
+	Helpstring: Retrieves a handle to the display monitor that has the largest area of intersection with a specified rectangle.
+
+		HMONITOR __stdcall MonitorFromRect(
+			[in]RECT* lprc,
+			[in]DWORD dwFlags);"
+
+	<stdcall: handle MonitorFromRect RECTL* dword>
+	^self invalidCall: _failureCode!
+
+monitorFromWindow: hwnd dwFlags: dwFlags
+	"Invoke the MonitorFromWindow() function of the module wrapped by the receiver.
+	Helpstring: Retrieves a handle to the display monitor that has the largest area of intersection with the bounding rectangle of a specified window.
+
+		HMONITOR __stdcall MonitorFromWindow(
+			[in]wireHWND hwnd,
+			[in]DWORD dwFlags);"
+
+	<stdcall: handle MonitorFromWindow handle dword>
+	^self invalidCall: _failureCode! !
+!OS.UserLibrary categoriesFor: #enumDisplayDevices:iDevNum:lpDisplayDevice:dwFlags:!**auto generated**!public! !
+!OS.UserLibrary categoriesFor: #enumDisplayMonitors:lprcClip:lpfnEnum:dwData:!**auto generated**!public!win32 functions-multiple display monitors! !
+!OS.UserLibrary categoriesFor: #getMonitorInfo:lpmi:!**auto generated**!public!win32 functions-multiple display monitors! !
+!OS.UserLibrary categoriesFor: #monitorFromPoint:dwFlags:!**auto generated**!public!win32 functions-multiple display monitors! !
+!OS.UserLibrary categoriesFor: #monitorFromRect:dwFlags:!**auto generated**!public!win32 functions-multiple display monitors! !
+!OS.UserLibrary categoriesFor: #monitorFromWindow:dwFlags:!**auto generated**!public!win32 functions-multiple display monitors! !
+
+!UI.View methodsFor!
+
+displayMonitor
+	^DisplayMonitor displayingView: self! !
+!UI.View categoriesFor: #displayMonitor!accessing!public! !
+
+"End of package definition"!
+
